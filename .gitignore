@@ -1,0 +1,11 @@
+###> symfony/framework-bundle ###
+.env
+/public/bundles/
+/var/
+/vendor/
+###> symfony/webpack-encore-pack ###
+/tools/node_modules/
+composer.lock
+package-lock.json
+
+/web/uploads/

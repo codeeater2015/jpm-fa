@@ -1,0 +1,91 @@
+<?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * FinancialAssistanceDailyClosingHdr
+ *
+ * @ORM\Table(name="tbl_fa_daily_closing_hdr")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\FinancialAssistanceDailyClosingHdrRepository")
+ * @UniqueEntity(fields={"closingDate"},message="This closing date already exists.", errorPath="closingDate")
+ */
+class FinancialAssistanceDailyClosingHdr
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="closing_date", type="string")
+     * @Assert\NotBlank()
+     */
+    private $closingDate;
+
+     /**
+     * @var float
+     *
+     * @ORM\Column(name="released_amt", type="float", scale=2)
+     */
+    private $releasedAmt;
+
+    /**
+     * @var float
+     *
+     * @ORM\Column(name="pending_amt", type="float", scale=2)
+     */
+    private $pendingAmt;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="total_released", type="integer")
+     */
+    private $totalReleased;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="total_pending", type="integer")
+     */
+    private $totalPending;
+    
+    /**
+     * @var datetime
+     *
+     * @ORM\Column(name="created_at", type="datetime")
+     */
+    private $createdAt;
+
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="created_by", type="string", length=150)
+     */
+    private $createdBy;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="remarks", type="string", length=255)
+     */
+    private $remarks;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", length=3)
+     */
+    private $status;
+}
+

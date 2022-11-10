@@ -69,32 +69,32 @@ doctrine:
                 password: "%database_password%"
                 charset:  UTF8
             
-            rescue:
-                driver:   pdo_mysql
-                host:     "%rescue_host%"
-                port:     "%rescue_port%"
-                dbname:   "%rescue_name%"
-                user:     "%rescue_user%"
-                password: "%rescue_password%"
-                charset:  UTF8
+#            rescue:
+#                driver:   pdo_mysql
+#                host:     "%rescue_host%"
+#                port:     "%rescue_port%"
+#                dbname:   "%rescue_name%"
+#                user:     "%rescue_user%"
+#                password: "%rescue_password%"
+#                charset:  UTF8
 
-            remote:
-                driver:   pdo_mysql
-                host:     "%remote_host%"
-                port:     "%remote_port%"
-                dbname:   "%remote_name%"
-                user:     "%remote_user%"
-                password: "%remote_password%"
-                charset:  UTF8
+#            remote:
+#                driver:   pdo_mysql
+#                host:     "%remote_host%"
+#                port:     "%remote_port%"
+#                dbname:   "%remote_name%"
+#                user:     "%remote_user%"
+#                password: "%remote_password%"
+#                charset:  UTF8
 
-            province:
-                driver:   pdo_mysql
-                host:     "%province_host%"
-                port:     "%province_port%"
-                dbname:   "%province_name%"
-                user:     "%province_user%"
-                password: "%province_password%"
-                charset:  UTF8
+#            province:
+#                driver:   pdo_mysql
+#                host:     "%province_host%"
+#                port:     "%province_port%"
+#                dbname:   "%province_name%"
+#                user:     "%province_user%"
+#                password: "%province_password%"
+#                charset:  UTF8
 
         # if using pdo_sqlite as your database driver:
         #   1. add the path in parameters.yml
@@ -111,18 +111,18 @@ doctrine:
                 connection: default
                 mappings:
                     AppBundle:  ~
-            rescue:
-                connection: rescue
-                mappings:
-                    AppBundle:  ~
-            remote:
-                connection: remote
-                mappings:
-                    AppBundle:  ~
-            province:
-                connection: province
-                mappings:
-                    AppBundle:  ~
+#            rescue:
+#                connection: rescue
+#                mappings:
+#                    AppBundle:  ~
+#            remote:
+#                connection: remote
+#                mappings:
+#                    AppBundle:  ~
+#            province:
+#                connection: province
+#                mappings:
+#                    AppBundle:  ~
 
 #    orm:
 #        auto_generate_proxy_classes: "%kernel.debug%"

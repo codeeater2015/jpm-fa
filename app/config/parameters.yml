@@ -4,25 +4,25 @@ parameters:
     database_host: localhost
     database_port: 3306
     database_name: voter_province_2021
-    database_user: root
+    database_user: jpm_admin
     database_password: kmmsitdadmin
-    rescue_host: 127.0.0.1
-    rescue_port: 3308
-    rescue_name: voter_province_2021
-    rescue_user: root
-    rescue_password: 
-    province_host: 127.0.0.1
-    province_port: 3308
-    province_name: voter_province_2021
-    province_user: root
-    province_password: 
-    remote_host: 119.93.144.107
-    remote_port: 3308
-    remote_name: voter_palawan_2022
-    remote_user : admin
-    remote_password : kmmsitdadmin
-    remote_datasource : CAPITOL_SERVER
-    remote_ip_address : 119.93.144.107:100
+#    rescue_host: 127.0.0.1
+#    rescue_port: 3308
+#    rescue_name: voter_province_2021
+#    rescue_user: root
+#    rescue_password: 
+#    province_host: 127.0.0.1
+#    province_port: 3308
+#    province_name: voter_province_2021
+#    province_user: root
+#    province_password: 
+#    remote_host: 119.93.144.107
+#    remote_port: 3308
+#    remote_name: voter_palawan_2022
+#    remote_user : admin
+#    remote_password : kmmsitdadmin
+#    remote_datasource : CAPITOL_SERVER
+#    remote_ip_address : 119.93.144.107:100
     mailer_transport: smtp
     mailer_host: 127.0.0.1
     mailer_user: null

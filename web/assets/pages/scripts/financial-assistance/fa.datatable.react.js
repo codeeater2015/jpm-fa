@@ -273,7 +273,7 @@ var FinancialAssistanceDatatable = React.createClass({
                         "width": 50,
                         "render": function (data, type, row) {
                             var editBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-green-dark edit-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-edit' ></i></a>";
-                            var releaseBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-green release-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-calendar'></i></a>";
+                            var releaseBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-green release-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-check-square-o'></i></a>";
                             var deleteBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-red-sunglo delete-button' data-toggle='tooltip' data-title='Delete'><i class='fa fa-trash' ></i></a>";
                             return editBtn + releaseBtn + deleteBtn;
                         }
@@ -304,13 +304,9 @@ var FinancialAssistanceDatatable = React.createClass({
         this.setState({ showEditModal: false, target: null });
     },
 
-  
-
     closeReleaseModal: function () {
         this.setState({ showReleaseModal: false, target: null });
     },
-
-   
 
     openCreateModal: function () {
         this.setState({ showCreateModal: true });

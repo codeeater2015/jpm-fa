@@ -4,7 +4,7 @@ var FinancialAssistanceComponent = React.createClass({
         return {
             showCreateModal: false,
             showClosingModal: false,
-            activeTable: "MONTHLY_SUMMARY_REPORT",
+            activeTable: "TRANSACTIONS",
             startDate: null,
             endDate: null,
         }

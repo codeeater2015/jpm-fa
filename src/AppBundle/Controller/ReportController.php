@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller 
 {
+
     /**
      * @Route("/organization_summary", name="organization_summary_report", options={"main" = true })
      */
@@ -298,5 +299,19 @@ class ReportController extends Controller
 
         return $this->render('template/reports/index.html.twig',['iframe_url' => $iframe_url]);
     }
-    
+ 
+     /**
+     * @Route("/financial-assistance-daily-summary-report", name="financial_assistance_daily_summary_report", options={"main" = true })
+     */
+
+    public function financialAssistanceDailySummaryReportAction(Request $request)
+    {
+        $link = $this->getParameter('report_fa_daily_summary');
+        $hostIp = $this->getParameter('host_ip');
+
+        $iframe_url = "http://" .  $hostIp . ":8080" . $link;
+
+        return $this->render('template/reports/index.html.twig',['iframe_url' => $iframe_url]);
+    }
+
 }

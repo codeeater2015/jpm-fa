@@ -1035,4 +1035,357 @@ class FinancialAssistanceController extends Controller
         return new JsonResponse(null,200);
     }
 
+      /**
+     * @Route("/ajax_get_datatable_financial_assistance_daily_summary_report", name="ajax_get_datatable_financial_assistance_daily_summary_report", options={"expose"=true})
+     * @Method("GET")
+     * @param Request $request
+     * @return JsonResponse
+     */
+	public function ajaxGetDatatableFinancialAssistanceDailySummaryReportAction(Request $request)
+	{	
+        $columns = array(
+            0 => "h.id",
+            1 => "h.closing_date",
+            2 => "h.total_released",
+            3 => "h.released_amt",
+            4 => "h.total_pending",
+            5 => "h.pending_amt",
+            6 => "h.created_by",
+            7 => "h.created_amt"
+        );
+
+        $sWhere = "";
+        $select = [];
+
+        $start_date = $request->get('startDate');
+        $end_date = $request->get('endDate');
+
+        foreach($select as $key => $value){
+            $searchValue = $select[$key];
+            if($searchValue != null || !empty($searchValue)) {
+                $sWhere .= " AND " . $key . " LIKE '%" . $searchValue . "%'";
+            }
+        }
+        
+        $sOrder = "";
+
+        if(null !== $request->query->get('order')){
+            $sOrder = "ORDER BY  ";
+            for ( $i=0 ; $i<intval(count($request->query->get('order'))); $i++ )
+            {
+                if ( $request->query->get('columns')[$request->query->get('order')[$i]['column']]['orderable'] )
+                {
+                    $selected_column = $columns[$request->query->get('order')[$i]['column']];
+                    $sOrder .= " ".$selected_column." ".
+                        ($request->query->get('order')[$i]['dir']==='asc' ? 'ASC' : 'DESC') .", ";
+                }
+            }
+
+            $sOrder = substr_replace( $sOrder, "", -2 );
+            if ( $sOrder == "ORDER BY" )
+            {
+                $sOrder = "";
+            }
+        }
+
+        $start = 1;
+        $length = 1;
+
+        if(null !== $request->query->get('start') && null !== $request->query->get('length')){
+            $start = intval($request->query->get('start'));
+            $length = intval($request->query->get('length'));
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->getConnection()->getConfiguration()->setSQLLogger(null);
+
+        $sql = "SELECT COALESCE(count(h.id),0) 
+                FROM tbl_fa_daily_closing_dtl d 
+                INNER JOIN tbl_fa_daily_closing_hdr h ON h.id = d.hdr_id 
+                INNER JOIN tbl_fa_hdr fa ON d.trn_id = fa.trn_id 
+                INNER JOIN tbl_fa_med_req fr ON fr.trn_id = fa.trn_id
+                WHERE h.closing_date >=  '{$start_date}'  AND h.closing_date <=  '{$end_date}'
+                GROUP BY h.id  ";
+
+        $stmt = $em->getConnection()->query($sql);
+        $recordsTotal = $stmt->fetchColumn();
+
+        $sql = "SELECT COALESCE(COUNT(h.id),0) FROM tbl_fa_daily_closing_dtl d 
+                INNER JOIN tbl_fa_daily_closing_hdr h ON h.id = d.hdr_id 
+                INNER JOIN tbl_fa_hdr fa ON d.trn_id = fa.trn_id 
+                INNER JOIN tbl_fa_med_req fr ON fr.trn_id = fa.trn_id
+                WHERE h.closing_date >=  {$start_date}  AND h.closing_date <=  {$end_date}  ";
+
+        $sql .= $sWhere . ' GROUP BY h.id ' . $sOrder  ;
+
+        $stmt = $em->getConnection()->query($sql);
+        $recordsFiltered = $stmt->fetchColumn();
+
+        $sql = "SELECT h.closing_date ,
+                SUM(fa.granted_amt) total_granted_amt, 
+                COALESCE(COUNT(CASE WHEN fr.is_dswd_medical = 1 THEN 1 END), 0) AS total_dswd_medical,
+                COALESCE(COUNT(CASE WHEN fr.is_dswd_opd = 1 THEN 1 END), 0) AS total_dswd_opd,
+                COALESCE(COUNT(CASE WHEN fr.is_doh_maip_medical = 1 THEN 1 END), 0) AS total_doh_maip_medical,
+                COALESCE(COUNT(CASE WHEN fr.is_doh_maip_opd = 1 THEN 1 END), 0) AS total_doh_maip_opd,
+                (SELECT COUNT(DISTINCT beneficiary_name) FROM tbl_fa_hdr ffa WHERE ffa.closed_date = h.closing_date ) AS total_beneficiary
+                FROM tbl_fa_daily_closing_dtl d 
+                INNER JOIN tbl_fa_daily_closing_hdr h ON h.id = d.hdr_id 
+                INNER JOIN tbl_fa_hdr fa ON d.trn_id = fa.trn_id 
+                INNER JOIN tbl_fa_med_req fr ON fr.trn_id = fa.trn_id
+                WHERE h.closing_date >=  '{$start_date}'  AND h.closing_date <=  '{$end_date}'   " . $sWhere . ' GROUP BY h.id ' . $sOrder . " LIMIT {$length} OFFSET {$start}";
+
+        $stmt = $em->getConnection()->query($sql);
+        $data = [];
+
+        while($row = $stmt->fetch(\PDO::FETCH_ASSOC)){
+            $data[] = $row;
+        }
+
+        $draw = (null !== $request->query->get('draw')) ? $request->query->get('draw') : 0;
+		$res['data'] =  $data;
+	    $res['recordsTotal'] = $recordsTotal;
+	    $res['recordsFiltered'] = $recordsFiltered;
+        $res['draw'] = $draw;
+
+	    return new JsonResponse($res);
+    }
+
+
+    /**
+     * @Route("/ajax_get_datatable_financial_assistance_municipality_summary_report", name="ajax_get_datatable_financial_assistance_municipality_summary_report", options={"expose"=true})
+     * @Method("GET")
+     * @param Request $request
+     * @return JsonResponse
+     */
+	public function ajaxGetDatatableFinancialAssistanceMunicipalitySummaryReportAction(Request $request)
+	{	
+        $columns = array(
+            0 => "h.id",
+            1 => "h.closing_date",
+            2 => "h.total_released",
+            3 => "h.released_amt",
+            4 => "h.total_pending",
+            5 => "h.pending_amt",
+            6 => "h.created_by",
+            7 => "h.created_amt"
+        );
+
+        $sWhere = "";
+        $select = [];
+
+        $start_date = $request->get('startDate');
+        $end_date = $request->get('endDate');
+
+        foreach($select as $key => $value){
+            $searchValue = $select[$key];
+            if($searchValue != null || !empty($searchValue)) {
+                $sWhere .= " AND " . $key . " LIKE '%" . $searchValue . "%'";
+            }
+        }
+        
+        $sOrder = "";
+
+        if(null !== $request->query->get('order')){
+            $sOrder = "ORDER BY  ";
+            for ( $i=0 ; $i<intval(count($request->query->get('order'))); $i++ )
+            {
+                if ( $request->query->get('columns')[$request->query->get('order')[$i]['column']]['orderable'] )
+                {
+                    $selected_column = $columns[$request->query->get('order')[$i]['column']];
+                    $sOrder .= " ".$selected_column." ".
+                        ($request->query->get('order')[$i]['dir']==='asc' ? 'ASC' : 'DESC') .", ";
+                }
+            }
+
+            $sOrder = substr_replace( $sOrder, "", -2 );
+            if ( $sOrder == "ORDER BY" )
+            {
+                $sOrder = "";
+            }
+        }
+
+        $start = 1;
+        $length = 1;
+
+        if(null !== $request->query->get('start') && null !== $request->query->get('length')){
+            $start = intval($request->query->get('start'));
+            $length = intval($request->query->get('length'));
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->getConnection()->getConfiguration()->setSQLLogger(null);
+
+        $sql = "SELECT COALESCE(count(h.id),0) 
+                FROM tbl_fa_daily_closing_dtl d 
+                INNER JOIN tbl_fa_daily_closing_hdr h ON h.id = d.hdr_id 
+                INNER JOIN tbl_fa_hdr fa ON d.trn_id = fa.trn_id 
+                INNER JOIN tbl_fa_med_req fr ON fr.trn_id = fa.trn_id
+                INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = fa.municipality_no 
+                WHERE h.closing_date >=  '{$start_date}'  AND h.closing_date <=  '{$end_date}'
+                GROUP BY h.id  ";
+
+        $stmt = $em->getConnection()->query($sql);
+        $recordsTotal = $stmt->fetchColumn();
+
+        $sql = "SELECT COALESCE(COUNT(h.id),0) 
+                FROM tbl_fa_daily_closing_dtl d 
+                INNER JOIN tbl_fa_daily_closing_hdr h ON h.id = d.hdr_id 
+                INNER JOIN tbl_fa_hdr fa ON d.trn_id = fa.trn_id 
+                INNER JOIN tbl_fa_med_req fr ON fr.trn_id = fa.trn_id
+                INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = fa.municipality_no 
+                WHERE h.closing_date >=  '{$start_date}'  AND h.closing_date <=  '{$end_date}'  ";
+
+        $sql .= $sWhere . ' GROUP BY m.name ' . $sOrder  ;
+
+        $stmt = $em->getConnection()->query($sql);
+        $recordsFiltered = $stmt->fetchColumn();
+
+        $sql = "SELECT h.closing_date ,
+                SUM(fa.granted_amt) total_granted_amt, 
+                COALESCE(COUNT(CASE WHEN fr.is_dswd_medical = 1 THEN 1 END), 0) AS total_dswd_medical,
+                COALESCE(COUNT(CASE WHEN fr.is_dswd_opd = 1 THEN 1 END), 0) AS total_dswd_opd,
+                COALESCE(COUNT(CASE WHEN fr.is_doh_maip_medical = 1 THEN 1 END), 0) AS total_doh_maip_medical,
+                COALESCE(COUNT(CASE WHEN fr.is_doh_maip_opd = 1 THEN 1 END), 0) AS total_doh_maip_opd,
+                (SELECT COUNT(DISTINCT beneficiary_name) FROM tbl_fa_hdr ffa WHERE ffa.closed_date >= '{$start_date}'  AND ffa.closed_date <=  '{$end_date}'    AND ffa.municipality_no = m.municipality_no ) AS total_beneficiary,
+                m.name AS municipality_name 
+                FROM tbl_fa_daily_closing_dtl d 
+                INNER JOIN tbl_fa_daily_closing_hdr h ON h.id = d.hdr_id 
+                INNER JOIN tbl_fa_hdr fa ON d.trn_id = fa.trn_id 
+                INNER JOIN tbl_fa_med_req fr ON fr.trn_id = fa.trn_id
+                INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = fa.municipality_no 
+                WHERE h.closing_date >=  '{$start_date}'  AND h.closing_date <=  '{$end_date}'   " . $sWhere . ' GROUP BY m.name ' . $sOrder . " LIMIT {$length} OFFSET {$start}";
+
+        $stmt = $em->getConnection()->query($sql);
+        $data = [];
+
+        while($row = $stmt->fetch(\PDO::FETCH_ASSOC)){
+            $data[] = $row;
+        }
+
+        $draw = (null !== $request->query->get('draw')) ? $request->query->get('draw') : 0;
+		$res['data'] =  $data;
+	    $res['recordsTotal'] = $recordsTotal;
+	    $res['recordsFiltered'] = $recordsFiltered;
+        $res['draw'] = $draw;
+
+	    return new JsonResponse($res);
+    }
+
+     /**
+     * @Route("/ajax_get_datatable_financial_assistance_monthly_summary_report", name="ajax_get_datatable_financial_assistance_monthly_summary_report", options={"expose"=true})
+     * @Method("GET")
+     * @param Request $request
+     * @return JsonResponse
+     */
+	public function ajaxGetDatatableFinancialAssistanceMonthlySummaryReportAction(Request $request)
+	{	
+        $columns = array(
+            0 => "h.id",
+            1 => "h.closing_date",
+            2 => "h.total_released",
+            3 => "h.released_amt",
+            4 => "h.total_pending",
+            5 => "h.pending_amt",
+            6 => "h.created_by",
+            7 => "h.created_amt"
+        );
+
+        $sWhere = "";
+        $select = [];
+
+        $start_date = $request->get('startDate');
+        $end_date = $request->get('endDate');
+
+        foreach($select as $key => $value){
+            $searchValue = $select[$key];
+            if($searchValue != null || !empty($searchValue)) {
+                $sWhere .= " AND " . $key . " LIKE '%" . $searchValue . "%'";
+            }
+        }
+        
+        $sOrder = "";
+
+        if(null !== $request->query->get('order')){
+            $sOrder = "ORDER BY  ";
+            for ( $i=0 ; $i<intval(count($request->query->get('order'))); $i++ )
+            {
+                if ( $request->query->get('columns')[$request->query->get('order')[$i]['column']]['orderable'] )
+                {
+                    $selected_column = $columns[$request->query->get('order')[$i]['column']];
+                    $sOrder .= " ".$selected_column." ".
+                        ($request->query->get('order')[$i]['dir']==='asc' ? 'ASC' : 'DESC') .", ";
+                }
+            }
+
+            $sOrder = substr_replace( $sOrder, "", -2 );
+            if ( $sOrder == "ORDER BY" )
+            {
+                $sOrder = "";
+            }
+        }
+
+        $start = 1;
+        $length = 1;
+
+        if(null !== $request->query->get('start') && null !== $request->query->get('length')){
+            $start = intval($request->query->get('start'));
+            $length = intval($request->query->get('length'));
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->getConnection()->getConfiguration()->setSQLLogger(null);
+
+        $sql = "SELECT COALESCE(count(h.id),0) 
+                FROM tbl_fa_daily_closing_dtl d 
+                INNER JOIN tbl_fa_daily_closing_hdr h ON h.id = d.hdr_id 
+                INNER JOIN tbl_fa_hdr fa ON d.trn_id = fa.trn_id 
+                INNER JOIN tbl_fa_med_req fr ON fr.trn_id = fa.trn_id 
+                WHERE h.closing_date >=  '{$start_date}'  AND h.closing_date <=  '{$end_date}'
+                GROUP BY YEAR(fa.closed_date), MONTH(fa.closed_date) ";
+
+        $stmt = $em->getConnection()->query($sql);
+        $recordsTotal = $stmt->fetchColumn();
+
+        $sql = "SELECT COALESCE(COUNT(h.id),0) 
+                FROM tbl_fa_daily_closing_dtl d 
+                INNER JOIN tbl_fa_daily_closing_hdr h ON h.id = d.hdr_id 
+                INNER JOIN tbl_fa_hdr fa ON d.trn_id = fa.trn_id 
+                INNER JOIN tbl_fa_med_req fr ON fr.trn_id = fa.trn_id 
+                WHERE h.closing_date >=  '{$start_date}'  AND h.closing_date <=  '{$end_date}'  ";
+
+        $sql .= $sWhere . ' GROUP BY YEAR(fa.closed_date), MONTH(fa.closed_date) ' . $sOrder  ;
+
+        $stmt = $em->getConnection()->query($sql);
+        $recordsFiltered = $stmt->fetchColumn();
+
+        $sql = "SELECT 
+                h.closing_date,
+                SUM(fa.granted_amt) total_granted_amt, 
+                MONTHNAME(fa.closed_date) as month_name, YEAR(fa.closed_date) as  year_name,
+                COALESCE(COUNT(CASE WHEN fr.is_dswd_medical = 1 THEN 1 END), 0) AS total_dswd_medical,
+                COALESCE(COUNT(CASE WHEN fr.is_dswd_opd = 1 THEN 1 END), 0) AS total_dswd_opd,
+                COALESCE(COUNT(CASE WHEN fr.is_doh_maip_medical = 1 THEN 1 END), 0) AS total_doh_maip_medical,
+                COALESCE(COUNT(CASE WHEN fr.is_doh_maip_opd = 1 THEN 1 END), 0) AS total_doh_maip_opd,
+                (SELECT COUNT(DISTINCT beneficiary_name) FROM tbl_fa_hdr ffa WHERE YEAR(ffa.closed_date) = YEAR(fa.closed_date) AND MONTH(ffa.closed_date) =  MONTH(fa.closed_date) ) AS total_beneficiary 
+                FROM tbl_fa_daily_closing_dtl d 
+                INNER JOIN tbl_fa_daily_closing_hdr h ON h.id = d.hdr_id 
+                INNER JOIN tbl_fa_hdr fa ON d.trn_id = fa.trn_id 
+                INNER JOIN tbl_fa_med_req fr ON fr.trn_id = fa.trn_id 
+                WHERE h.closing_date >=  '{$start_date}'  AND h.closing_date <=  '{$end_date}'   " . $sWhere . ' GROUP BY YEAR(fa.closed_date), MONTH(fa.closed_date) ' . $sOrder . " LIMIT {$length} OFFSET {$start}";
+
+        $stmt = $em->getConnection()->query($sql);
+        $data = [];
+
+        while($row = $stmt->fetch(\PDO::FETCH_ASSOC)){
+            $data[] = $row;
+        }
+
+        $draw = (null !== $request->query->get('draw')) ? $request->query->get('draw') : 0;
+		$res['data'] =  $data;
+	    $res['recordsTotal'] = $recordsTotal;
+	    $res['recordsFiltered'] = $recordsFiltered;
+        $res['draw'] = $draw;
+
+	    return new JsonResponse($res);
+    }
 }

@@ -3,9 +3,40 @@ var FinancialAssistanceComponent = React.createClass({
     getInitialState: function () {
         return {
             showCreateModal: false,
-            showClosingModal : false,
-            activeTable : "TRANSACTIONS"
+            showClosingModal: false,
+            activeTable: "MONTHLY_SUMMARY_REPORT",
+            startDate: null,
+            endDate: null,
         }
+    },
+
+    componentDidMount: function () {
+
+        var start = moment().subtract(29, 'days');
+        var end = moment();
+        var self = this;
+
+        $('#reportrange').daterangepicker({
+            startDate: start,
+            endDate: end,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'This Year': [moment().startOf('year'), moment().endOf('year')]
+            }
+        }, self.datetimeCallback);
+
+        self.datetimeCallback(start, end);
+    },
+
+    datetimeCallback: function (start, end) {
+        var self = this;
+        $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        self.setState({ startDate: start.format('YYYY-MM-DD'), endDate: end.format('YYYY-MM-DD') });
     },
 
     notify: function (message, color) {
@@ -20,13 +51,13 @@ var FinancialAssistanceComponent = React.createClass({
     },
 
     setActiveTable: function (e) {
-        this.setState({ activeTable :  e.target.value });
+        this.setState({ activeTable: e.target.value });
     },
 
     reload: function () {
-        if(this.state.activeTable == 'TRANSACTIONS'){
+        if (this.state.activeTable == 'TRANSACTIONS') {
             this.refs.transactionTable.reload();
-        }else if(this.state.activeTable == 'DAILY_SUMMARY'){
+        } else if (this.state.activeTable == 'DAILY_SUMMARY') {
             this.refs.summaryTable.reload();
         }
     },
@@ -42,56 +73,110 @@ var FinancialAssistanceComponent = React.createClass({
     closeCreateModal: function () {
         this.setState({ showCreateModal: false, target: null });
     },
-    
-    closeClosingModal : function(){
-        this.setState({ showClosingModal : false });
+
+    closeClosingModal: function () {
+        this.setState({ showClosingModal: false });
     },
 
     render: function () {
+        var self = this;
         return (
             <div className="portlet light portlet-fit bordered">
                 <div className="portlet-body">
 
-                {
-                    this.state.showCreateModal &&
-                    <FinancialAssistanceCreateModal
-                        proId={3}
-                        show={this.state.showCreateModal}
-                        notify={this.props.notify}
-                        reload={this.reload}
-                        onHide={this.closeCreateModal}
-                    />
-                }
+                    {
+                        this.state.showCreateModal &&
+                        <FinancialAssistanceCreateModal
+                            proId={3}
+                            show={this.state.showCreateModal}
+                            notify={this.props.notify}
+                            reload={this.reload}
+                            onHide={this.closeCreateModal}
+                        />
+                    }
 
-                {
-                    this.state.showClosingModal &&
-                    <FinancialAssistanceClosingModal
-                        proId={3}
-                        show={this.state.showClosingModal}
-                        notify={this.props.notify}
-                        reload={this.reload}
-                        onHide={this.closeClosingModal}
-                    />
-                }
+                    {
+                        this.state.showClosingModal &&
+                        <FinancialAssistanceClosingModal
+                            proId={3}
+                            show={this.state.showClosingModal}
+                            notify={this.props.notify}
+                            reload={this.reload}
+                            onHide={this.closeClosingModal}
+                        />
+                    }
 
 
                     <div className="row">
-                        <div className="col-md-10">
+                        <div className="col-md-7">
                             <button type="button" className="btn btn-primary" onClick={this.openCreateModal}>New Assistance</button>
                             <button type="button" className="btn btn-primary" style={{ marginLeft: "10px" }} onClick={this.openClosingModal}>Close Transactions</button>
+                        </div>
+                        <div className="col-md-3">
+
+                            <div id="reportrange" className="form-control" style={{
+                                background: "#fff",
+                                cursor: "pointer",
+                                padding: "5px 10px",
+                                border: "1px solid #ccc",
+                                width: "100%"
+                            }}>
+                                <i class="fa fa-calendar"></i>&nbsp;
+                                <span></span> <i class="fa fa-caret-down"></i>
+                            </div>
                         </div>
                         <div className="col-md-2">
                             <select className="form-control" onChange={this.setActiveTable} value={this.state.activeTable} name="activeTable">
                                 <option value="TRANSACTIONS">Transactions</option>
-                                <option value="DAILY_SUMMARY">Daily Summary</option>
+                                <option value="DAILY_SUMMARY">Daily Closing</option>
+                                <option value="DAILY_SUMMARY_REPORT">Daily Summary Report</option>
+                                <option value="MUNICIPALITY_SUMMARY_REPORT">Municipality Summary Report</option>
+                                <option value="MONTHLY_SUMMARY_REPORT">Monthly Summary Report</option>
                             </select>
                         </div>
                     </div>
 
-                   {
-                    this.state.activeTable == "TRANSACTIONS" ? 
-                    <FinancialAssistanceDatatable ref="transactionTable" notify={this.notify} /> : <FinancialAssistanceDailySummaryDatatable ref="summaryTable" notify={this.notify} />
-                   }
+                    {
+                        this.state.activeTable == "TRANSACTIONS" ?
+                            <FinancialAssistanceDatatable ref="transactionTable" notify={this.notify} /> : null
+                    }
+
+                    {
+                        this.state.activeTable == "DAILY_SUMMARY" ?
+                            <FinancialAssistanceDailySummaryDatatable ref="summaryTable" notify={this.notify} /> : null
+                    }
+
+                    {
+                        this.state.activeTable == "DAILY_SUMMARY_REPORT" ?
+                            <FinancialAssistanceDailySummaryReportDatatable
+                                startDate={self.state.startDate}
+                                endDate={self.state.endDate}
+                                ref="reportSummaryTable"
+                                notify={this.notify}
+                            /> : null
+                    }
+
+
+                    {
+                        this.state.activeTable == "MUNICIPALITY_SUMMARY_REPORT" ?
+                            <FinancialAssistanceMunicipalitySummaryReportDatatable
+                                startDate={self.state.startDate}
+                                endDate={self.state.endDate}
+                                ref="municipalitySummaryTable"
+                                notify={this.notify}
+                            /> : null
+                    }
+
+                    {
+                        this.state.activeTable == "MONTHLY_SUMMARY_REPORT" ?
+                            <FinancialAssistanceMonthlySummaryReportDatatable
+                                startDate={self.state.startDate}
+                                endDate={self.state.endDate}
+                                ref="monthlySummaryTable"
+                                notify={this.notify}
+                            /> : null
+                    }
+
 
                 </div>
             </div>

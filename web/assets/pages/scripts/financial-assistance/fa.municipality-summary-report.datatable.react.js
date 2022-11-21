@@ -236,7 +236,7 @@ var FinancialAssistanceMunicipalitySummaryReportDatatable = React.createClass({
                         <thead>
                             <tr>
                                 <th rowSpan="2" className="text-center">No</th>
-                                <th rowSpan="2" className="text-center">Date</th>
+                                <th rowSpan="2" className="text-center">Municipality</th>
                                 <th colSpan="3" className="text-center">DOH</th>
                                 <th colSpan="3" className="text-center">DSWD</th>
                                 <th rowSpan="2" className="text-center">TOTAL NO. OF BENEFICIARIES</th>

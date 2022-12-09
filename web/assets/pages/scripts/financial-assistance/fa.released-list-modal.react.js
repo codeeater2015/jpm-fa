@@ -22,7 +22,7 @@ var FinancialAssistanceReleasedListModal = React.createClass({
         return (
             <Modal style={{ marginTop: "10px" }} keyboard={false} dialogClassName="modal-custom-95" enforceFocus={false} backdrop="static" show={this.props.show} onHide={this.props.onHide}>
                 <Modal.Header className="modal-header bg-blue-dark font-white" closeButton>
-                    <Modal.Title>Closing Date Summary  : {this.state.header.closingDate}  </Modal.Title>
+                    <Modal.Title>Closing Date List of Transactions  : {this.state.header.closingDate}  </Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsClass="modal-body overflow-auto">
                     <FinancialDailySummaryDetailDatatable id = {this.props.id}/>

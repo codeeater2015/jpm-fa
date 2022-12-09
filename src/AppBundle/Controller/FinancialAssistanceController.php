@@ -1167,7 +1167,7 @@ class FinancialAssistanceController extends Controller
                 INNER JOIN tbl_fa_daily_closing_hdr h ON h.id = d.hdr_id 
                 INNER JOIN tbl_fa_hdr fa ON d.trn_id = fa.trn_id 
                 INNER JOIN tbl_fa_med_req fr ON fr.trn_id = fa.trn_id
-                WHERE h.closing_date >=  '{$start_date}'  AND h.closing_date <=  '{$end_date}'   " . $sWhere . ' GROUP BY h.id ' . ' ORDER BY h.closing_date DESC ' . " LIMIT {$length} OFFSET {$start}";
+                WHERE h.closing_date >=  '{$start_date}'  AND h.closing_date <=  '{$end_date}'   " . $sWhere . ' GROUP BY h.id ' . ' ORDER BY fa.beneficiary_name, ASC , h.closing_date ASC ' . " LIMIT {$length} OFFSET {$start}";
 
         $stmt = $em->getConnection()->query($sql);
         $data = [];
@@ -1406,7 +1406,7 @@ class FinancialAssistanceController extends Controller
                 INNER JOIN tbl_fa_med_req fr ON fr.trn_id = fa.trn_id
                 INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = fa.municipality_no 
                 INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = fa.barangay_no 
-                WHERE h.closing_date >=  '{$start_date}'  AND h.closing_date <=  '{$end_date}' AND m.name = '{$municipality_name}'  " . $sWhere . ' ORDER BY h.closing_date ' . " LIMIT {$length} OFFSET {$start}";
+                WHERE h.closing_date >=  '{$start_date}'  AND h.closing_date <=  '{$end_date}' AND m.name = '{$municipality_name}'  " . $sWhere . ' ORDER BY fa.beneficiary_name, ASC , h.closing_date ASC ' . " LIMIT {$length} OFFSET {$start}";
 
         $stmt = $em->getConnection()->query($sql);
         $data = [];

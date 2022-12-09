@@ -84,7 +84,7 @@ var FinancialAssistanceDailySummaryDatatable = React.createClass({
                         "className": "text-center",
                         "width": 100,
                         "render" : function(data){
-                            return self.numberWithCommas(data.toFixed(2));
+                            return self.numberWithCommas(data);
                         }
                     },
                     {
@@ -97,7 +97,7 @@ var FinancialAssistanceDailySummaryDatatable = React.createClass({
                         "className": "text-center",
                         "width": 100,
                         "render" : function(data){
-                            return self.numberWithCommas(data.toFixed(2));
+                            return self.numberWithCommas(data);
                         }
                     },
                     {

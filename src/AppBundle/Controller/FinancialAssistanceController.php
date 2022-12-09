@@ -1398,12 +1398,14 @@ class FinancialAssistanceController extends Controller
 
         $sql = "SELECT h.closing_date ,
                 fa.*,
-                m.name AS municipality_name
+                m.name AS municipality_name,
+                b.name AS barangay_name
                 FROM tbl_fa_daily_closing_dtl d 
                 INNER JOIN tbl_fa_daily_closing_hdr h ON h.id = d.hdr_id 
                 INNER JOIN tbl_fa_hdr fa ON d.trn_id = fa.trn_id 
                 INNER JOIN tbl_fa_med_req fr ON fr.trn_id = fa.trn_id
                 INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = fa.municipality_no 
+                INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = fa.barangay_no 
                 WHERE h.closing_date >=  '{$start_date}'  AND h.closing_date <=  '{$end_date}' AND m.name = '{$municipality_name}'  " . $sWhere . ' ORDER BY h.closing_date ' . " LIMIT {$length} OFFSET {$start}";
 
         $stmt = $em->getConnection()->query($sql);

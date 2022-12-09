@@ -143,7 +143,7 @@ var FinancialAssistanceMonthlySummaryReportDatatable = React.createClass({
                         "className": "text-center",
                         "width": 50,
                         "render" : function(data){
-                            return self.numberWithCommas(data);
+                            return self.numberWithCommas(parseFloat(data).toFixed(2));
                         }
                     },
                     {

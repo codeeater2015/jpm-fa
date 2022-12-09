@@ -1376,6 +1376,9 @@ gulp.task('compile-organization-target-summary',function(cb){
 gulp.task('compile-financial-assistance',function(cb){
     pump([
         gulp.src([
+            myPath + 'financial-assistance/fa.municipality-list.modal.react.js',
+            myPath + 'financial-assistance/fa.municipality-summary-report-detail.datatable.react.js',
+            myPath + 'financial-assistance/fa.daily-summary-report-detail.datatable.react.js',
             myPath + 'financial-assistance/fa.posting-modal.react.js',
             myPath + 'financial-assistance/fa.monthly-summary-report.datatable.react.js',
             myPath + 'financial-assistance/fa.municipality-summary-report.datatable.react.js',

@@ -151,7 +151,7 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                         "className": "text-center",
                         "width": 50,
                         "render" : function(data){
-                            return self.numberWithCommas(data);
+                            return self.numberWithCommas(parseFloat(data).toFixed(2));
                         }
                     },
                     {
@@ -161,7 +161,7 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                             var editBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-green-dark edit-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-edit' ></i></a>";
                             var releaseBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-green release-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-list-ol'></i></a>";
                             var deleteBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-red-sunglo delete-button' data-toggle='tooltip' data-title='Delete'><i class='fa fa-trash' ></i></a>";
-                            return  '';
+                            return releaseBtn;
                         }
                     }
                 ],

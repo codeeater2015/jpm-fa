@@ -143,7 +143,7 @@ var FinancialAssistanceMunicipalitySummaryReportDatatable = React.createClass({
                         "className": "text-center",
                         "width": 50,
                         "render" : function(data){
-                            return self.numberWithCommas(data);
+                            return self.numberWithCommas(parseFloat(data).toFixed(2));
                         }
                     },
                     {
@@ -153,7 +153,7 @@ var FinancialAssistanceMunicipalitySummaryReportDatatable = React.createClass({
                             var editBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-green-dark edit-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-edit' ></i></a>";
                             var releaseBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-green release-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-list-ol'></i></a>";
                             var deleteBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-red-sunglo delete-button' data-toggle='tooltip' data-title='Delete'><i class='fa fa-trash' ></i></a>";
-                            return  '';
+                            return  releaseBtn;
                         }
                     }
                 ],
@@ -163,7 +163,7 @@ var FinancialAssistanceMunicipalitySummaryReportDatatable = React.createClass({
 
         financial_assistance_daily_summary.on('click', '.release-button', function () {
             var data = grid_project_event.getDataTable().row($(this).parents('tr')).data();
-            self.setState({ showReleasedListModal: true, target: data.id });
+            self.setState({ showReleasedListModal: true, target: data.municipality_name });
         });
 
         financial_assistance_daily_summary.on('click', '.delete-button', function () {
@@ -221,12 +221,14 @@ var FinancialAssistanceMunicipalitySummaryReportDatatable = React.createClass({
 
                 {
                     this.state.showReleasedListModal &&
-                    <FinancialAssistanceReleasedListModal
+                    <FinancialAssistanceMunicipalityListModal
                         proId={3}
                         show={this.state.showReleasedListModal}
                         notify={this.props.notify}
                         reload={this.reload}
-                        id={this.state.target}
+                        municipalityName={this.state.target}
+                        startDate={this.props.startDate}
+                        endDate={this.props.endDate}
                         onHide={this.closeReleasedListModal}
                     />
                 }

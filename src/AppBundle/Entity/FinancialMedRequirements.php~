@@ -685,4 +685,100 @@ class FinancialMedRequirements
     {
         return $this->remarks;
     }
+
+    /**
+     * Set isDswdMedical
+     *
+     * @param integer $isDswdMedical
+     *
+     * @return FinancialMedRequirements
+     */
+    public function setIsDswdMedical($isDswdMedical)
+    {
+        $this->isDswdMedical = $isDswdMedical;
+
+        return $this;
+    }
+
+    /**
+     * Get isDswdMedical
+     *
+     * @return integer
+     */
+    public function getIsDswdMedical()
+    {
+        return $this->isDswdMedical;
+    }
+
+    /**
+     * Set isDswdOpd
+     *
+     * @param integer $isDswdOpd
+     *
+     * @return FinancialMedRequirements
+     */
+    public function setIsDswdOpd($isDswdOpd)
+    {
+        $this->isDswdOpd = $isDswdOpd;
+
+        return $this;
+    }
+
+    /**
+     * Get isDswdOpd
+     *
+     * @return integer
+     */
+    public function getIsDswdOpd()
+    {
+        return $this->isDswdOpd;
+    }
+
+    /**
+     * Set isDohMaipMedical
+     *
+     * @param integer $isDohMaipMedical
+     *
+     * @return FinancialMedRequirements
+     */
+    public function setIsDohMaipMedical($isDohMaipMedical)
+    {
+        $this->isDohMaipMedical = $isDohMaipMedical;
+
+        return $this;
+    }
+
+    /**
+     * Get isDohMaipMedical
+     *
+     * @return integer
+     */
+    public function getIsDohMaipMedical()
+    {
+        return $this->isDohMaipMedical;
+    }
+
+    /**
+     * Set isDohMaipOpd
+     *
+     * @param integer $isDohMaipOpd
+     *
+     * @return FinancialMedRequirements
+     */
+    public function setIsDohMaipOpd($isDohMaipOpd)
+    {
+        $this->isDohMaipOpd = $isDohMaipOpd;
+
+        return $this;
+    }
+
+    /**
+     * Get isDohMaipOpd
+     *
+     * @return integer
+     */
+    public function getIsDohMaipOpd()
+    {
+        return $this->isDohMaipOpd;
+    }
 }

@@ -4,6 +4,7 @@ var FinancialAssistanceComponent = React.createClass({
         return {
             showCreateModal: false,
             showClosingModal: false,
+            showPostingModal : false,
             activeTable: "TRANSACTIONS",
             startDate: null,
             endDate: null,
@@ -70,12 +71,21 @@ var FinancialAssistanceComponent = React.createClass({
         this.setState({ showClosingModal: true });
     },
 
+    openPostingModal: function () {
+        console.log("open posting modal");
+        this.setState({ showPostingModal: true });
+    },
+
     closeCreateModal: function () {
         this.setState({ showCreateModal: false, target: null });
     },
 
     closeClosingModal: function () {
         this.setState({ showClosingModal: false });
+    },
+
+    closePostingModal: function () {
+        this.setState({ showPostingModal: false });
     },
 
     render: function () {
@@ -106,11 +116,23 @@ var FinancialAssistanceComponent = React.createClass({
                         />
                     }
 
+{
+                        this.state.showPostingModal &&
+                        <FinancialAssistancePostingModal
+                            proId={3}
+                            show={this.state.showPostingModal}
+                            notify={this.props.notify}
+                            reload={this.reload}
+                            onHide={this.closePostingModal}
+                        />
+                    }
+
 
                     <div className="row">
                         <div className="col-md-7">
                             <button type="button" className="btn btn-primary" onClick={this.openCreateModal}>New Assistance</button>
                             <button type="button" className="btn btn-primary" style={{ marginLeft: "10px" }} onClick={this.openClosingModal}>Close Transactions</button>
+                            <button type="button" className="btn btn-primary" style={{ marginLeft: "10px" }} onClick={this.openPostingModal}>Post Transactions</button>
                         </div>
                         <div className="col-md-3">
 

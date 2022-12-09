@@ -920,6 +920,8 @@ class FinancialAssistanceController extends Controller
         foreach($transactions as $trnId){
             $trn = $em->getRepository('AppBundle:FinancialAssistanceHeader')
                           ->findOneBy(['trnId' => $trnId]);
+            $medReq =  $em->getRepository('AppBundle:FinancialMedRequirements')
+                          ->findOneBy(['trnId' => $trnId]);
 
             $dtl = new FinancialAssistanceDailyClosingDtl();
             $dtl->setHdrId($hdr->getId());
@@ -929,6 +931,38 @@ class FinancialAssistanceController extends Controller
             $dtl->setCreatedBy($user->getUsername());
             $dtl->setStatus('A');
 
+            $dtl->setMunicipalityNo($trn->getMunicipalityNo());
+            $dtl->setBarangayNo($trn->getBarangayNo());
+            $dtl->setApplicantName($trn->getApplicantName());
+            $dtl->setBeneficiaryName($trn->getBeneficiaryName());
+            $dtl->setJpmIdNo($trn->getJpmIdNo());
+            $dtl->setContactNo($trn->getContactNo());
+            $dtl->setTypeOfAsst($trn->getTypeOfAsst());
+            $dtl->setEndorsedBy($trn->getEndorsedBy());
+            $dtl->setHospitalName($trn->getHospitalName());
+            $dtl->setProjectedAmt($trn->getProjectedAmt());
+            $dtl->setGrantedAmt($trn->getGrantedAmt());
+            $dtl->setReceivedBy($trn->getReceivedBy());
+            $dtl->setReleaseDate($trn->getReleaseDate());
+            $dtl->setIsReleased($trn->getIsReleased());
+            $dtl->setReleasingOffice($trn->getReleasingOffice());
+            $dtl->setPersonnel($trn->getPersonnel());
+            $dtl->setApplicantProVoterId($trn->getApplicantProVoterId());
+            $dtl->setBeneficiaryProVoterId($trn->getBeneficiaryProVoterId());
+            $dtl->setClosedDate($hdr->getClosingDate());
+            $dtl->setIsClosed(1);
+
+            $dtl->setReqType($medReq->getReqType());
+            $dtl->setIsDswdMedical($medReq->getReqType());
+            $dtl->setIsDswdOpd($medReq->getReqType());
+            $dtl->setIsDohMaipMedical($medReq->getReqType());
+            $dtl->setIsDohMaipOpd($medReq->getReqType());
+
+            $dtl->setIsDswdMedical($medReq->getIsDswdMedical());
+            $dtl->setIsDswdOpd($medReq->getIsDswdOpd());
+            $dtl->setIsDohMaipMedical($medReq->getIsDohMaipMedical());
+            $dtl->setIsDohMaipOpd($medReq->getIsDohMaipOpd());
+        
             $trn->setIsClosed(1);
             $trn->setClosedDate($hdr->getClosingDate());
 
@@ -1388,4 +1422,206 @@ class FinancialAssistanceController extends Controller
 
 	    return new JsonResponse($res);
     }
+
+    /**
+     * @Route("/ajax_select2_fa_unposted_closed_dates",
+     *       name="ajax_select2_fa_unposted_closed_dates",
+     *       options={ "expose" = true }
+     * )f
+     * @Method("GET")
+     */
+
+    public function ajaxSelect2UnpostedClosedDates(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $searchText = trim(strtoupper($request->get('searchText')));
+        $searchText = '%' . strtoupper($searchText) . '%';
+
+        $sql = "SELECT h.id , h.closing_date , h.total_released FROM tbl_fa_daily_closing_hdr h WHERE h.is_posted <> 1 ORDER BY h.closing_date ASC LIMIT 30 ";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, $searchText);
+        $stmt->execute();
+
+        $data = $stmt->fetchAll();
+
+        if (count($data) <= 0) {
+            return new JsonResponse(array());
+        }
+
+        $em->clear();
+
+        return new JsonResponse($data);
+    }
+
+    /**
+    * @Route("/ajax_get_unposted_transactions/{hdrId}", 
+    *   name="ajax_get_unposted_transactions",
+    *   options={"expose" = true}
+    * )
+    * @Method("GET")
+    */
+
+    public function ajaxGetUnpostedTransactions(Request $request,$hdrId){
+        $em = $this->getDoctrine()->getManager();
+        
+        $sql = " SELECT d.*, m.name AS municipality_name, b.name AS barangay_name FROM tbl_fa_daily_closing_dtl d 
+                 INNER JOIN tbl_fa_daily_closing_hdr h 
+                 ON  d.hdr_id = h.id 
+                 INNER JOIN psw_municipality m 
+                 ON m.province_code = 53 AND m.municipality_no = d.municipality_no
+                 INNER JOIN psw_barangay b 
+                 ON b.municipality_code = m.municipality_code AND b.brgy_no = d.barangay_no  
+                 WHERE h.is_posted <> 1 AND h.id = ?  ";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1,$hdrId);
+        $stmt->execute();
+        
+        $data = array();
+        
+        while($row = $stmt->fetch(\PDO::FETCH_ASSOC)){
+            $data[] = $row;
+        }
+
+        $em->clear();
+
+        return new JsonResponse($data);
+    }
+    
+    /**
+    * @Route("/ajax_post_send_posted_transactions",
+    *     name="ajax_post_send_posted_transactions",
+    *     options={"expose" = true})
+    *
+    * @Method("POST")
+    */
+
+    public function postSendPostedTransactionsAction(Request $request){
+        
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        $hdr = new FinancialAssistanceDailyClosingHdr();
+        
+        $hdr->setClosingDate($request->get('closingDate'));
+        $hdr->setReleasedAmt(0);
+        $hdr->setPendingAmt(0);
+        $hdr->setTotalReleased(0);
+        $hdr->setTotalPending(0);
+        $hdr->setCreatedAt(new \DateTime());
+        $hdr->setCreatedBy($user->getUsername());
+        $hdr->setStatus('A');
+
+        $validator = $this->get('validator');
+        $violations = $validator->validate($hdr);
+
+        $errors = [];
+
+        if(count($violations) > 0){
+            foreach( $violations as $violation ){
+                $errors[$violation->getPropertyPath()] =  $violation->getMessage();
+            }
+            return new JsonResponse($errors,400);
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($hdr);
+        $em->flush();
+
+        $transactions = $request->get('profiles');
+
+        foreach($transactions as $trnId){
+            $trn = $em->getRepository('AppBundle:FinancialAssistanceHeader')
+                          ->findOneBy(['trnId' => $trnId]);
+            $medReq =  $em->getRepository('AppBundle:FinancialMedRequirements')
+                          ->findOneBy(['trnId' => $trnId]);
+
+            $dtl = new FinancialAssistanceDailyClosingDtl();
+            $dtl->setHdrId($hdr->getId());
+            $dtl->setTrnId($trn->getTrnId());
+            $dtl->setTrnNo($trn->getTrnNo());
+            $dtl->setCreatedAt(new \DateTime());
+            $dtl->setCreatedBy($user->getUsername());
+            $dtl->setStatus('A');
+
+            $dtl->setMunicipalityNo($trn->getMunicipalityNo());
+            $dtl->setBarangayNo($trn->getBarangayNo());
+            $dtl->setApplicantName($trn->getApplicantName());
+            $dtl->setBeneficiaryName($trn->getBeneficiaryName());
+            $dtl->setJpmIdNo($trn->getJpmIdNo());
+            $dtl->setContactNo($trn->getContactNo());
+            $dtl->setTypeOfAsst($trn->getTypeOfAsst());
+            $dtl->setEndorsedBy($trn->getEndorsedBy());
+            $dtl->setHospitalName($trn->getHospitalName());
+            $dtl->setProjectedAmt($trn->getProjectedAmt());
+            $dtl->setGrantedAmt($trn->getGrantedAmt());
+            $dtl->setReceivedBy($trn->getReceivedBy());
+            $dtl->setReleaseDate($trn->getReleaseDate());
+            $dtl->setIsReleased($trn->getIsReleased());
+            $dtl->setReleasingOffice($trn->getReleasingOffice());
+            $dtl->setPersonnel($trn->getPersonnel());
+            $dtl->setApplicantProVoterId($trn->getApplicantProVoterId());
+            $dtl->setBeneficiaryProVoterId($trn->getBeneficiaryProVoterId());
+            $dtl->setClosedDate($hdr->getClosingDate());
+            $dtl->setIsClosed(1);
+
+            $dtl->setReqType($medReq->getReqType());
+            $dtl->setIsDswdMedical($medReq->getReqType());
+            $dtl->setIsDswdOpd($medReq->getReqType());
+            $dtl->setIsDohMaipMedical($medReq->getReqType());
+            $dtl->setIsDohMaipOpd($medReq->getReqType());
+
+            $dtl->setIsDswdMedical($medReq->getIsDswdMedical());
+            $dtl->setIsDswdOpd($medReq->getIsDswdOpd());
+            $dtl->setIsDohMaipMedical($medReq->getIsDohMaipMedical());
+            $dtl->setIsDohMaipOpd($medReq->getIsDohMaipOpd());
+        
+            $trn->setIsClosed(1);
+            $trn->setClosedDate($hdr->getClosingDate());
+
+            $em->persist($dtl);
+            $em->flush();
+        }
+        
+
+        $sql = "SELECT COUNT(*) AS total_released_transaction FROM tbl_fa_hdr WHERE is_closed = 1 AND closed_date = ? ";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1,$hdr->getClosingDate());
+        $stmt->execute();
+        
+        $totalReleasedTransaction = $stmt->fetchColumn();
+
+        $sql = "SELECT SUM(granted_amt) AS  total_released_amt FROM tbl_fa_hdr WHERE is_closed = 1 AND closed_date = ? ";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1,$hdr->getClosingDate());
+        $stmt->execute();
+        
+        $totalReleasedAmt = $stmt->fetchColumn();
+
+
+        $sql = "SELECT COUNT(*) AS total_pending_transaction FROM tbl_fa_hdr WHERE (is_closed <> 1 OR is_closed = 0 ) AND (is_released = 0 OR is_released <> 1 ) ";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        
+        $totalPendingTransaction = $stmt->fetchColumn();
+
+
+        $sql = "SELECT COALESCE(SUM(projected_amt),0) AS total_pending_amt FROM tbl_fa_hdr WHERE (is_closed <> 1 OR is_closed = 0 ) AND (is_released = 0 OR is_released <> 1 )  ";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+        
+        $totalPendingAmt = $stmt->fetchColumn();
+
+        $hdr->setTotalReleased($totalReleasedTransaction);
+        $hdr->setReleasedAmt($totalReleasedAmt);
+        $hdr->setTotalPending($totalPendingTransaction);
+        $hdr->setPendingAmt($totalPendingAmt);
+        
+        $em->flush();
+        $em->clear();
+
+        $serializer = $this->get("serializer");
+
+        return new JsonResponse($serializer->normalize($hdr));
+    }
+    
 }

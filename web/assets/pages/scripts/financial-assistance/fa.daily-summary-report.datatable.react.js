@@ -11,6 +11,16 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                 electId: null,
                 provinceCode: null,
                 proId: null
+            },
+            overview : {
+                data : {
+                    total_granted_amt : 0,
+                    total_dswd_medical : 0,
+                    total_dswd_opd : 0,
+                    total_doh_maip_medical : 0,
+                    total_doh_maip_opd : 0,
+                    total_beneficiary : 0
+                }
             }
         }
     },
@@ -18,7 +28,7 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
     componentDidMount: function () {
         this.loadUser(window.userId);
         this.initDatatable();
-
+        this.loadOverview();
         console.log("parameters did changed");
         console.log(this.props.startDate);
         console.log(this.props.endDate);
@@ -26,7 +36,6 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
 
     componentDidUpdate:function(){
         this.reload();
-
         console.log("parameters did changed");
         console.log(this.props.startDate);
         console.log(this.props.endDate);
@@ -40,6 +49,18 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
             type: "GET"
         }).done(function (res) {
             self.setState({ user: res });
+        });
+    },
+
+    loadOverview: function () {
+        var self = this;
+        self.requestUser = $.ajax({
+            url: Routing.generate("ajax_get_financial_assistance_daily_summary_breakdown", { startDate: self.props.startDate, endDate : self.props.endDate }),
+            type: "GET"
+        }).done(function (res) {
+            console.log('overview');
+            console.log(res);
+            self.setState({ overview: res });
         });
     },
 
@@ -58,6 +79,7 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                 "bState": true,
                 "autoWidth": true,
                 "deferRender": true,
+                "pageLength": 100,
                 "ajax": {
                     "url": url,
                     "type": 'GET',
@@ -238,7 +260,11 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                         onHide={this.closeReleasedListModal}
                     />
                 }
-
+                <div className="row">
+                    <div className="col-md-12 text-right">
+                        <h3> Overall Amount Released : {this.numberWithCommas(self.parseFloat(this.state.overview.data.total_granted_amt).toFixed(2))}</h3>
+                    </div>
+                </div>    
                 <div className="table-container" style={{ marginTop: "20px" }}>
                     <table id="financial_assistance_daily_summary" className="table table-striped table-bordered" width="100%">
                         <thead>
@@ -258,6 +284,18 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                                 <th className="text-center">OPD</th>
                                 <th className="text-center">MEDICAL</th>
                                 <th className="text-center">TOTAL</th>
+                                <th width="50px"></th>
+                            </tr>
+                            <tr >
+                                <th className="text-center" colSpan="2">OVERALL TOTAL</th>
+                                <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_doh_maip_opd))}</th>
+                                <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_doh_maip_medical))}</th>
+                                <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_doh_maip_opd) +  self.parseFloat(this.state.overview.data.total_doh_maip_medical))}</th>
+                                <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_dswd_opd))}</th>
+                                <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_dswd_medical))}</th>
+                                <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_dswd_opd) +  self.parseFloat(this.state.overview.data.total_dswd_medical))}</th>
+                                <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_beneficiary))}</th>
+                                <th className="text-center"> {this.numberWithCommas(self.parseFloat(this.state.overview.data.total_granted_amt).toFixed(2))}</th>
                                 <th width="50px"></th>
                             </tr>
                         </thead>

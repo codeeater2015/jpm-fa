@@ -36,8 +36,16 @@ var FinancialAssistanceComponent = React.createClass({
 
     datetimeCallback: function (start, end) {
         var self = this;
+        var activeTable = self.state.activeTable;
+
         $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-        self.setState({ startDate: start.format('YYYY-MM-DD'), endDate: end.format('YYYY-MM-DD') });
+        
+
+        setTimeout(function(){
+            self.setState({ startDate: start.format('YYYY-MM-DD'), endDate: end.format('YYYY-MM-DD') , activeTable : activeTable },self.reload );
+        },1000);
+
+        self.setState({activeTable : null });
     },
 
     notify: function (message, color) {

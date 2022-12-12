@@ -104,7 +104,10 @@ var FinancialAssistanceMunicipalitySummaryReportDatatable = React.createClass({
                     {
                         "data": "municipality_name",
                         "width": 50,
-                        "className": "text-center"
+                        "className": "text-center",
+                        "render": function (data) {
+                            return "<a href='javascript:void(0);' class='release-button'><strong>" + data + '</strong></a>';
+                        }
                     },
                     {
                         "data": "total_doh_maip_opd",
@@ -158,6 +161,14 @@ var FinancialAssistanceMunicipalitySummaryReportDatatable = React.createClass({
                         "data": "total_beneficiary",
                         "className": "text-center",
                         "width": 100,
+                        "render": function (data, type, row) {
+                            return self.numberWithCommas(parseInt(row.total_dswd_opd) + parseInt(row.total_dswd_medical) + parseInt(row.total_doh_maip_opd) + parseInt(row.total_doh_maip_medical));
+                        }
+                    },
+                    {
+                        "data": "total_beneficiary",
+                        "className": "text-center",
+                        "width": 100,
                         "render" : function(data){
                             return self.numberWithCommas(data);
                         }
@@ -166,20 +177,11 @@ var FinancialAssistanceMunicipalitySummaryReportDatatable = React.createClass({
                         "data": "total_granted_amt",
                         "className": "text-center",
                         "width": 50,
-                        "render" : function(data){
-                            return self.numberWithCommas(parseFloat(data).toFixed(2));
-                        }
-                    },
-                    {
-                        "width": 30,
-                        "className": "text-center",
-                        "render": function (data, type, row) {
-                            var editBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-green-dark edit-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-edit' ></i></a>";
-                            var releaseBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-green release-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-list-ol'></i></a>";
-                            var deleteBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-red-sunglo delete-button' data-toggle='tooltip' data-title='Delete'><i class='fa fa-trash' ></i></a>";
-                            return  releaseBtn;
+                        "render": function (data) {
+                            return "<a href='javascript:void(0);' class='release-button'><strong>" + self.numberWithCommas(parseFloat(data).toFixed(2)) + '</strong></a>';
                         }
                     }
+                   
                 ],
             }
         });
@@ -267,11 +269,11 @@ var FinancialAssistanceMunicipalitySummaryReportDatatable = React.createClass({
                             <tr>
                                 <th rowSpan="2" className="text-center">No</th>
                                 <th rowSpan="2" className="text-center">Municipality</th>
-                                <th colSpan="3" className="text-center">DOH</th>
-                                <th colSpan="3" className="text-center">DSWD</th>
+                                <th colSpan="3" className="text-center">DOH transactions</th>
+                                <th colSpan="3" className="text-center">DSWD transactions</th>
+                                <th rowSpan="2" className="text-center">TOTAL transactions</th>
                                 <th rowSpan="2" className="text-center">TOTAL NO. OF BENEFICIARIES</th>
                                 <th rowSpan="2" className="text-center">TOTAL AMOUNT RELEASED</th>
-                                <th  width="50px"></th>
                             </tr>
                             <tr>
                                 <th className="text-center">OPD</th>
@@ -280,7 +282,6 @@ var FinancialAssistanceMunicipalitySummaryReportDatatable = React.createClass({
                                 <th className="text-center">OPD</th>
                                 <th className="text-center">MEDICAL</th>
                                 <th className="text-center">TOTAL</th>
-                                <th width="50px"></th>
                             </tr>
                             <tr >
                                 <th className="text-center" colSpan="2">OVERALL TOTAL</th>
@@ -290,14 +291,20 @@ var FinancialAssistanceMunicipalitySummaryReportDatatable = React.createClass({
                                 <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_dswd_opd))}</th>
                                 <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_dswd_medical))}</th>
                                 <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_dswd_opd) +  self.parseFloat(this.state.overview.data.total_dswd_medical))}</th>
+                                <th className="text-center">
+                                    {this.numberWithCommas(self.parseFloat(
+                                        this.state.overview.data.total_dswd_opd)
+                                        + self.parseFloat(this.state.overview.data.total_dswd_medical)
+                                        + self.parseFloat(this.state.overview.data.total_doh_maip_opd)
+                                        + self.parseFloat(this.state.overview.data.total_doh_maip_medical)
+                                    )}
+                                </th>
                                 <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_beneficiary))}</th>
                                 <th className="text-center"> {this.numberWithCommas(self.parseFloat(this.state.overview.data.total_granted_amt).toFixed(2))}</th>
-                                <th width="50px"></th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>

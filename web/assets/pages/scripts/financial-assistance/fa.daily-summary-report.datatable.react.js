@@ -12,14 +12,14 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                 provinceCode: null,
                 proId: null
             },
-            overview : {
-                data : {
-                    total_granted_amt : 0,
-                    total_dswd_medical : 0,
-                    total_dswd_opd : 0,
-                    total_doh_maip_medical : 0,
-                    total_doh_maip_opd : 0,
-                    total_beneficiary : 0
+            overview: {
+                data: {
+                    total_granted_amt: 0,
+                    total_dswd_medical: 0,
+                    total_dswd_opd: 0,
+                    total_doh_maip_medical: 0,
+                    total_doh_maip_opd: 0,
+                    total_beneficiary: 0
                 }
             }
         }
@@ -34,7 +34,7 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
         console.log(this.props.endDate);
     },
 
-    componentDidUpdate:function(){
+    componentDidUpdate: function () {
         this.reload();
         console.log("parameters did changed");
         console.log(this.props.startDate);
@@ -55,7 +55,7 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
     loadOverview: function () {
         var self = this;
         self.requestUser = $.ajax({
-            url: Routing.generate("ajax_get_financial_assistance_daily_summary_breakdown", { startDate: self.props.startDate, endDate : self.props.endDate }),
+            url: Routing.generate("ajax_get_financial_assistance_daily_summary_breakdown", { startDate: self.props.startDate, endDate: self.props.endDate }),
             type: "GET"
         }).done(function (res) {
             console.log('overview');
@@ -76,6 +76,16 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
             src: financial_assistance_daily_summary,
             loadingMessage: 'Loading...',
             "dataTable": {
+                buttons: [
+                    {
+                        extend: 'print',
+                        title: function () {
+                            var printTitle = 'Daily Summary Report';
+                            return printTitle
+                        }
+                    }
+                ],
+                dom: 'rtipl',
                 "bState": true,
                 "autoWidth": true,
                 "deferRender": true,
@@ -92,8 +102,8 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                     'orderable': false,
                     'targets': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
                 }, {
-                    'className': 'align-center',
-                    'targets': [0, 3]
+                    'className': 'text-center',
+                    'targets': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
                 }],
                 "order": [
                     [0, "desc"]
@@ -110,13 +120,16 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                     {
                         "data": "closing_date",
                         "width": 50,
-                        "className": "text-center"
+                        "className": "text-center",
+                        "render": function (data) {
+                            return "<a href='javascript:void(0);' class='release-button'><strong>" + data + '</strong></a>';
+                        }
                     },
                     {
                         "data": "total_doh_maip_opd",
                         "width": 50,
                         "className": "text-center",
-                        "render" : function(data){
+                        "render": function (data) {
                             return self.numberWithCommas(data);
                         }
                     },
@@ -124,7 +137,7 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                         "data": "total_doh_maip_medical",
                         "className": "text-center",
                         "width": 100,
-                        "render" : function(data){
+                        "render": function (data) {
                             return self.numberWithCommas(data);
                         }
                     },
@@ -132,7 +145,7 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                         "data": "total_doh_maip_medical",
                         "className": "text-center",
                         "width": 100,
-                        "render" : function(data,type,row){
+                        "render": function (data, type, row) {
                             return self.numberWithCommas(parseInt(row.total_doh_maip_opd) + parseInt(row.total_doh_maip_medical));
                         }
                     },
@@ -140,7 +153,7 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                         "data": "total_dswd_opd",
                         "className": "text-center",
                         "width": 50,
-                        "render" : function(data){
+                        "render": function (data) {
                             return self.numberWithCommas(data);
                         }
                     },
@@ -148,7 +161,7 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                         "data": "total_dswd_medical",
                         "className": "text-center",
                         "width": 100,
-                        "render" : function(data){
+                        "render": function (data) {
                             return self.numberWithCommas(data);
                         }
                     },
@@ -156,7 +169,7 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                         "data": "total_doh_maip_medical",
                         "className": "text-center",
                         "width": 100,
-                        "render" : function(data,type,row){
+                        "render": function (data, type, row) {
                             return self.numberWithCommas(parseInt(row.total_dswd_opd) + parseInt(row.total_dswd_medical));
                         }
                     },
@@ -164,7 +177,15 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                         "data": "total_beneficiary",
                         "className": "text-center",
                         "width": 100,
-                        "render" : function(data){
+                        "render": function (data, type, row) {
+                            return self.numberWithCommas(parseInt(row.total_dswd_opd) + parseInt(row.total_dswd_medical) + parseInt(row.total_doh_maip_opd) + parseInt(row.total_doh_maip_medical));
+                        }
+                    },
+                    {
+                        "data": "total_beneficiary",
+                        "className": "text-center",
+                        "width": 100,
+                        "render": function (data) {
                             return self.numberWithCommas(data);
                         }
                     },
@@ -172,18 +193,8 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                         "data": "total_granted_amt",
                         "className": "text-center",
                         "width": 50,
-                        "render" : function(data){
-                            return self.numberWithCommas(parseFloat(data).toFixed(2));
-                        }
-                    },
-                    {
-                        "width": 30,
-                        "className": "text-center",
-                        "render": function (data, type, row) {
-                            var editBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-green-dark edit-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-edit' ></i></a>";
-                            var releaseBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-green release-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-list-ol'></i></a>";
-                            var deleteBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-red-sunglo delete-button' data-toggle='tooltip' data-title='Delete'><i class='fa fa-trash' ></i></a>";
-                            return releaseBtn;
+                        "render": function (data) {
+                            return "<a href='javascript:void(0);' class='release-button'><strong>" + self.numberWithCommas(parseFloat(data).toFixed(2)) + '</strong></a>';
                         }
                     }
                 ],
@@ -245,6 +256,23 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
         return parts.join(".");
     },
 
+    printTable: function (divName) {
+        var printContents = document.getElementById(divName).innerHTML;
+        var originalContents = document.body.innerHTML;
+
+        console.log("printing table");
+
+        document.body.innerHTML = printContents;
+
+        window.print();
+
+        document.body.innerHTML = originalContents;
+    },
+
+    print: function () {
+        this.printTable("table_content");
+    },
+
     render: function () {
         return (
             <div>
@@ -262,20 +290,20 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                 }
                 <div className="row">
                     <div className="col-md-12 text-right">
-                        <h3> Overall Amount Released : {this.numberWithCommas(self.parseFloat(this.state.overview.data.total_granted_amt).toFixed(2))}</h3>
+                        <h3> Overall Amount Released :  {this.numberWithCommas(self.parseFloat(this.state.overview.data.total_granted_amt).toFixed(2))}</h3>
                     </div>
-                </div>    
-                <div className="table-container" style={{ marginTop: "20px" }}>
+                </div>
+                <div id="table_content" className="table-container" style={{ marginTop: "60px" }}>
                     <table id="financial_assistance_daily_summary" className="table table-striped table-bordered" width="100%">
                         <thead>
                             <tr>
                                 <th rowSpan="2" className="text-center">No</th>
                                 <th rowSpan="2" className="text-center">Date</th>
-                                <th colSpan="3" className="text-center">DOH</th>
-                                <th colSpan="3" className="text-center">DSWD</th>
+                                <th colSpan="3" className="text-center">DOH transactions</th>
+                                <th colSpan="3" className="text-center">DSWD transactions</th>
+                                <th rowSpan="2" className="text-center">TOTAL transactions</th>
                                 <th rowSpan="2" className="text-center">TOTAL NO. OF BENEFICIARIES</th>
                                 <th rowSpan="2" className="text-center">TOTAL AMOUNT RELEASED</th>
-                                <th  width="50px"></th>
                             </tr>
                             <tr>
                                 <th className="text-center">OPD</th>
@@ -284,22 +312,28 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
                                 <th className="text-center">OPD</th>
                                 <th className="text-center">MEDICAL</th>
                                 <th className="text-center">TOTAL</th>
-                                <th width="50px"></th>
                             </tr>
                             <tr >
                                 <th className="text-center" colSpan="2">OVERALL TOTAL</th>
                                 <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_doh_maip_opd))}</th>
                                 <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_doh_maip_medical))}</th>
-                                <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_doh_maip_opd) +  self.parseFloat(this.state.overview.data.total_doh_maip_medical))}</th>
+                                <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_doh_maip_opd) + self.parseFloat(this.state.overview.data.total_doh_maip_medical))}</th>
                                 <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_dswd_opd))}</th>
                                 <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_dswd_medical))}</th>
-                                <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_dswd_opd) +  self.parseFloat(this.state.overview.data.total_dswd_medical))}</th>
+                                <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_dswd_opd) + self.parseFloat(this.state.overview.data.total_dswd_medical))}</th>
+                                <th className="text-center">
+                                    {this.numberWithCommas(self.parseFloat(
+                                        this.state.overview.data.total_dswd_opd)
+                                        + self.parseFloat(this.state.overview.data.total_dswd_medical)
+                                        + self.parseFloat(this.state.overview.data.total_doh_maip_opd)
+                                        + self.parseFloat(this.state.overview.data.total_doh_maip_medical)
+                                    )}
+                                </th>
                                 <th className="text-center">{this.numberWithCommas(self.parseFloat(this.state.overview.data.total_beneficiary))}</th>
                                 <th className="text-center"> {this.numberWithCommas(self.parseFloat(this.state.overview.data.total_granted_amt).toFixed(2))}</th>
-                                <th width="50px"></th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody style={{ textAlign: "center" }}>
                             <tr>
                                 <td></td>
                                 <td></td>

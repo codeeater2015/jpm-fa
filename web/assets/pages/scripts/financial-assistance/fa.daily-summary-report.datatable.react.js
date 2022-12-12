@@ -77,15 +77,23 @@ var FinancialAssistanceDailySummaryReportDatatable = React.createClass({
             loadingMessage: 'Loading...',
             "dataTable": {
                 buttons: [
+                    'copy',
+                    {
+                        extend: 'excel',
+                        title: function () {
+                            var printTitle = 'DAILY SUMMARY REPORT';
+                            return printTitle
+                        }
+                    },
                     {
                         extend: 'print',
                         title: function () {
-                            var printTitle = 'Daily Summary Report';
+                            var printTitle = 'DAILY SUMMARY REPORT';
                             return printTitle
                         }
                     }
                 ],
-                dom: 'rtipl',
+                dom: 'Brtipl',
                 "bState": true,
                 "autoWidth": true,
                 "deferRender": true,

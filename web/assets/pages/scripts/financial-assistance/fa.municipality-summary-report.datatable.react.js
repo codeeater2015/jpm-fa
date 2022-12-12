@@ -74,6 +74,24 @@ var FinancialAssistanceMunicipalitySummaryReportDatatable = React.createClass({
                 "autoWidth": true,
                 "deferRender": true,
                 "pageLength": 100,
+                buttons: [
+                    'copy',
+                    {
+                        extend: 'excel',
+                        title: function () {
+                            var printTitle = 'MUNICIPALITY SUMMARY REPORT';
+                            return printTitle
+                        }
+                    },
+                    {
+                        extend: 'print',
+                        title: function () {
+                            var printTitle = 'MUNICIPALITY SUMMARY REPORT';
+                            return printTitle
+                        }
+                    }
+                ],
+                dom: 'Brtipl',
                 "ajax": {
                     "url": url,
                     "type": 'GET',
@@ -263,7 +281,7 @@ var FinancialAssistanceMunicipalitySummaryReportDatatable = React.createClass({
                         <h3> Overall Amount Released : {this.numberWithCommas(self.parseFloat(this.state.overview.data.total_granted_amt).toFixed(2))}</h3>
                     </div>
                 </div> 
-                <div className="table-container" style={{ marginTop: "20px" }}>
+                <div className="table-container" style={{ marginTop: "60px" }}>
                     <table id="financial_assistance_daily_summary" className="table table-striped table-bordered" width="100%">
                         <thead>
                             <tr>

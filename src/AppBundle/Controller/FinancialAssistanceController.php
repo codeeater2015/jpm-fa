@@ -11,8 +11,6 @@ use AppBundle\Entity\FinancialAssistanceHeader;
 use AppBundle\Entity\FinancialMedRequirements;
 use AppBundle\Entity\FinancialAssistanceDailyClosingHdr;
 use AppBundle\Entity\FinancialAssistanceDailyClosingDtl;
-use Knp\Bundle\SnappyBundle\Snappy\Response\JpegResponse;
-use Knp\Snappy\Image;
 /**
 * @Route("/fa")
 */
@@ -31,21 +29,6 @@ class FinancialAssistanceController extends Controller
         //$this->denyAccessUnlessGranted("entrance",self::MODULE_MAIN);
         $user = $this->get('security.token_storage')->getToken()->getUser();
         return $this->render('template/financial-assistance/index.html.twig',['user' => $user]);
-    }
-
-    /**
-    * @Route("/test", name="fa_test_index", options={"main" = true})
-    */
-
-    public function imageAction(Image $knpSnappyImage)
-    {
-        $user = $this->get('security.token_storage')->getToken()->getUser();
-        $html = $this->renderView('template/financial-assistance/index.html.twig',['user' => $user]);
-
-        return new JpegResponse(
-            $knpSnappyImage->getOutputFromHtml($html),
-            'image.jpg'
-        );
     }
 
      /**

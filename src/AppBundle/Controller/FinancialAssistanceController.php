@@ -11,7 +11,8 @@ use AppBundle\Entity\FinancialAssistanceHeader;
 use AppBundle\Entity\FinancialMedRequirements;
 use AppBundle\Entity\FinancialAssistanceDailyClosingHdr;
 use AppBundle\Entity\FinancialAssistanceDailyClosingDtl;
-
+use Knp\Bundle\SnappyBundle\Snappy\Response\JpegResponse;
+use Knp\Snappy\Image;
 /**
 * @Route("/fa")
 */
@@ -30,6 +31,21 @@ class FinancialAssistanceController extends Controller
         //$this->denyAccessUnlessGranted("entrance",self::MODULE_MAIN);
         $user = $this->get('security.token_storage')->getToken()->getUser();
         return $this->render('template/financial-assistance/index.html.twig',['user' => $user]);
+    }
+
+    /**
+    * @Route("/test", name="fa_test_index", options={"main" = true})
+    */
+
+    public function imageAction(Image $knpSnappyImage)
+    {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $html = $this->renderView('template/financial-assistance/index.html.twig',['user' => $user]);
+
+        return new JpegResponse(
+            $knpSnappyImage->getOutputFromHtml($html),
+            'image.jpg'
+        );
     }
 
      /**
@@ -601,13 +617,14 @@ class FinancialAssistanceController extends Controller
 	{	
         $columns = array(
             0 => "d.id",
-            1 => "hh.closing_date",
-            2 => "hh.total_released",
-            3 => "hh.released_amt",
-            4 => "hh.total_pending",
-            5 => "hh.pending_amt",
-            6 => "hh.created_by",
-            7 => "hh.created_amt"
+            1 => "fa.trn_no",
+            2 => "fa.trn_date",
+            3 => "fa.applicant_name",
+            4 => "fa.contact_no",
+            5 => "fa.beneficiary_name",
+            6 => "fa.endorsed_by",
+            7 => "m.name",
+            8 => "b.name"
         );
 
         $sWhere = "";
@@ -665,6 +682,8 @@ class FinancialAssistanceController extends Controller
         $sql = "SELECT COALESCE(COUNT(d.id),0) FROM tbl_fa_daily_closing_dtl d 
                 INNER JOIN tbl_fa_daily_closing_hdr hh ON hh.id = d.hdr_id
                 INNER JOIN tbl_fa_hdr fa ON fa.trn_id = d.trn_id 
+                INNER JOIN psw_municipality m ON province_code = 53 AND m.municipality_no = fa.municipality_no
+                INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = fa.barangay_no 
                 WHERE d.hdr_id = {$id} AND 1 ";
 
         $sql .= $sWhere . ' ' . $sOrder;

@@ -155,7 +155,7 @@ var FinancialDailySummaryDetailDatatable = React.createClass({
                         .text(res.proName))
                     .trigger("change");
 
-                
+
             });
         }
 
@@ -181,12 +181,12 @@ var FinancialDailySummaryDetailDatatable = React.createClass({
         var self = this;
         var grid = new Datatable();
 
-        var financial_assistance_released_table = $("#financial_assistance_released_table");
+        var financial_assistance_summary_detail_datatable = $("#financial_assistance_summary_detail_datatable");
         var grid_project_event = new Datatable();
         var url = Routing.generate("ajax_get_datatable_financial_assistance_daily_summary_detail", {}, true);
 
         grid_project_event.init({
-            src: financial_assistance_released_table,
+            src: financial_assistance_summary_detail_datatable,
             loadingMessage: 'Loading...',
             "dataTable": {
                 "bState": true,
@@ -197,11 +197,22 @@ var FinancialDailySummaryDetailDatatable = React.createClass({
                     "type": 'GET',
                     "data": function (d) {
                         d.id = self.props.id;
+
+                        console.log('get filter data');
+                        console.log( $('#financial_assistance_summary_detail_datatable input[name="trn_no"]').val())
+                        d.trnNo = $('#financial_assistance_summary_detail_datatable input[name="trn_no"]').val();
+                        d.trnDate = $('#financial_assistance_summary_detail_datatable input[name="trn_date"]').val();
+                        d.applicantName = $('#financial_assistance_summary_detail_datatable input[name="applicant_name"]').val();
+                        d.contactNo = $('#financial_assistance_summary_detail_datatable input[name="contact_no"]').val();
+                        d.beneficiaryName = $('#financial_assistance_summary_detail_datatable input[name="beneficiary_name"]').val();
+                        d.endorsedBy = $('#financial_assistance_summary_detail_datatable input[name="endorsed_by"]').val();
+                        d.municipalityName = $('#financial_assistance_summary_detail_datatable input[name="municipality_name"]').val();
+                        d.barangayName = $('#financial_assistance_summary_detail_datatable input[name="barangay_name"]').val();
                     }
                 },
                 "columnDefs": [{
                     'orderable': false,
-                    'targets': [0, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+                    'targets': [0, 9, 10]
                 }, {
                     'className': 'align-center',
                     'targets': [0, 3]
@@ -262,13 +273,13 @@ var FinancialDailySummaryDetailDatatable = React.createClass({
                         "data": "granted_amt",
                         "className": "text-center",
                         "width": 50,
-                        "render" : function(data){
+                        "render": function (data) {
                             return self.numberWithCommas(data);
                         }
                     },
                     {
                         "width": 50,
-                        "className" : "text-center",
+                        "className": "text-center",
                         "render": function (data, type, row) {
                             var editBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-green-dark edit-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-edit' ></i></a>";
                             var releaseBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-green release-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-calendar'></i></a>";
@@ -280,17 +291,17 @@ var FinancialDailySummaryDetailDatatable = React.createClass({
             }
         });
 
-        financial_assistance_released_table.on('click', '.edit-button', function () {
+        financial_assistance_summary_detail_datatable.on('click', '.edit-button', function () {
             var data = grid_project_event.getDataTable().row($(this).parents('tr')).data();
             self.setState({ showEditModal: true, target: data.trn_id });
         });
 
-        financial_assistance_released_table.on('click', '.release-button', function () {
+        financial_assistance_summary_detail_datatable.on('click', '.release-button', function () {
             var data = grid_project_event.getDataTable().row($(this).parents('tr')).data();
             self.setState({ showReleaseModal: true, target: data.trn_id });
         });
 
-        financial_assistance_released_table.on('click', '.delete-button', function () {
+        financial_assistance_summary_detail_datatable.on('click', '.delete-button', function () {
             var data = grid_project_event.getDataTable().row($(this).parents('tr')).data();
             self.delete(data.dtl_id);
         });
@@ -358,7 +369,7 @@ var FinancialDailySummaryDetailDatatable = React.createClass({
 
         return (
             <div>
-               
+
 
                 {
                     this.state.showReleaseModal &&
@@ -398,7 +409,7 @@ var FinancialDailySummaryDetailDatatable = React.createClass({
                 </div>
 
                 <div className="table-container" style={{ marginTop: "20px" }}>
-                    <table id="financial_assistance_released_table" className="table table-striped table-bordered" width="100%">
+                    <table id="financial_assistance_summary_detail_datatable" className="table table-striped table-bordered" width="100%">
                         <thead>
                             <tr>
                                 <th>No</th>

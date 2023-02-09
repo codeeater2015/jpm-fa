@@ -48,10 +48,11 @@ var TupadCreateModal = React.createClass({
                     <form id="fa-form" >
                         <div className="row">
                             <div className="col-md-12">
+                                
                                 <div className="row">
                                     <div className="col-md-6">
                                         <FormGroup controlId="formMunicipalityNo" validationState={this.getValidationState('municipalityNo')}>
-                                            <ControlLabel> Municipality Filter : </ControlLabel>
+                                            <ControlLabel> Municipality (filter sa pag search) : </ControlLabel>
                                             <select id="municipality_select2" className="form-control form-filter input-md" name="municipalityNo">
                                             </select>
                                             <HelpBlock>{this.getError('municipalityNo')}</HelpBlock>
@@ -59,7 +60,7 @@ var TupadCreateModal = React.createClass({
                                     </div>
                                     <div className="col-md-6">
                                         <FormGroup controlId="formBarangayNo" validationState={this.getValidationState('barangayNo')}>
-                                            <ControlLabel> Barangay Filter : </ControlLabel>
+                                            <ControlLabel> Barangay (based sa listahan) : </ControlLabel>
                                             <select id="barangay_select2" className="form-control form-filter input-md" name="barangayNo">
                                             </select>
                                             <HelpBlock>{this.getError('barangayNo')}</HelpBlock>
@@ -148,7 +149,7 @@ var TupadCreateModal = React.createClass({
                 processResults: function (data, params) {
                     return {
                         results: data.map(function (item) {
-                            return { id: item.brgy_no, text: item.name };
+                            return { id: item.name, text: item.name };
                         })
                     };
                 },
@@ -193,7 +194,7 @@ var TupadCreateModal = React.createClass({
         });
 
         $("#fa-form #barangay_select2").on("change", function () {
-            self.setFormPropValue('barangayNo', $(this).val());
+            self.setFormPropValue('sourceBarangay', $(this).val());
         });
 
         $("#fa-form #voter_select2").on("change", function () {
@@ -229,7 +230,7 @@ var TupadCreateModal = React.createClass({
             form.data.proIdCode = res.proIdCode;
             form.data.generatedIdNo = res.generatedIdNo;
             form.data.sourceMunicipality = self.props.municipalityName;
-            form.data.sourceBarangay = self.props.barangayName;
+            form.data.sourceBarangay = form.data.sourceBarangay == "" ? self.props.barangayName : form.data.sourceBarangay;
             form.data.bMunicipality = res.municipalityName;
             form.data.bBarangay = res.barangayName;
             form.data.bExtname = res.extname;

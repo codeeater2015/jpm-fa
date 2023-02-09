@@ -10,6 +10,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * @Route("/mobi")
@@ -3367,5 +3368,519 @@ class MobileController extends Controller
 
         return new JsonResponse($barangays);
     }
+
+      /**
+     * @Route("/ajax_get_fa_transactions", name="ajax_get_fa_transactions", options={"expose"=true})
+     * @Method("GET")
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function ajaxGetDatatableFinancialAssistanceAction(Request $request)
+    {
+        $columns = array(
+            0 => "h.trn_id",
+            1 => "h.trn_no",
+            2 => "h.trn_date",
+            3 => "h.applicant_name",
+            4 => "h.beneficiary_name",
+            5 => "h.endorsed_by",
+            6 => "h.municipality_no",
+            7 => "h.barangay_no"
+        );
+
+        $sWhere = "";
+
+        $select['h.trn_no'] = $request->get('trnNo');
+        $select['h.trn_date'] = $request->get('trnDate');
+        $select['h.applicant_name'] = $request->get('applicantName');
+        $select['h.beneficiary_name'] = $request->get('beneficiaryName');
+        $select['h.endorsed_by'] = $request->get('endorsedBy');
+        $select['h.municipality_no'] = $request->get('municipalityNo');
+        $select['h.barangay_no'] = $request->get('barangayNo');
+        $select['m.name'] = $request->get('municipalityName');
+        $select['b.name'] = $request->get('barangayName');
+        $select['h.fiscal_year'] = $request->get('fiscalYear');
+
+        foreach ($select as $key => $value) {
+            $searchValue = $select[$key];
+            if ($searchValue != null || !empty($searchValue)) {
+                if($key == "h.fiscal_year"){
+                    $sWhere .= " AND " . $key . "=" . $searchValue;
+                }else{
+                    $sWhere .= " AND (" . $key . " LIKE '%" . $searchValue . "%' OR " . (empty($searchValue) ? null : "'" . $searchValue .  "'") . " IS NULL ) " ;
+                }
+            }
+        }
+
+        $sOrder = "";
+
+        if (null !== $request->query->get('order')) {
+            $sOrder = "ORDER BY  ";
+            for ($i = 0; $i < intval(count($request->query->get('order'))); $i++) {
+                if ($request->query->get('columns')[$request->query->get('order')[$i]['column']]['orderable']) {
+                    $selected_column = $columns[$request->query->get('order')[$i]['column']];
+                    $sOrder .= " " . $selected_column . " " .
+                        ($request->query->get('order')[$i]['dir'] === 'asc' ? 'ASC' : 'DESC') . ", ";
+                }
+            }
+
+            $sOrder = substr_replace($sOrder, "", -2);
+            if ($sOrder == "ORDER BY") {
+                $sOrder = "";
+            }
+        }
+
+        $start = 1;
+        $length = 1;
+
+        if (null !== $request->query->get('start') && null !== $request->query->get('length')) {
+            $start = intval($request->query->get('start'));
+            $length = intval($request->query->get('length'));
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->getConnection()->getConfiguration()->setSQLLogger(null);
+
+        $sql = "SELECT COALESCE(count(h.trn_id),0) FROM tbl_fa_hdr h 
+                INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = h.municipality_no
+                INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = h.barangay_no 
+                WHERE 1 ";
+
+        $stmt = $em->getConnection()->query($sql);
+        $recordsTotal = $stmt->fetchColumn();
+
+        $sql = "SELECT COALESCE(COUNT(h.trn_id),0) FROM tbl_fa_hdr h 
+                INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = h.municipality_no
+                INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = h.barangay_no 
+                WHERE 1 ";
+
+        $sql .= $sWhere . ' ' . $sOrder;
+        $stmt = $em->getConnection()->query($sql);
+        $recordsFiltered = $stmt->fetchColumn();
+
+        $sql = "SELECT h.*, m.name AS municipality_name , b.name AS barangay_name
+            FROM tbl_fa_hdr h 
+            INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = h.municipality_no
+            INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = h.barangay_no 
+            WHERE 1 " . $sWhere . ' ' . $sOrder . " LIMIT {$length} OFFSET {$start} ";
+
+        $stmt = $em->getConnection()->query($sql);
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        $draw = (null !== $request->query->get('draw')) ? $request->query->get('draw') : 0;
+        $res['data'] =  $data;
+        $res['recordsTotal'] = $recordsTotal;
+        $res['recordsFiltered'] = $recordsFiltered;
+        $res['draw'] = $draw;
+
+        return new JsonResponse($res);
+    }
+
+
+     /**
+     * @Route("/ajax_get_fa_applicants", name="ajax_get_fa_applicants", options={"expose"=true})
+     * @Method("GET")
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function ajaxGetDatatableFaApplicantsAction(Request $request)
+    {
+        $columns = array(
+            0 => "h.trn_id",
+            1 => "h.trn_no",
+            2 => "h.trn_date",
+            3 => "h.applicant_name",
+            4 => "h.beneficiary_name",
+            5 => "h.endorsed_by",
+            6 => "h.municipality_no",
+            7 => "h.barangay_no"
+        );
+
+        $sWhere = "";
+
+        $select['d.trn_no'] = $request->get('trnNo');
+        $select['d.trn_date'] = $request->get('trnDate');
+        $select['d.applicant_name'] = $request->get('applicantName');
+        $select['d.beneficiary_name'] = $request->get('beneficiaryName');
+        $select['d.endorsed_by'] = $request->get('endorsedBy');
+        $select['d.municipality_no'] = $request->get('municipalityNo');
+        $select['d.barangay_no'] = $request->get('barangayNo');
+        $select['m.name'] = $request->get('municipalityName');
+        $select['b.name'] = $request->get('barangayName');
+        $select['d.fiscal_year'] = $request->get('fiscalYear');
+        $minTrn =  empty($request->get('minTrn')) ? 0 : $request->get('minTrn');
+
+        foreach ($select as $key => $value) {
+            $searchValue = $select[$key];
+            if ($searchValue != null || !empty($searchValue)) {
+                if($key == "d.fiscal_year"){
+                    $sWhere .= " AND " . $key . "=" . $searchValue;
+                }else{
+                    $sWhere .= " AND (" . $key . " LIKE '%" . $searchValue . "%' OR " . (empty($searchValue) ? null : "'" . $searchValue .  "'") . " IS NULL ) " ;
+                }
+            }
+        }
+
+        $sOrder = "";
+
+        if (null !== $request->query->get('order')) {
+            $sOrder = "ORDER BY  ";
+            for ($i = 0; $i < intval(count($request->query->get('order'))); $i++) {
+                if ($request->query->get('columns')[$request->query->get('order')[$i]['column']]['orderable']) {
+                    $selected_column = $columns[$request->query->get('order')[$i]['column']];
+                    $sOrder .= " " . $selected_column . " " .
+                        ($request->query->get('order')[$i]['dir'] === 'asc' ? 'ASC' : 'DESC') . ", ";
+                }
+            }
+
+            $sOrder = substr_replace($sOrder, "", -2);
+            if ($sOrder == "ORDER BY") {
+                $sOrder = "";
+            }
+        }
+
+        $start = 1;
+        $length = 1;
+
+        if (null !== $request->query->get('start') && null !== $request->query->get('length')) {
+            $start = intval($request->query->get('start'));
+            $length = intval($request->query->get('length'));
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->getConnection()->getConfiguration()->setSQLLogger(null);
+
+        $sql = "SELECT COALESCE(count(DISTINCT d.applicant_name),0) FROM tbl_fa_daily_closing_dtl d 
+                INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = d.municipality_no
+                INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = d.barangay_no 
+                WHERE 1 ";
+
+        $stmt = $em->getConnection()->query($sql);
+        $recordsTotal = $stmt->fetchColumn();
+
+        $sql = "SELECT COALESCE(COUNT(DISTINCT d.applicant_name),0) FROM tbl_fa_daily_closing_dtl d 
+                INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = d.municipality_no
+                INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = d.barangay_no  
+                WHERE 1 ";
+
+        $sql .= $sWhere . ' ' . $sOrder;
+        $stmt = $em->getConnection()->query($sql);
+        $recordsFiltered = $stmt->fetchColumn();
+
+        if($minTrn > 1){
+            $sql = "SELECT d.*, m.name AS municipality_name , b.name AS barangay_name,
+            COUNT(*) total_transactions, SUM(granted_amt) AS total_amount_granted, COUNT(DISTINCT d.beneficiary_name) AS total_beneficiary
+            FROM tbl_fa_daily_closing_dtl d 
+            INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = d.municipality_no
+            INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = d.barangay_no  
+            WHERE 1 " . $sWhere . ' ' . $sOrder . " GROUP BY d.applicant_name HAVING total_transactions >= 2 LIMIT {$length} OFFSET {$start} ";
+
+        }else{
+            $sql = "SELECT d.*, m.name AS municipality_name , b.name AS barangay_name,
+            COUNT(*) total_transactions, SUM(granted_amt) AS total_amount_granted, COUNT(DISTINCT d.beneficiary_name) AS total_beneficiary
+            FROM tbl_fa_daily_closing_dtl d 
+            INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = d.municipality_no
+            INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = d.barangay_no  
+            WHERE 1 " . $sWhere . ' ' . $sOrder . " GROUP BY d.applicant_name LIMIT {$length} OFFSET {$start} ";
+
+        }
+
+        $stmt = $em->getConnection()->query($sql);
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        $draw = (null !== $request->query->get('draw')) ? $request->query->get('draw') : 0;
+        $res['data'] =  $data;
+        $res['recordsTotal'] = $recordsTotal;
+        $res['recordsFiltered'] = $recordsFiltered;
+        $res['draw'] = $draw;
+
+        return new JsonResponse($res);
+    }
+
+
+     /**
+     * @Route("/ajax_get_fa_beneficiaries", name="ajax_get_fa_beneficiaries", options={"expose"=true})
+     * @Method("GET")
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function ajaxGetDatatableFaBeneficiariesAction(Request $request)
+    {
+        $columns = array(
+            0 => "h.trn_id",
+            1 => "h.trn_no",
+            2 => "h.trn_date",
+            3 => "h.applicant_name",
+            4 => "h.beneficiary_name",
+            5 => "h.endorsed_by",
+            6 => "h.municipality_no",
+            7 => "h.barangay_no"
+        );
+
+        $sWhere = "";
+
+        $select['d.trn_no'] = $request->get('trnNo');
+        $select['d.trn_date'] = $request->get('trnDate');
+        $select['d.applicant_name'] = $request->get('applicantName');
+        $select['d.beneficiary_name'] = $request->get('beneficiaryName');
+        $select['d.endorsed_by'] = $request->get('endorsedBy');
+        $select['d.municipality_no'] = $request->get('municipalityNo');
+        $select['d.barangay_no'] = $request->get('barangayNo');
+        $select['m.name'] = $request->get('municipalityName');
+        $select['b.name'] = $request->get('barangayName');
+        $select['d.fiscal_year'] = $request->get('fiscalYear');
+        $minTrn =  empty($request->get('minTrn')) ? 0 : $request->get('minTrn');
+
+        foreach ($select as $key => $value) {
+            $searchValue = $select[$key];
+            if ($searchValue != null || !empty($searchValue)) {
+                if($key == "d.fiscal_year"){
+                    $sWhere .= " AND " . $key . "=" . $searchValue;
+                }else{
+                    $sWhere .= " AND (" . $key . " LIKE '%" . $searchValue . "%' OR " . (empty($searchValue) ? null : "'" . $searchValue .  "'") . " IS NULL ) " ;
+                }
+            }
+        }
+
+        $sOrder = "";
+
+        if (null !== $request->query->get('order')) {
+            $sOrder = "ORDER BY  ";
+            for ($i = 0; $i < intval(count($request->query->get('order'))); $i++) {
+                if ($request->query->get('columns')[$request->query->get('order')[$i]['column']]['orderable']) {
+                    $selected_column = $columns[$request->query->get('order')[$i]['column']];
+                    $sOrder .= " " . $selected_column . " " .
+                        ($request->query->get('order')[$i]['dir'] === 'asc' ? 'ASC' : 'DESC') . ", ";
+                }
+            }
+
+            $sOrder = substr_replace($sOrder, "", -2);
+            if ($sOrder == "ORDER BY") {
+                $sOrder = "";
+            }
+        }
+
+        $start = 1;
+        $length = 1;
+
+        if (null !== $request->query->get('start') && null !== $request->query->get('length')) {
+            $start = intval($request->query->get('start'));
+            $length = intval($request->query->get('length'));
+        }
+
+        $em = $this->getDoctrine()->getManager();
+        $em->getConnection()->getConfiguration()->setSQLLogger(null);
+
+        $sql = "SELECT COALESCE(count(DISTINCT d.beneficiary_name),0) FROM tbl_fa_daily_closing_dtl d 
+                INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = d.municipality_no
+                INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = d.barangay_no 
+                WHERE 1 ";
+
+        $stmt = $em->getConnection()->query($sql);
+        $recordsTotal = $stmt->fetchColumn();
+
+        $sql = "SELECT COALESCE(COUNT(DISTINCT d.beneficiary_name),0) FROM tbl_fa_daily_closing_dtl d 
+                INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = d.municipality_no
+                INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = d.barangay_no  
+                WHERE 1 ";
+
+        $sql .= $sWhere . ' ' . $sOrder;
+        $stmt = $em->getConnection()->query($sql);
+        $recordsFiltered = $stmt->fetchColumn();
+
+        if($minTrn > 1){
+            $sql = "SELECT d.*, m.name AS municipality_name , b.name AS barangay_name,
+            COUNT(*) total_transactions, SUM(granted_amt) AS total_amount_granted, COUNT(DISTINCT d.beneficiary_name) AS total_beneficiary
+            FROM tbl_fa_daily_closing_dtl d 
+            INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = d.municipality_no
+            INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = d.barangay_no  
+            WHERE 1 " . $sWhere . ' ' . $sOrder . " GROUP BY d.beneficiary_name HAVING total_transactions >= 2 LIMIT {$length} OFFSET {$start} ";
+
+        }else{
+            $sql = "SELECT d.*, m.name AS municipality_name , b.name AS barangay_name,
+            COUNT(*) total_transactions, SUM(granted_amt) AS total_amount_granted, COUNT(DISTINCT d.beneficiary_name) AS total_beneficiary
+            FROM tbl_fa_daily_closing_dtl d 
+            INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = d.municipality_no
+            INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = d.barangay_no  
+            WHERE 1 " . $sWhere . ' ' . $sOrder . " GROUP BY d.beneficiary_name LIMIT {$length} OFFSET {$start} ";
+
+        }
+
+        $stmt = $em->getConnection()->query($sql);
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        $draw = (null !== $request->query->get('draw')) ? $request->query->get('draw') : 0;
+        $res['data'] =  $data;
+        $res['recordsTotal'] = $recordsTotal;
+        $res['recordsFiltered'] = $recordsFiltered;
+        $res['draw'] = $draw;
+
+        return new JsonResponse($res);
+    }
+
+    /**
+     * @Route("/ajax_upload_fa_photo",
+     *     name="ajax_upload_fa_photo",
+     *     options={"expose" = true}
+     *     )
+     * @Method("POST")
+     */
+
+    public function ajaxUploadFaPhoto(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $filename = 'testing_picture.jpg';
+        $imgRoot = __DIR__ . '/../../../web/uploads/images/';
+        $imagePath = $imgRoot . $filename;
+
+        $data = json_decode($request->getContent(), true);
+        $photo = $data['photo'];
+
+        $base64 = base64_decode($photo, true);
+        $image = imagecreatefromstring($base64);
+        imagejpeg($image, $imagePath, 30);
+
+        //  $image = imagecreatefromstring($source);
+
+        // imagejpeg($image, $destination, $quality);
+
+        // return $destination;
+        //$this->compress(base64_decode($data['photo']), $imagePath, 30);
+
+
+        return new JsonResponse(["base_64_str" =>  $photo], 200);
+    }
+
+
+    /**
+     * @Route("/ajax_upload_fa_applicant_photo/{trnNo}",
+     *     name="ajax_upload_fa_applicant_photo",
+     *     options={"expose" = true}
+     *     )
+     * @Method("POST")
+     */
+
+    public function ajaxUploadFaApplicantPhoto(Request $request, $trnNo)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $entity = $em->getRepository("AppBundle:FinancialAssistanceHeader")->findOneBy(["trnNo" => $trnNo]);
+
+        if (!$entity)
+            return new JsonResponse(null, 404);
+
+        $filename = $trnNo . '.jpg';
+        $imgRoot = __DIR__ . '/../../../web/uploads/images/applicant/';
+        $imagePath = $imgRoot . $filename;
+
+        $data = json_decode($request->getContent(), true);
+        $photo = $data['photo'];
+
+        $base64 = base64_decode($photo, true);
+        $image = imagecreatefromstring($base64);
+        imagejpeg($image, $imagePath, 30);
+
+        //  $image = imagecreatefromstring($source);
+
+        // imagejpeg($image, $destination, $quality);
+
+        // return $destination;
+        //$this->compress(base64_decode($data['photo']), $imagePath, 30);
+
+
+        return new JsonResponse(["base_64_str" =>  $photo], 200);
+    }
+
+    /**
+     * @Route("/ajax_upload_fa_receiver_photo/{trnNo}",
+     *     name="ajax_upload_fa_receiver_photo",
+     *     options={"expose" = true}
+     *     )
+     * @Method("POST")
+     */
+
+     public function ajaxUploadFaReceiverPhoto(Request $request, $trnNo)
+     {
+         $em = $this->getDoctrine()->getManager();
+ 
+         $entity = $em->getRepository("AppBundle:FinancialAssistanceHeader")->findOneBy(["trnNo" => $trnNo]);
+ 
+         if (!$entity)
+             return new JsonResponse(null, 404);
+ 
+         $filename = $trnNo . '.jpg';
+         $imgRoot = __DIR__ . '/../../../web/uploads/images/receiver/';
+         $imagePath = $imgRoot . $filename;
+ 
+         $data = json_decode($request->getContent(), true);
+         $photo = $data['photo'];
+ 
+         $base64 = base64_decode($photo, true);
+         $image = imagecreatefromstring($base64);
+         imagejpeg($image, $imagePath, 30);
+         
+         return new JsonResponse(["base_64_str" =>  $photo], 200);
+     }
+
+     /**
+     * @Route("/photo/applicant/{filename}",
+     *   name="ajax_get_fa_applicant_photo",
+     *   options={"expose" = true}
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetFaApplicantPhotoAction($filename)
+    {
+
+        $rootDir = __DIR__ . '/../../../web/uploads/images/applicant/';
+        $imagePath = $rootDir . $filename . '.jpg';
+
+        if (!file_exists($imagePath)) {
+            $imagePath = $rootDir . 'default.jpg';
+        }
+
+        $response = new BinaryFileResponse($imagePath);
+        $response->headers->set('Content-Type', 'image/jpeg');
+
+        return $response;
+    }
+
+    /**
+     * @Route("/photo/receiver/{filename}",
+     *   name="ajax_get_fa_receiver_photo",
+     *   options={"expose" = true}
+     * )
+     * @Method("GET")
+     */
+
+     public function ajaxGetFaReceiverPhotoAction($filename)
+     {
+ 
+         $rootDir = __DIR__ . '/../../../web/uploads/images/receiver/';
+         $imagePath = $rootDir . $filename . '.jpg';
+ 
+         if (!file_exists($imagePath)) {
+             $imagePath = $rootDir . 'default.jpg';
+         }
+ 
+         $response = new BinaryFileResponse($imagePath);
+         $response->headers->set('Content-Type', 'image/jpeg');
+ 
+         return $response;
+     }
 
 }

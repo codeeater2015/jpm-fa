@@ -68,6 +68,14 @@ doctrine:
                 user:     "%database_user%"
                 password: "%database_password%"
                 charset:  UTF8
+            tupad:
+                driver:   pdo_mysql
+                host:     "%tupad_host%"
+                port:     "%tupad_port%"
+                dbname:   "%tupad_name%"
+                user:     "%tupad_user%"
+                password: "%tupad_password%"
+                charset:  UTF8
             
 #            rescue:
 #                driver:   pdo_mysql
@@ -109,6 +117,10 @@ doctrine:
         #MySQL
             default:
                 connection: default
+                mappings:
+                    AppBundle:  ~
+            tupad:
+                connection: tupad
                 mappings:
                     AppBundle:  ~
 #            rescue:

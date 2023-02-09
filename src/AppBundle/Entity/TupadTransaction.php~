@@ -1,0 +1,172 @@
+<?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/**
+ * TupadTransaction
+ *
+ * @ORM\Table(name="tbl_tupad_transaction")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\TupadTransactionRepository")
+ */
+class TupadTransaction
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="pro_voter_id", type="integer")
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $proVoterId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="pro_id_code", type="string", length=30)
+     */
+    private $proIdCode;
+
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="generated_id_no", type="string", length=30)
+     */
+    private $generatedIdNo;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="source_municipality", type="string", length=150)
+     */
+    private $sourceMunicipality;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="source_barangay", type="string", length=150)
+     */
+    private $sourceBarangay;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="b_municipality", type="string", length=150)
+     */
+    private $bMunicipality;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="b_barangay", type="string", length=150)
+     */
+    private $bBarangay;
+     
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="b_name", type="string", length=150)
+     * @Assert\NotBlank()
+     */
+    private $bName;
+
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="b_firstname", type="string", length=150)
+     * @Assert\NotBlank()
+     */
+    private $bFirstname;
+
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="b_middlename", type="string", length=150)
+     * @Assert\NotBlank()
+     */
+    private $bMiddlename;
+
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="b_lastname", type="string", length=150)
+     * @Assert\NotBlank()
+     */
+    private $bLastname;
+    
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="b_extname", type="string", length=150)
+     * @Assert\NotBlank()
+     */
+    private $bExtname;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="is_voter", type="integer")
+     */
+    private $isVoter;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="service_type", type="string", length=50)
+     * @Assert\NotBlank()
+     */
+    private $serviceType;
+
+    /**
+     * @var datetime
+     *
+     * @ORM\Column(name="created_at", type="datetime")
+     */
+    private $createdAt;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="created_by", type="string", length=150)
+     */
+    private $createdBy;
+
+    /**
+     * @var datetime
+     *
+     * @ORM\Column(name="updated_at", type="datetime")
+     */
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="remarks", type="string", length=256)
+     */
+    private $remarks;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", length=3)
+     */
+    private $status;
+
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="b_status", type="string", length=3)
+     */
+    private $bStatus;
+}
+

@@ -1464,6 +1464,24 @@ gulp.task('compile-pulahan',function(cb){
     ], cb);
 });
 
+gulp.task('compile-tupad',function(cb){
+    pump([
+        gulp.src([
+            myPath + 'tupad/tupad.create-new-profile-modal.react.js',
+            myPath + 'tupad/tupad-create.modal.react.js',
+            myPath + 'tupad/tupad.datatable.react.js',
+            myPath + 'tupad/tupad.react.js'
+        ]),
+        concat('tupad.react.js'),
+        rename({suffix: '.min'}),
+        react(),
+        gulp.dest(jsPath),
+        bust({
+            relativePath : "web"
+        }),
+        gulp.dest('.')
+    ], cb);
+});
 
 gulp.task('compile-update-manager',function(cb){
     pump([

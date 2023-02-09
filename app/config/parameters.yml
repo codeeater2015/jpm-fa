@@ -6,6 +6,11 @@ parameters:
     database_name: voter_province_2021
     database_user: jpm_admin
     database_password: kmmsitdadmin
+    tupad_host: localhost
+    tupad_port: 3306
+    tupad_name: tupad_2023
+    tupad_user: jpm_admin
+    tupad_password: kmmsitdadmin
 #    rescue_host: 127.0.0.1
 #    rescue_port: 3308
 #    rescue_name: voter_province_2021

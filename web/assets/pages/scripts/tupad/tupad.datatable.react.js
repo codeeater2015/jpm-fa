@@ -203,7 +203,7 @@ var TupadDatatable = React.createClass({
                 },
                 "columnDefs": [{
                     'orderable': false,
-                    'targets': [0, 2, 3, 4, 5,6]
+                    'targets': [0, 2, 3, 4, 5, 6, 7, 8]
                 }, {
                     'className': 'align-center',
                     'targets': [0, 3]
@@ -240,9 +240,22 @@ var TupadDatatable = React.createClass({
                         "width": 180
                     },
                     {
+                        "data": "b_municipality",
+                        "width": 150,
+                        "className": "text-center"
+                    },
+                    {
+                        "data": "b_barangay",
+                        "className": "text-center",
+                        "width": 180
+                    },
+                    {
                         "data": "is_voter",
                         "className": "text-center",
-                        "width": 50
+                        "width": 50, 
+                        "render" : function(data){
+                            return parseInt(data) == 1 ? "YES" : "NO";
+                        }
                     },
                     {
                         "width": 50,
@@ -323,8 +336,10 @@ var TupadDatatable = React.createClass({
                                 <th>No</th>
                                 <th>BeneficiaryName</th>
                                 <th>Service</th>
-                                <th>Municipality</th>
-                                <th>Barangay</th>
+                                <th>Asst. Municipality</th>
+                                <th>Asst Barangay</th>
+                                <th>Reg. Municipality</th>
+                                <th>Reg. Barangay</th>
                                 <th>Is Voter</th>
                                 <th width="50px"></th>
                             </tr>
@@ -337,10 +352,16 @@ var TupadDatatable = React.createClass({
                                     <input type="text" className="form-control form-filter input-sm" name="service_type" onChange={this.handleFilterChange} />
                                 </td>
                                 <td style={{ padding: "10px 5px" }}>
-                                    <input type="text" className="form-control form-filter input-sm" name="municipality_name" onChange={this.handleFilterChange} />
+                                    <input type="text" className="form-control form-filter input-sm" name="source_municipality" onChange={this.handleFilterChange} />
                                 </td>
                                 <td style={{ padding: "10px 5px" }}>
-                                    <input type="text" className="form-control form-filter input-sm" name="barangay_name" onChange={this.handleFilterChange} />
+                                    <input type="text" className="form-control form-filter input-sm" name="source_barangay" onChange={this.handleFilterChange} />
+                                </td>
+                                <td style={{ padding: "10px 5px" }}>
+                                    <input type="text" className="form-control form-filter input-sm" name="b_municipality" onChange={this.handleFilterChange} />
+                                </td>
+                                <td style={{ padding: "10px 5px" }}>
+                                    <input type="text" className="form-control form-filter input-sm" name="b_barangay" onChange={this.handleFilterChange} />
                                 </td>
                                 <td></td>
                                 <td></td>

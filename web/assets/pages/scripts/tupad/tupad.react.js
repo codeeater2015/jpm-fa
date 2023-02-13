@@ -187,9 +187,9 @@ var TupadComponent = React.createClass({
                         <div className="col-md-2">
                             <select className="form-control" onChange={this.setFormProp} value={this.state.activeTable} name="serviceType">
                                 <option value=""> - SELECT TYPE OF SERVICE - </option>
-                                <option value="FOOD_ASSISTANCE">Food Assistance</option>
-                                <option value="LIVELIHOOD_ASSISTANCE">Livelihood Assistance</option>
-                                <option value="EDUCATIONAL_ASSISTANCE">Educational Assistance</option>
+                                <option value="FOOD">Food Assistance</option>
+                                <option value="LIVELIHOOD">Livelihood Assistance</option>
+                                <option value="EDUC">Educational Assistance</option>
                             </select>
                         </div>
                         <div className="col-md-2">

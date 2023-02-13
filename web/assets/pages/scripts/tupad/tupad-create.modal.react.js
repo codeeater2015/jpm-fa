@@ -209,7 +209,7 @@ var TupadCreateModal = React.createClass({
 
         $("#fa-form #barangay_select2").empty()
             .append($("<option/>")
-                .val(self.props.barangayNo)
+                .val(self.props.barangayName)
                 .text(self.props.barangayName))
             .trigger("change");
 
@@ -225,6 +225,12 @@ var TupadCreateModal = React.createClass({
             var form = self.state.form;
             console.log('voter has been found');
             console.log(res);
+
+            console.log("props");
+            console.log(self.props.barangayName);
+            console.log("form data");
+            console.log(form.data.sourceBarangay);
+
 
             form.data.proVoterId = res.proVoterId;
             form.data.proIdCode = res.proIdCode;

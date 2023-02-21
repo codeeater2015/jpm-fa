@@ -1483,6 +1483,25 @@ gulp.task('compile-tupad',function(cb){
     ], cb);
 });
 
+gulp.task('compile-tupad-summary',function(cb){
+    pump([
+        gulp.src([
+            myPath + 'tupad-summary/tupad-municipality-summary.react.js',
+            myPath + 'tupad-summary/tupad-province-summary.react.js',
+            myPath + 'tupad-summary/tupad-summary.react.js',
+            myPath + 'tupad-summary/tupad-summary.react.js'
+        ]),
+        concat('tupad-summary.react.js'),
+        rename({suffix: '.min'}),
+        react(),
+        gulp.dest(jsPath),
+        bust({
+            relativePath : "web"
+        }),
+        gulp.dest('.')
+    ], cb);
+});
+
 gulp.task('compile-update-manager',function(cb){
     pump([
         gulp.src([

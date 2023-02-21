@@ -1,4 +1,4 @@
-var TupadDatatable = React.createClass({
+var TupadSummaryDetailDatatable = React.createClass({
 
     getInitialState: function () {
         return {
@@ -16,166 +16,7 @@ var TupadDatatable = React.createClass({
         }
     },
 
-    componentDidMount: function () {
-        this.loadUser(window.userId);
-        //this.initSelect2();
-    },
-
-    loadUser: function (userId) {
-        var self = this;
-
-        self.requestUser = $.ajax({
-            url: Routing.generate("ajax_get_user", { id: userId }),
-            type: "GET"
-        }).done(function (res) {
-            self.setState({ user: res }, self.reinitSelect2);
-        });
-    },
-
-    initSelect2: function () {
-        var self = this;
-
-        $("#fa_component #election_select2").select2({
-            casesentitive: false,
-            placeholder: "Select Election...",
-            allowClear: true,
-            delay: 1500,
-            width: '100%',
-            containerCssClass: ':all:',
-            ajax: {
-                url: Routing.generate('ajax_select2_elections'),
-                data: function (params) {
-                    return {
-                        searchText: params.term
-                    };
-                },
-                processResults: function (data, params) {
-                    return {
-                        results: data.map(function (item) {
-                            return { id: item.elect_id, text: item.elect_name };
-                        })
-                    };
-                },
-            }
-        });
-
-        $("#fa_component #project_select2").select2({
-            casesentitive: false,
-            placeholder: "Select Project...",
-            allowClear: true,
-            delay: 1500,
-            width: '100%',
-            containerCssClass: ':all:',
-            ajax: {
-                url: Routing.generate('ajax_select2_projects'),
-                data: function (params) {
-                    return {
-                        searchText: params.term
-                    };
-                },
-                processResults: function (data, params) {
-                    return {
-                        results: data.map(function (item) {
-                            return { id: item.pro_id, text: item.pro_name };
-                        })
-                    };
-                },
-            }
-        });
-
-        $("#fa_component #province_select2").select2({
-            casesentitive: false,
-            placeholder: "Enter Province...",
-            allowClear: true,
-            delay: 1500,
-            width: '100%',
-            containerCssClass: ':all:',
-            ajax: {
-                url: Routing.generate('ajax_select2_province_strict'),
-                data: function (params) {
-                    return {
-                        searchText: params.term
-                    };
-                },
-                processResults: function (data, params) {
-                    return {
-                        results: data.map(function (item) {
-                            return { id: item.province_code, text: item.name };
-                        })
-                    };
-                },
-            }
-        });
-
-        $("#fa_component #election_select2").on("change", function () {
-            var filters = self.state.filters;
-            filters.electId = $(this).val();
-
-            self.setState({ filters: filters }, self.reload);
-        });
-
-        $("#fa_component #project_select2").on("change", function () {
-            var filters = self.state.filters;
-            filters.proId = $(this).val();
-            self.setState({ filters: filters }, self.reload);
-        });
-
-        $("#fa_component #province_select2").on("change", function () {
-            var filters = self.state.filters;
-            filters.provinceCode = $(this).val();
-            self.setState({ filters: filters }, self.reload);
-        });
-
-    },
-
-    reinitSelect2: function () {
-        var self = this;
-
-        if (!self.isEmpty(self.state.user.project)) {
-            var provinceCode = self.state.user.project.provinceCode;
-
-            self.requestProvince = $.ajax({
-                url: Routing.generate("ajax_get_province", { provinceCode: provinceCode }),
-                type: "GET"
-            }).done(function (res) {
-                $("#fa_component #province_select2").empty()
-                    .append($("<option/>")
-                        .val(res.province_code)
-                        .text(res.name))
-                    .trigger("change");
-            });
-
-            self.requestProject = $.ajax({
-                url: Routing.generate("ajax_get_project", { proId: self.state.user.project.proId }),
-                type: "GET"
-            }).done(function (res) {
-                $("#fa_component #project_select2").empty()
-                    .append($("<option/>")
-                        .val(res.proId)
-                        .text(res.proName))
-                    .trigger("change");
-
-                self.initDatatable();
-            });
-        }
-
-        self.requestActiveElection = $.ajax({
-            url: Routing.generate("ajax_get_active_election"),
-            type: "GET"
-        }).done(function (res) {
-            $("#fa_component #election_select2").empty()
-                .append($("<option/>")
-                    .val(res.electId)
-                    .text(res.electName))
-                .trigger("change");
-        });
-
-        if (!self.state.user.isAdmin) {
-            $("#fa_component #election_select2").attr('disabled', 'disabled');
-            $("#fa_component #province_select2").attr('disabled', 'disabled');
-            $("#fa_component #project_select2").attr('disabled', 'disabled');
-        }
-    },
+    componentDidMount: function () { },
 
     initDatatable: function () {
         var self = this;
@@ -196,9 +37,6 @@ var TupadDatatable = React.createClass({
                     "url": url,
                     "type": 'GET',
                     "data": function (d) {
-                        d.sourceMunicipality = self.props.sourceMunicipality;
-                        d.sourceBarangay = self.props.sourceBarangay;
-                        d.serviceType = self.props.serviceType;
                         //d.bName = $('#tupad_table input[name="beneficiary_name"]');
                         //d.bMunicipality = $('#tupad_table input[name="b_municipality"]');
                         //d.bBarangay = $('#tupad_table input[name="b_barangay"]');
@@ -255,8 +93,8 @@ var TupadDatatable = React.createClass({
                     {
                         "data": "is_voter",
                         "className": "text-center",
-                        "width": 50, 
-                        "render" : function(data){
+                        "width": 50,
+                        "render": function (data) {
                             return parseInt(data) == 1 ? "YES" : "NO";
                         }
                     },
@@ -278,22 +116,6 @@ var TupadDatatable = React.createClass({
         });
 
         self.grid = grid_project_event;
-    },
-
-    closeEditModal: function () {
-        this.setState({ showEditModal: false, target: null });
-    },
-
-    closeReleaseModal: function () {
-        this.setState({ showReleaseModal: false, target: null });
-    },
-
-    openCreateModal: function () {
-        this.setState({ showCreateModal: true });
-    },
-
-    openClosingModal: function () {
-        this.setState({ showClosingModal: true });
     },
 
     delete: function (id) {
@@ -337,10 +159,9 @@ var TupadDatatable = React.createClass({
                         <thead>
                             <tr>
                                 <th>No</th>
-                                <th>BeneficiaryName</th>
-                                <th>Service</th>
+                                <th>Beneficiary Name</th>
                                 <th>Asst. Municipality</th>
-                                <th>Asst Barangay</th>
+                                <th>Asst. Barangay</th>
                                 <th>Reg. Municipality</th>
                                 <th>Reg. Barangay</th>
                                 <th>Is Voter</th>
@@ -351,9 +172,12 @@ var TupadDatatable = React.createClass({
                                 <td style={{ padding: "10px 5px" }}>
                                     <input type="text" className="form-control form-filter input-sm" name="beneficiary_name" onChange={this.handleFilterChange} />
                                 </td>
-                                <td style={{ padding: "10px 5px" }}></td>
-                                <td style={{ padding: "10px 5px" }}></td>
-                                <td style={{ padding: "10px 5px" }}></td>
+                                <td style={{ padding: "10px 5px" }}>
+                                    <input type="text" className="form-control form-filter input-sm" name="source_municipality" onChange={this.handleFilterChange} />
+                                </td>
+                                <td style={{ padding: "10px 5px" }}>
+                                    <input type="text" className="form-control form-filter input-sm" name="source_barangay" onChange={this.handleFilterChange} />
+                                </td>
                                 <td style={{ padding: "10px 5px" }}>
                                     <input type="text" className="form-control form-filter input-sm" name="b_municipality" onChange={this.handleFilterChange} />
                                 </td>
@@ -373,4 +197,4 @@ var TupadDatatable = React.createClass({
     }
 });
 
-window.TupadDatatable = TupadDatatable;
+window.TupadSummaryDetailDatatable = TupadSummaryDetailDatatable;

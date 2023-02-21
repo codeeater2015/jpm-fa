@@ -11,40 +11,50 @@ use AppBundle\Entity\TupadTransaction;
 use AppBundle\Entity\ProjectVoter;
 
 /**
-* @Route("/tupad")
-*/
+ * @Route("/tupad")
+ */
 
-class TupadController extends Controller 
-{   
+class TupadController extends Controller
+{
     const STATUS_ACTIVE = 'A';
     const MODULE_MAIN = "TUPAD_COMPONENT";
 
-	/**
-    * @Route("", name="tupad_index", options={"main" = true})
-    */
+    /**
+     * @Route("", name="tupad_index", options={"main" = true})
+     */
 
     public function indexAction(Request $request)
     {
         //$this->denyAccessUnlessGranted("entrance",self::MODULE_MAIN);
         $user = $this->get('security.token_storage')->getToken()->getUser();
-        return $this->render('template/tupad/index.html.twig',['user' => $user]);
+        return $this->render('template/tupad/index.html.twig', ['user' => $user]);
     }
 
-
-      
     /**
-    * @Route("/ajax_tupad_post_transaction", 
-    * 	name="ajax_tupad_post_transaction",
-    *	options={"expose" = true}
-    * )
-    * @Method("POST")
-    */
+     * @Route("/summary", name="tupad_summary_index", options={"main" = true})
+     */
 
-    public function ajaxPostTupadTransactionAction(Request $request){
+    public function summaryAction(Request $request)
+    {
+        //$this->denyAccessUnlessGranted("entrance",self::MODULE_MAIN);
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        return $this->render('template/tupad/summary.html.twig', ['user' => $user]);
+    }
+
+    /**
+     * @Route("/ajax_tupad_post_transaction", 
+     * 	name="ajax_tupad_post_transaction",
+     *	options={"expose" = true}
+     * )
+     * @Method("POST")
+     */
+
+    public function ajaxPostTupadTransactionAction(Request $request)
+    {
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $entity = new TupadTransaction();
-    	$entity->setProVoterId($request->get("proVoterId"));
+        $entity->setProVoterId($request->get("proVoterId"));
         $entity->setProIdCode($request->get('proIdCode'));
         $entity->setGeneratedIdNo($request->get('generatedIdNo'));
         $entity->setSourceMunicipality(strtoupper($request->get('sourceMunicipality')));
@@ -57,20 +67,20 @@ class TupadController extends Controller
         $entity->setServiceType($request->get('serviceType'));
         $entity->setBStatus($request->get('bStatus'));
         $entity->setRemarks(strtoupper($request->get('remarks')));
-    	$entity->setStatus(self::STATUS_ACTIVE);
+        $entity->setStatus(self::STATUS_ACTIVE);
         $entity->setCreatedAt(new \DateTime());
         $entity->setCreatedBy($user->getUsername());
 
-    	$validator = $this->get('validator');
+        $validator = $this->get('validator');
         $violations = $validator->validate($entity);
 
         $errors = [];
 
-        if(count($violations) > 0){
-            foreach( $violations as $violation ){
-                $errors[$violation->getPropertyPath()] =  $violation->getMessage();
+        if (count($violations) > 0) {
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()] = $violation->getMessage();
             }
-            return new JsonResponse($errors,400);
+            return new JsonResponse($errors, 400);
         }
 
 
@@ -78,23 +88,24 @@ class TupadController extends Controller
 
         $em->persist($entity);
         $em->flush();
-    	$em->clear();
-        
+        $em->clear();
 
-    	$serializer = $this->get('serializer');
 
-    	return new JsonResponse($serializer->normalize($entity));
+        $serializer = $this->get('serializer');
+
+        return new JsonResponse($serializer->normalize($entity));
     }
 
     /**
-    * @Route("/ajax_select2_tupad_project_voters", 
-    *       name="ajax_select2_tupad_project_voters",
-    *		options={ "expose" = true }
-    * )
-    * @Method("GET")
-    */
+     * @Route("/ajax_select2_tupad_project_voters", 
+     *       name="ajax_select2_tupad_project_voters",
+     *		options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
 
-    public function ajaxSelect2ProjectVoters(Request $request){
+    public function ajaxSelect2ProjectVoters(Request $request)
+    {
         $em = $this->getDoctrine()->getManager("tupad");
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
@@ -105,7 +116,7 @@ class TupadController extends Controller
 
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
-        
+
         $sql = "SELECT p.* FROM tbl_project_voter p 
                 WHERE p.voter_name LIKE ? 
                 AND p.province_code = ? 
@@ -115,22 +126,22 @@ class TupadController extends Controller
                 ORDER BY p.voter_name ASC LIMIT 10";
 
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1,$searchText);
-        $stmt->bindValue(2,$provinceCode);
-        $stmt->bindValue(3,$electId);
+        $stmt->bindValue(1, $searchText);
+        $stmt->bindValue(2, $provinceCode);
+        $stmt->bindValue(3, $electId);
         $stmt->bindValue(4, $municipalityNo);
         $stmt->bindValue(5, empty($municipalityNo) ? null : $municipalityNo);
         $stmt->bindValue(6, $brgyNo);
-        $stmt->bindValue(7, empty($brgyNo) ? null : $brgyNo );
+        $stmt->bindValue(7, empty($brgyNo) ? null : $brgyNo);
         $stmt->execute();
 
         $projectVoters = [];
-    
-        while( $row = $stmt->fetch(\PDO::FETCH_ASSOC)){
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $projectVoters[] = $row;
         }
 
-        if(count($projectVoters) <= 0)
+        if (count($projectVoters) <= 0)
             return new JsonResponse(array());
 
         $em->clear();
@@ -147,27 +158,27 @@ class TupadController extends Controller
      * @Method("GET")
      */
 
-     public function ajaxGetProjectVoter($proId, $proVoterId)
-     {
-         $em = $this->getDoctrine()->getManager("tupad");
-         $proVoter = $em->getRepository("AppBundle:ProjectVoter")
-             ->findOneBy([
-                 'proId' => $proId,
-                 'proVoterId' => $proVoterId,
-             ]);
- 
-         if (!$proVoter) {
-             return new JsonResponse(['message' => 'not found']);
-         }
- 
-         $serializer = $this->get("serializer");
-         $proVoter = $serializer->normalize($proVoter);
- 
-         return new JsonResponse($proVoter);
-     }
-    
+    public function ajaxGetProjectVoter($proId, $proVoterId)
+    {
+        $em = $this->getDoctrine()->getManager("tupad");
+        $proVoter = $em->getRepository("AppBundle:ProjectVoter")
+            ->findOneBy([
+                'proId' => $proId,
+                'proVoterId' => $proVoterId,
+            ]);
 
-     /**
+        if (!$proVoter) {
+            return new JsonResponse(['message' => 'not found']);
+        }
+
+        $serializer = $this->get("serializer");
+        $proVoter = $serializer->normalize($proVoter);
+
+        return new JsonResponse($proVoter);
+    }
+
+
+    /**
      * @Route("/ajax_post_tupad_temporary_voter",
      *     name="ajax_post_tupad_temporary_voter",
      *    options={"expose" = true}
@@ -191,7 +202,7 @@ class TupadController extends Controller
         $voterName = $entity->getLastname() . ', ' . $entity->getFirstname() . ' ' . $entity->getMiddlename() . ' ' . $entity->getExtname();
         $entity->setVoterName(trim(strtoupper($voterName)));
         $entity->setGender($request->get('gender'));
-      
+
         $entity->setIsNonVoter(1);
         $entity->setHasId(0);
         $entity->setHasPhoto(0);
@@ -256,14 +267,14 @@ class TupadController extends Controller
         return new JsonResponse($serializer->normalize($entity));
     }
 
-     /**
+    /**
      * @Route("/ajax_get_datatable_tupad_transactions", name="ajax_get_datatable_tupad_transactions", options={"expose"=true})
      * @Method("GET")
      * @param Request $request
      * @return JsonResponse
      */
-	public function ajaxGetDatatableTupadTransactionsAction(Request $request)
-	{	
+    public function ajaxGetDatatableTupadTransactionsAction(Request $request)
+    {
         $columns = array(
             0 => "h.id",
             1 => "h.b_name",
@@ -274,36 +285,33 @@ class TupadController extends Controller
         );
 
         $sWhere = "";
-    
+
         $select['h.b_name'] = $request->get('bName');
         $select['h.service_type'] = $request->get('serviceType');
         $select['h.source_municipality'] = $request->get('sourceMunicipality');
         $select['h.source_barangay'] = $request->get('sourceBarangay');
 
-        foreach($select as $key => $value){
+        foreach ($select as $key => $value) {
             $searchValue = $select[$key];
-            if($searchValue != null || !empty($searchValue)) {
+            if ($searchValue != null || !empty($searchValue)) {
                 $sWhere .= " AND " . $key . " LIKE \"%" . $searchValue . "%\"";
             }
         }
-        
+
         $sOrder = "";
 
-        if(null !== $request->query->get('order')){
+        if (null !== $request->query->get('order')) {
             $sOrder = "ORDER BY  ";
-            for ( $i=0 ; $i<intval(count($request->query->get('order'))); $i++ )
-            {
-                if ( $request->query->get('columns')[$request->query->get('order')[$i]['column']]['orderable'] )
-                {
+            for ($i = 0; $i < intval(count($request->query->get('order'))); $i++) {
+                if ($request->query->get('columns')[$request->query->get('order')[$i]['column']]['orderable']) {
                     $selected_column = $columns[$request->query->get('order')[$i]['column']];
-                    $sOrder .= " ".$selected_column." ".
-                        ($request->query->get('order')[$i]['dir']==='asc' ? 'ASC' : 'DESC') .", ";
+                    $sOrder .= " " . $selected_column . " " .
+                        ($request->query->get('order')[$i]['dir'] === 'asc' ? 'ASC' : 'DESC') . ", ";
                 }
             }
 
-            $sOrder = substr_replace( $sOrder, "", -2 );
-            if ( $sOrder == "ORDER BY" )
-            {
+            $sOrder = substr_replace($sOrder, "", -2);
+            if ($sOrder == "ORDER BY") {
                 $sOrder = "";
             }
         }
@@ -311,7 +319,7 @@ class TupadController extends Controller
         $start = 1;
         $length = 1;
 
-        if(null !== $request->query->get('start') && null !== $request->query->get('length')){
+        if (null !== $request->query->get('start') && null !== $request->query->get('length')) {
             $start = intval($request->query->get('start'));
             $length = intval($request->query->get('length'));
         }
@@ -337,39 +345,221 @@ class TupadController extends Controller
         $data = [];
 
 
-        while($row = $stmt->fetch(\PDO::FETCH_ASSOC)){
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $data[] = $row;
         }
 
         $draw = (null !== $request->query->get('draw')) ? $request->query->get('draw') : 0;
-		$res['data'] =  $data;
-	    $res['recordsTotal'] = $recordsTotal;
-	    $res['recordsFiltered'] = $recordsFiltered;
+        $res['data'] = $data;
+        $res['recordsTotal'] = $recordsTotal;
+        $res['recordsFiltered'] = $recordsFiltered;
         $res['draw'] = $draw;
 
-	    return new JsonResponse($res);
+        return new JsonResponse($res);
     }
 
     /**
-    * @Route("/ajax_delete_tupad_transaction/{id}", 
-    * 	name="ajax_delete_tupad_transaction",
-    *	options={"expose" = true}
-    * )
-    * @Method("DELETE")
-    */
+     * @Route("/ajax_delete_tupad_transaction/{id}", 
+     * 	name="ajax_delete_tupad_transaction",
+     *	options={"expose" = true}
+     * )
+     * @Method("DELETE")
+     */
 
-    public function ajaxDeleteTupadAction($id){
+    public function ajaxDeleteTupadAction($id)
+    {
         $em = $this->getDoctrine()->getManager("tupad");
         $entity = $em->getRepository("AppBundle:TupadTransaction")->find($id);
 
-        if(!$entity)
-            return new JsonResponse(null,404);
+        if (!$entity)
+            return new JsonResponse(null, 404);
 
         $em->remove($entity);
         $em->flush();
 
-        return new JsonResponse(null,200);
+        return new JsonResponse(null, 200);
     }
 
+    /**
+     * @Route("/ajax_get_assistance_summary", name="ajax_get_assistance_summary", options={"expose"=true})
+     * @Method("GET")
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function ajaxGetAssistanceSummaryAction(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("tupad");
+        $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
+        $sql = 'SELECT COUNT(*), source_municipality ,
+        COALESCE(COUNT(CASE WHEN service_type = "SLP" THEN 1 END), 0) AS total_slp,
+        (SELECT COUNT(DISTINCT s_trn.pro_voter_id) FROM tbl_tupad_transaction  s_trn WHERE s_trn.service_type = "SLP" AND s_trn.source_municipality = trn.source_municipality ) AS total_slp_uniq,
+        (SELECT COUNT(DISTINCT ppv.pro_voter_id) FROM tbl_tupad_transaction  s_trn INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id  = s_trn.pro_voter_id  WHERE s_trn.service_type = "SLP" AND ppv.has_photo = 1 AND s_trn.source_municipality = trn.source_municipality ) AS total_slp_w_id,
+        (SELECT COUNT(DISTINCT s_trn.pro_voter_id) FROM tbl_tupad_transaction  s_trn WHERE s_trn.service_type = "SLP" AND s_trn.is_voter = 1 AND s_trn.source_municipality = trn.source_municipality ) AS total_slp_is_voter,
+        COALESCE(COUNT(CASE WHEN service_type = "AICS_FOOD" THEN 1 END), 0) AS total_aics_food,
+        (SELECT COUNT(DISTINCT s_trn.pro_voter_id) FROM tbl_tupad_transaction  s_trn WHERE s_trn.service_type = "AICS_FOOD" AND s_trn.source_municipality = trn.source_municipality ) AS total_aics_food_uniq,
+        (SELECT COUNT(DISTINCT ppv.pro_voter_id) FROM tbl_tupad_transaction  s_trn INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = s_trn.pro_voter_id WHERE s_trn.service_type = "AICS_FOOD"  AND ppv.has_photo = 1 AND s_trn.source_municipality = trn.source_municipality ) AS total_aics_food_w_id,
+        (SELECT COUNT(DISTINCT s_trn.pro_voter_id) FROM tbl_tupad_transaction  s_trn WHERE s_trn.service_type = "AICS_FOOD"  AND s_trn.is_voter = 1 AND s_trn.source_municipality = trn.source_municipality ) AS total_aics_food_is_voter,
+        COALESCE(COUNT(CASE WHEN service_type = "AICS_EDUC" THEN 1 END), 0) AS total_aics_educ,
+        (SELECT COUNT(DISTINCT s_trn.pro_voter_id) FROM tbl_tupad_transaction  s_trn WHERE s_trn.service_type = "AICS_EDUC" AND s_trn.source_municipality = trn.source_municipality ) AS total_aics_educ_uniq,
+        (SELECT COUNT(DISTINCT ppv.pro_voter_id) FROM tbl_tupad_transaction  s_trn INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = s_trn.pro_voter_id  WHERE s_trn.service_type = "AICS_EDUC" AND ppv.has_photo = 1 AND s_trn.source_municipality = trn.source_municipality ) AS total_aics_educ_w_id,
+        (SELECT COUNT(DISTINCT s_trn.pro_voter_id) FROM tbl_tupad_transaction  s_trn WHERE s_trn.service_type = "AICS_EDUC" AND s_trn.is_voter = 1 AND s_trn.source_municipality = trn.source_municipality ) AS total_aics_educ_is_voter,
+        COALESCE(COUNT(CASE WHEN service_type = "DISPLACED" THEN 1 END), 0) AS total_displaced,
+        (SELECT COUNT(DISTINCT s_trn.pro_voter_id) FROM tbl_tupad_transaction  s_trn WHERE s_trn.service_type = "DISPLACED" AND s_trn.source_municipality = trn.source_municipality ) AS total_displaced_uniq,
+        (SELECT COUNT(DISTINCT ppv.pro_voter_id) FROM tbl_tupad_transaction  s_trn INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = s_trn.pro_voter_id WHERE s_trn.service_type = "DISPLACED" AND ppv.has_photo = 1 AND s_trn.source_municipality = trn.source_municipality ) AS total_displaced_w_id,
+        (SELECT COUNT(DISTINCT s_trn.pro_voter_id) FROM tbl_tupad_transaction  s_trn WHERE s_trn.service_type = "DISPLACED" AND s_trn.is_voter = 1 AND s_trn.source_municipality = trn.source_municipality ) AS total_displaced_is_voter
+        
+        FROM tbl_tupad_transaction trn INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = trn.pro_voter_id
+        
+        WHERE (pv.is_kalaban <> 1 OR pv.is_kalaban IS NULL OR pv.is_kalaban = 0)
+        GROUP BY source_municipality';
+
+        $stmt = $em->getConnection()->query($sql);
+        $data = [];
+
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return new JsonResponse($data);
+    }
+
+    /**
+     * @Route("/ajax_get_assistance_municipality_summary/{municipalityName}", name="ajax_get_assistance_municipality_summary", options={"expose"=true})
+     * @Method("GET")
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function ajaxGetMunicipalitySummaryAction(Request $request,$municipalityName)
+    {
+        $em = $this->getDoctrine()->getManager("tupad");
+        $em->getConnection()->getConfiguration()->setSQLLogger(null);
+
+        $sql = 'SELECT COUNT(*), source_barangay ,
+        COALESCE(COUNT(CASE WHEN service_type = "SLP" THEN 1 END), 0) AS total_slp,
+        (SELECT COUNT(DISTINCT s_trn.pro_voter_id) FROM tbl_tupad_transaction  s_trn WHERE s_trn.service_type = "SLP" AND s_trn.source_municipality = trn.source_municipality AND s_trn.source_barangay = trn.source_barangay ) AS total_slp_uniq,
+        (SELECT COUNT(DISTINCT ppv.pro_voter_id) FROM tbl_tupad_transaction  s_trn INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id  = s_trn.pro_voter_id  WHERE s_trn.service_type = "SLP" AND ppv.has_photo = 1 AND s_trn.source_municipality = trn.source_municipality AND s_trn.source_barangay = trn.source_barangay ) AS total_slp_w_id,
+        (SELECT COUNT(DISTINCT s_trn.pro_voter_id) FROM tbl_tupad_transaction  s_trn WHERE s_trn.service_type = "SLP" AND s_trn.is_voter = 1 AND s_trn.source_municipality = trn.source_municipality AND s_trn.source_barangay = trn.source_barangay ) AS total_slp_is_voter,
+        COALESCE(COUNT(CASE WHEN service_type = "AICS_FOOD" THEN 1 END), 0) AS total_aics_food,
+        (SELECT COUNT(DISTINCT s_trn.pro_voter_id) FROM tbl_tupad_transaction  s_trn WHERE s_trn.service_type = "AICS_FOOD" AND s_trn.source_municipality = trn.source_municipality AND s_trn.source_barangay = trn.source_barangay ) AS total_aics_food_uniq,
+        (SELECT COUNT(DISTINCT ppv.pro_voter_id) FROM tbl_tupad_transaction  s_trn INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = s_trn.pro_voter_id WHERE s_trn.service_type = "AICS_FOOD"  AND ppv.has_photo = 1 AND s_trn.source_municipality = trn.source_municipality AND s_trn.source_barangay = trn.source_barangay ) AS total_aics_food_w_id,
+        (SELECT COUNT(DISTINCT s_trn.pro_voter_id) FROM tbl_tupad_transaction  s_trn WHERE s_trn.service_type = "AICS_FOOD"  AND s_trn.is_voter = 1 AND s_trn.source_municipality = trn.source_municipality AND s_trn.source_barangay = trn.source_barangay ) AS total_aics_food_is_voter,
+        COALESCE(COUNT(CASE WHEN service_type = "AICS_EDUC" THEN 1 END), 0) AS total_aics_educ,
+        (SELECT COUNT(DISTINCT s_trn.pro_voter_id) FROM tbl_tupad_transaction  s_trn WHERE s_trn.service_type = "AICS_EDUC" AND s_trn.source_municipality = trn.source_municipality AND s_trn.source_barangay = trn.source_barangay ) AS total_aics_educ_uniq,
+        (SELECT COUNT(DISTINCT ppv.pro_voter_id) FROM tbl_tupad_transaction  s_trn INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = s_trn.pro_voter_id  WHERE s_trn.service_type = "AICS_EDUC" AND ppv.has_photo = 1 AND s_trn.source_municipality = trn.source_municipality AND s_trn.source_barangay = trn.source_barangay ) AS total_aics_educ_w_id,
+        (SELECT COUNT(DISTINCT s_trn.pro_voter_id) FROM tbl_tupad_transaction  s_trn WHERE s_trn.service_type = "AICS_EDUC" AND s_trn.is_voter = 1 AND s_trn.source_municipality = trn.source_municipality AND s_trn.source_barangay = trn.source_barangay ) AS total_aics_educ_is_voter,
+        COALESCE(COUNT(CASE WHEN service_type = "DISPLACED" THEN 1 END), 0) AS total_displaced,
+        (SELECT COUNT(DISTINCT s_trn.pro_voter_id) FROM tbl_tupad_transaction  s_trn WHERE s_trn.service_type = "DISPLACED" AND s_trn.source_municipality = trn.source_municipality AND s_trn.source_barangay = trn.source_barangay ) AS total_displaced_uniq,
+        (SELECT COUNT(DISTINCT ppv.pro_voter_id) FROM tbl_tupad_transaction  s_trn INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = s_trn.pro_voter_id WHERE s_trn.service_type = "DISPLACED" AND ppv.has_photo = 1 AND s_trn.source_municipality = trn.source_municipality AND s_trn.source_barangay = trn.source_barangay ) AS total_displaced_w_id,
+        (SELECT COUNT(DISTINCT s_trn.pro_voter_id) FROM tbl_tupad_transaction  s_trn WHERE s_trn.service_type = "DISPLACED" AND s_trn.is_voter = 1 AND s_trn.source_municipality = trn.source_municipality AND s_trn.source_barangay = trn.source_barangay ) AS total_displaced_is_voter
+        
+        FROM tbl_tupad_transaction trn INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = trn.pro_voter_id 
+        
+        WHERE (pv.is_kalaban <> 1 OR pv.is_kalaban IS NULL OR pv.is_kalaban = 0) AND trn.source_municipality = ?
+        GROUP BY source_barangay ORDER BY source_barangay ASC ';
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, $municipalityName);
+        $stmt->execute();
+        $data = [];
+
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return new JsonResponse($data);
+    }
+
+     /**
+     * @Route("/ajax_get_datatable_tupad_summary_transactions", name="ajax_get_datatable_tupad_summary_transactions", options={"expose"=true})
+     * @Method("GET")
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function ajaxGetDatatableTupadSummaryTransactionsAction(Request $request)
+    {
+        $columns = array(
+            0 => "h.id",
+            1 => "h.b_name",
+            2 => "h.service_type",
+            3 => "h.source_municipality",
+            4 => "h.source_barangay",
+            5 => "h.is_voter",
+        );
+
+        $sWhere = "";
+
+        $select['h.b_name'] = $request->get('bName');
+        $select['h.service_type'] = $request->get('serviceType');
+        $select['h.source_municipality'] = $request->get('sourceMunicipality');
+        $select['h.source_barangay'] = $request->get('sourceBarangay');
+
+        foreach ($select as $key => $value) {
+            $searchValue = $select[$key];
+            if ($searchValue != null || !empty($searchValue)) {
+                $sWhere .= " AND " . $key . " LIKE \"%" . $searchValue . "%\"";
+            }
+        }
+
+        $sOrder = "";
+
+        if (null !== $request->query->get('order')) {
+            $sOrder = "ORDER BY  ";
+            for ($i = 0; $i < intval(count($request->query->get('order'))); $i++) {
+                if ($request->query->get('columns')[$request->query->get('order')[$i]['column']]['orderable']) {
+                    $selected_column = $columns[$request->query->get('order')[$i]['column']];
+                    $sOrder .= " " . $selected_column . " " .
+                        ($request->query->get('order')[$i]['dir'] === 'asc' ? 'ASC' : 'DESC') . ", ";
+                }
+            }
+
+            $sOrder = substr_replace($sOrder, "", -2);
+            if ($sOrder == "ORDER BY") {
+                $sOrder = "";
+            }
+        }
+
+        $start = 1;
+        $length = 1;
+
+        if (null !== $request->query->get('start') && null !== $request->query->get('length')) {
+            $start = intval($request->query->get('start'));
+            $length = intval($request->query->get('length'));
+        }
+
+        $em = $this->getDoctrine()->getManager("tupad");
+        $em->getConnection()->getConfiguration()->setSQLLogger(null);
+
+        $sql = "SELECT COALESCE(count(h.id),0) FROM tbl_tupad_transaction h WHERE 1 ";
+
+        $stmt = $em->getConnection()->query($sql);
+        $recordsTotal = $stmt->fetchColumn();
+
+        $sql = "SELECT COALESCE(COUNT(h.id),0) FROM tbl_tupad_transaction h WHERE 1 ";
+
+        $sql .= $sWhere . " " . $sOrder;
+        $stmt = $em->getConnection()->query($sql);
+        $recordsFiltered = $stmt->fetchColumn();
+
+        $sql = "SELECT h.* FROM tbl_tupad_transaction h 
+                WHERE 1 " . $sWhere . " " . $sOrder . " LIMIT {$length} OFFSET {$start} ";
+
+        $stmt = $em->getConnection()->query($sql);
+        $data = [];
+
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        $draw = (null !== $request->query->get('draw')) ? $request->query->get('draw') : 0;
+        $res['data'] = $data;
+        $res['recordsTotal'] = $recordsTotal;
+        $res['recordsFiltered'] = $recordsFiltered;
+        $res['draw'] = $draw;
+
+        return new JsonResponse($res);
+    }
 }

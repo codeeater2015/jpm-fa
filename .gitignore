@@ -5,4 +5,3 @@
 /vendor/
 ###> symfony/webpack-encore-pack ###
 /tools/node_modules/
-/web/uploads/images

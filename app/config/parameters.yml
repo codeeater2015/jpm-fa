@@ -11,6 +11,11 @@ parameters:
     tupad_name: tupad_2023
     tupad_user: jpm_admin
     tupad_password: kmmsitdadmin
+    voter_province_host : localhost
+    voter_province_port : 3306
+    voter_province_name: voter_province_merged
+    voter_province_user: jpm_admin
+    voter_province_password: kmmsitdadmin
 #    rescue_host: 127.0.0.1
 #    rescue_port: 3308
 #    rescue_name: voter_province_2021

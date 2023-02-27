@@ -76,6 +76,14 @@ doctrine:
                 user:     "%tupad_user%"
                 password: "%tupad_password%"
                 charset:  UTF8
+            province:
+                driver:   pdo_mysql
+                host:     "%voter_province_host%"
+                port:     "%voter_province_port%"
+                dbname:   "%voter_province_name%"
+                user:     "%voter_province_user%"
+                password: "%voter_province_password%"
+                charset:  UTF8
             
 #            rescue:
 #                driver:   pdo_mysql
@@ -121,6 +129,10 @@ doctrine:
                     AppBundle:  ~
             tupad:
                 connection: tupad
+                mappings:
+                    AppBundle:  ~
+            province:
+                connection: province
                 mappings:
                     AppBundle:  ~
 #            rescue:

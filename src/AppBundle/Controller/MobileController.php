@@ -3883,4 +3883,92 @@ class MobileController extends Controller
          return $response;
      }
 
+
+     /** */
+
+     /**
+     * @Route("/ajax_m_get_project_voters_2023",
+     *       name="ajax_m_get_project_voters_2023",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetJpmProjectVoters2023(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("province");
+
+        $provinceCode = $request->get('provinceCode');
+        $municipalityNo = $request->get('municipalityNo');
+        $municipalityName  = $request->get('municipalityName');
+        $barangayName = $request->get('barangayName');
+        $voterGroup = $request->get('voterGroup');
+        $groupFilter = strtoupper($request->get("groupFilter"));
+
+        $brgyNo = $request->get("brgyNo");
+        $voterName = $request->get("voterName");
+        $imgUrl = $this->getParameter('img_url');
+        $batchSize = 10;
+        $batchNo = $request->get("batchNo");
+
+        $batchOffset = $batchNo * $batchSize;
+
+        $sql = "SELECT pv.* FROM tbl_project_voter pv WHERE 1 AND ";
+
+        if (!is_numeric($voterName)) {
+            $sql .= " (pv.voter_name LIKE ? OR ? IS NULL ) ";
+        } else {
+            $sql .= " (pv.generated_id_no LIKE ? OR ? IS NULL ) ";
+        }
+
+        switch($groupFilter){
+            case "MEMBERS" :
+                $sql .= "   AND pv.voter_group IN ('LGC','LOPP','LPPP','LPPP1','LPPP2','LPPP3') AND pv.has_photo = 1 AND pv.is_kalaban <> 1 ";
+                break;
+            case "NON_MEMBERS" : 
+                $sql .= " AND pv.voter_group NOT IN ('LGC','LOPP','LPPP','LPPP1','LPPP2','LPPP3') AND (pv.has_photo = 0 OR pv.has_photo IS NULL) ";
+                break;
+            case "BLOCKED" : 
+                $sql .= " AND pv.is_kalaban = 1 ";
+                break;
+        }
+
+
+        $sql .= "AND pv.elect_id = ? 
+        AND (pv.municipality_name = ? OR ? IS NULL) 
+        AND (pv.barangay_name = ? OR ? IS NULL) 
+        AND (pv.voter_group = ? OR ? IS NULL) 
+        AND pv.precinct_no IS NOT NULL 
+        ORDER BY pv.voter_name ASC LIMIT {$batchSize} OFFSET {$batchOffset}";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, '%' . $voterName . '%');
+        $stmt->bindValue(2, empty($voterName) ? null : '%' . $voterName . '%');
+        $stmt->bindValue(3, self::ACTIVE_ELECTION);
+        $stmt->bindValue(4, $municipalityName);
+        $stmt->bindValue(5, empty($municipalityName) ? null : $municipalityName );
+        $stmt->bindValue(6, $barangayName);
+        $stmt->bindValue(7, empty($barangayName) ? null : $barangayName );
+        $stmt->bindValue(8, $voterGroup);
+        $stmt->bindValue(9, empty($voterGroup) ? null : $voterGroup );
+        $stmt->execute();
+
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $row['imgUrl'] = $imgUrl .  '3_' . $row['generated_id_no'] . '?' . strtotime((new \DateTime())->format('Y-m-d H:i:s'));
+            $row['cellphone_no'] = $row['cellphone'];
+            $data[] = $row;
+        }
+
+        // foreach($data as &$row){
+        //      $lgc = $this->getLGC($row['municipality_no'], $row['brgy_no']);
+        //      $row['lgc'] = [
+        //         'voter_name' => '- disabled -',//$lgc['voter_name'],
+        //         'cellphone' => '- disabled -'//$lgc['cellphone']
+        //     ];
+        // }
+
+        return new JsonResponse($data);
+    }
 }

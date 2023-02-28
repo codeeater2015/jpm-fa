@@ -3935,8 +3935,8 @@ class MobileController extends Controller
 
 
         $sql .= "AND pv.elect_id = ? 
-        AND (pv.municipality_name = ? OR ? IS NULL) 
-        AND (pv.barangay_name = ? OR ? IS NULL) 
+        AND (pv.municipality_name LIKE ? OR ? IS NULL) 
+        AND (pv.barangay_name LIKE ? OR ? IS NULL) 
         AND (pv.voter_group = ? OR ? IS NULL) 
         AND pv.precinct_no IS NOT NULL 
         ORDER BY pv.voter_name ASC LIMIT {$batchSize} OFFSET {$batchOffset}";
@@ -3945,10 +3945,10 @@ class MobileController extends Controller
         $stmt->bindValue(1, '%' . $voterName . '%');
         $stmt->bindValue(2, empty($voterName) ? null : '%' . $voterName . '%');
         $stmt->bindValue(3, self::ACTIVE_ELECTION);
-        $stmt->bindValue(4, $municipalityName);
-        $stmt->bindValue(5, empty($municipalityName) ? null : $municipalityName );
-        $stmt->bindValue(6, $barangayName);
-        $stmt->bindValue(7, empty($barangayName) ? null : $barangayName );
+        $stmt->bindValue(4, '%' . $municipalityName . '%');
+        $stmt->bindValue(5, empty($municipalityName) ? null : '%' . $municipalityName  . '%');
+        $stmt->bindValue(6, '%' . $barangayName . '%');
+        $stmt->bindValue(7, empty($barangayName) ? null : '%' . $barangayName . '%' );
         $stmt->bindValue(8, $voterGroup);
         $stmt->bindValue(9, empty($voterGroup) ? null : $voterGroup );
         $stmt->execute();

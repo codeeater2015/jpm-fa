@@ -4082,7 +4082,7 @@ class MobileController extends Controller
         FROM tbl_project_voter pv
         WHERE pv.pro_id = 3 AND pv.elect_id = 4 
         AND pv.has_photo = 1 AND pv.precinct_no IS NOT NULL AND pv.voter_no IS NOT NULL  
-        AND pv.voter_group IN ("LGC","LOPP","LPPP","LPPP1","LPPP","LPPP3") AND pv.municipality_name IN ' . $municipalityStr;
+        AND pv.voter_group IN ("LGC","LOPP","LPPP","LPPP1","LPPP2","LPPP3") AND pv.municipality_name IN ' . $municipalityStr;
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();

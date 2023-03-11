@@ -4061,28 +4061,28 @@ class MobileController extends Controller
         $municipalities = $request->get('municipalities');
         $results = [];
 
-        $municipalityStr = "";
+        $municipalityStr = '';
 
         foreach($municipalities as $municipality){
-            $municipalityStr .= "'" . $municipality . "',";
+            $municipalityStr .=  '"'. $municipality . '",';
         }
         
         $municipalityStr = substr($municipalityStr, 0, -1);
         $municipalityStr = '(' . $municipalityStr . ')';
 
-        $sql = "SELECT 
+        $sql = 'SELECT 
         COALESCE( COUNT(pv.pro_voter_id),0) AS total_members,
-        COALESCE(COUNT(CASE WHEN pv.voter_group = 'LGC' THEN 1 END),0) AS total_lgc,
-        COALESCE(COUNT(CASE WHEN pv.voter_group = 'LOPP' THEN 1 END),0) AS total_lopp,
-        COALESCE(COUNT(CASE WHEN pv.voter_group = 'LPPP' THEN 1 END),0) AS total_lppp,
-        COALESCE(COUNT(CASE WHEN pv.voter_group = 'LPPP1' THEN 1 END),0) AS total_lppp1,
-        COALESCE(COUNT(CASE WHEN pv.voter_group = 'LPPP2' THEN 1 END),0) AS total_lppp2,
-        COALESCE(COUNT(CASE WHEN pv.voter_group = 'LPPP3' THEN 1 END),0) AS total_lppp3
+        COALESCE(COUNT(CASE WHEN pv.voter_group = "LGC" THEN 1 END),0) AS total_lgc,
+        COALESCE(COUNT(CASE WHEN pv.voter_group = "LOPP" THEN 1 END),0) AS total_lopp,
+        COALESCE(COUNT(CASE WHEN pv.voter_group = "LPPP" THEN 1 END),0) AS total_lppp,
+        COALESCE(COUNT(CASE WHEN pv.voter_group = "LPPP1" THEN 1 END),0) AS total_lppp1,
+        COALESCE(COUNT(CASE WHEN pv.voter_group = "LPPP2" THEN 1 END),0) AS total_lppp2,
+        COALESCE(COUNT(CASE WHEN pv.voter_group = "LPPP3" THEN 1 END),0) AS total_lppp3
         
         FROM tbl_project_voter pv
         WHERE pv.pro_id = 3 AND pv.elect_id = 4 
         AND pv.has_photo = 1 AND pv.precinct_no IS NOT NULL AND pv.voter_no IS NOT NULL  
-        AND pv.voter_group IN ('LGC','LOPP','LPPP','LPPP1','LPPP2','LPPP3') AND pv.municipality_name IN ${municipalityStr}";
+        AND pv.voter_group IN ("LGC","LOPP","LPPP","LPPP1","LPPP","LPPP3") AND pv.municipality_name IN ' . $municipalityStr;
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();

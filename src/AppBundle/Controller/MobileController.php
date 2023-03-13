@@ -4179,4 +4179,46 @@ class MobileController extends Controller
  
      }
 
+     /**
+     * @Route("/jpm/ajax_get_member_summary_by_district", 
+     *       name="ajax_get_member_summary_by_district",
+     *		options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetMemberByDistrictSummary(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("province"); 
+        $district = $request->get('district');
+        $results = [];
+
+     
+
+        $sql = 'SELECT 
+        COALESCE( COUNT(pv.pro_voter_id),0) AS total_members,
+        COALESCE(COUNT(CASE WHEN pv.voter_group = "LGC" THEN 1 END),0) AS total_lgc,
+        COALESCE(COUNT(CASE WHEN pv.voter_group = "LOPP" THEN 1 END),0) AS total_lopp,
+        COALESCE(COUNT(CASE WHEN pv.voter_group = "LPPP" THEN 1 END),0) AS total_lppp,
+        COALESCE(COUNT(CASE WHEN pv.voter_group = "LPPP1" THEN 1 END),0) AS total_lppp1,
+        COALESCE(COUNT(CASE WHEN pv.voter_group = "LPPP2" THEN 1 END),0) AS total_lppp2,
+        COALESCE(COUNT(CASE WHEN pv.voter_group = "LPPP3" THEN 1 END),0) AS total_lppp3,
+        m.district
+        FROM tbl_project_voter pv 
+        INNER JOIN psw_municipality m ON pv.municipality_no = m.municipality_no AND m.province_code = 53 
+        WHERE pv.pro_id = 3 AND pv.elect_id = 4 
+        AND pv.has_photo = 1 AND pv.precinct_no IS NOT NULL AND pv.voter_no IS NOT NULL  
+        AND pv.voter_group IN ("LGC","LOPP","LPPP","LPPP1","LPPP2","LPPP3") AND m.district = ? ';
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1,$district);
+        $stmt->execute();
+
+        $results = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+
+        return new JsonResponse($results);
+
+    }
+
 }

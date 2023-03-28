@@ -288,8 +288,11 @@ class TupadController extends Controller
 
         $select['h.b_name'] = $request->get('bName');
         $select['h.service_type'] = $request->get('serviceType');
+        $select['h.source'] = $request->get('source');
         $select['h.source_municipality'] = $request->get('sourceMunicipality');
         $select['h.source_barangay'] = $request->get('sourceBarangay');
+        $select['h.b_municipality'] = $request->get('bMunicipality');
+        $select['h.b_barangay'] = $request->get('bBarangay');
 
         foreach ($select as $key => $value) {
             $searchValue = $select[$key];

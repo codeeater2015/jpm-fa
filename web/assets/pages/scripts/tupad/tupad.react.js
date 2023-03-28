@@ -9,7 +9,8 @@ var TupadComponent = React.createClass({
                     municipalityName: null,
                     barangayNo: null,
                     barangayName: null,
-                    serviceType: null
+                    serviceType: null,
+                    source : null
                 }
             }
         }
@@ -93,8 +94,8 @@ var TupadComponent = React.createClass({
         }).done(function (res) {
             var form = self.state.form;
             form.data.municipalityName = res.name;
-            self.setState({ form: form },self.reload);
-        }).fail(function(){
+            self.setState({ form: form }, self.reload);
+        }).fail(function () {
             var form = self.state.form;
             form.data.municipalityName = null;
             self.setState({ form: form });
@@ -105,13 +106,13 @@ var TupadComponent = React.createClass({
         var self = this;
 
         self.requestMunicipality = $.ajax({
-            url: Routing.generate("ajax_get_barangay_loc", { municipalityNo : municipalityNo, brgyNo : barangayNo }),
+            url: Routing.generate("ajax_get_barangay_loc", { municipalityNo: municipalityNo, brgyNo: barangayNo }),
             type: "GET"
         }).done(function (res) {
             var form = self.state.form;
             form.data.barangayName = res.name;
-            self.setState({ form: form },self.reload);
-        }).fail(function(){
+            self.setState({ form: form }, self.reload);
+        }).fail(function () {
             var form = self.state.form;
             form.data.barangayName = null;
             self.setState({ form: form });
@@ -132,11 +133,11 @@ var TupadComponent = React.createClass({
     openCreateModal: function () {
         this.setState({ showCreateModal: true });
     },
-    
+
     closeCreateModal: function () {
         this.setState({ showCreateModal: false });
     },
-    
+
     setFormPropValue: function (field, value) {
         var form = this.state.form;
         form.data[field] = value;
@@ -146,15 +147,20 @@ var TupadComponent = React.createClass({
     setFormProp: function (e) {
         var form = this.state.form;
         form.data[e.target.name] = e.target.value;
-        this.setState({ form: form },this.reload);
+
+        console.log("e.target.name", e.target.name);
+        console.log(' value', e.target.value);
+
+        this.setState({ form: form }, this.reload);
     },
 
-    reload: function(){
+    reload: function () {
         this.refs.tupadDatatableReference.reload();
     },
 
     render: function () {
         var self = this;
+
         return (
             <div className="portlet light portlet-fit bordered">
                 <div className="portlet-body" id="tupad_component">
@@ -168,6 +174,7 @@ var TupadComponent = React.createClass({
                             reload={this.reload}
                             onHide={this.closeCreateModal}
                             serviceType={this.state.form.data.serviceType}
+                            source={this.state.form.data.source}
                             municipalityNo={this.state.form.data.municipalityNo}
                             municipalityName={this.state.form.data.municipalityName}
                             barangayName={this.state.form.data.barangayName}
@@ -185,25 +192,40 @@ var TupadComponent = React.createClass({
                             </select>
                         </div>
                         <div className="col-md-2">
-                            <select className="form-control" onChange={this.setFormProp} value={this.state.activeTable} name="serviceType">
+                            <select className="form-control" onChange={this.setFormProp} value={this.state.form.data.serviceType} name="serviceType">
                                 <option value=""> - SELECT TYPE OF SERVICE - </option>
                                 <option value="AICS_FOOD">Food Assistance</option>
                                 <option value="SLP">Sustainable Livelihood Program(SLP)</option>
                                 <option value="AICS_EDUC">DSWD-AICS Educational Assistance</option>
-                                <option value="DISPLACED">Tulong Panghanapbuhay (Disadvantage /Displaced Workers)</option>
+                                <option value="TUPAD">Tulong Panghanapbuhay (Disadvantage /Displaced Workers)</option>
                             </select>
                         </div>
+
+                        <div className="col-md-2">
+                            <select className="form-control" onChange={this.setFormProp} value={this.state.form.data.source} name="source">
+                                <option value=""> - SELECT SOURCE - </option>
+                                <option value="VICE">VICE OLA / PROVINCE</option>
+                                <option value="SIR GING">SIR GING</option>
+                                <option value="SIR TON">SIR TON</option>
+                            </select>
+                        </div>
+
+                        <div className="col-md-2">
+                            <input type="date"  className="input-md form-control"  name="release_date" />
+                        </div>
+
                         <div className="col-md-2">
                             <button type="button" className="btn btn-primary" onClick={this.openCreateModal}>Add Record</button>
                         </div>
                     </div>
 
                     <div className="row">
-                        <TupadDatatable 
-                            sourceMunicipality={self.state.form.data.municipalityName} 
-                            sourceBarangay={self.state.form.data.barangayName} 
-                            serviceType={self.state.form.data.serviceType} 
-                        ref="tupadDatatableReference"/>
+                        <TupadDatatable
+                            sourceMunicipality={self.state.form.data.municipalityName}
+                            sourceBarangay={self.state.form.data.barangayName}
+                            serviceType={self.state.form.data.serviceType}
+                            source={this.state.form.data.source}
+                            ref="tupadDatatableReference" />
                     </div>
                 </div>
             </div>

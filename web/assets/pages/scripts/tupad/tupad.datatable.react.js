@@ -199,14 +199,18 @@ var TupadDatatable = React.createClass({
                         d.sourceMunicipality = self.props.sourceMunicipality;
                         d.sourceBarangay = self.props.sourceBarangay;
                         d.serviceType = self.props.serviceType;
-                        //d.bName = $('#tupad_table input[name="beneficiary_name"]');
-                        //d.bMunicipality = $('#tupad_table input[name="b_municipality"]');
-                        //d.bBarangay = $('#tupad_table input[name="b_barangay"]');
+                        d.source = self.props.source;
+                    
+                        d.bName = $('#tupad_table input[name="beneficiary_name"]').val();
+                        d.bMunicipality = $('#tupad_table input[name="b_municipality"]').val();
+                        d.bBarangay = $('#tupad_table input[name="b_barangay"]').val();
+
+                        console.log("active source", self.props.source);
                     }
                 },
                 "columnDefs": [{
                     'orderable': false,
-                    'targets': [0, 2, 3, 4, 5, 6, 7, 8]
+                    'targets': [0, 2, 3, 4, 5, 6, 7, 8, 9]
                 }, {
                     'className': 'align-center',
                     'targets': [0, 3]
@@ -260,14 +264,27 @@ var TupadDatatable = React.createClass({
                             return parseInt(data) == 1 ? "YES" : "NO";
                         }
                     },
+
                     {
-                        "width": 50,
+                        "data": "source",
                         "className": "text-center",
-                        "render": function (data, type, row) {
-                            var deleteBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-red-sunglo delete-button' data-toggle='tooltip' data-title='Delete'><i class='fa fa-trash' ></i></a>";
-                            return deleteBtn;
-                        }
+                        "width": 50 
+                    },
+                    
+                    {
+                        "data": "release_date",
+                        "className": "text-center",
+                        "width": 50 
                     }
+
+                    // {
+                    //     "width": 50,
+                    //     "className": "text-center",
+                    //     "render": function (data, type, row) {
+                    //         var deleteBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-red-sunglo delete-button' data-toggle='tooltip' data-title='Delete'><i class='fa fa-trash' ></i></a>";
+                    //         return "";
+                    //     }
+                    // }
                 ],
             }
         });
@@ -344,7 +361,8 @@ var TupadDatatable = React.createClass({
                                 <th>Reg. Municipality</th>
                                 <th>Reg. Barangay</th>
                                 <th>Is Voter</th>
-                                <th width="50px"></th>
+                                <th>Source</th>
+                                <th>Date Released</th>
                             </tr>
                             <tr>
                                 <td></td>
@@ -360,6 +378,7 @@ var TupadDatatable = React.createClass({
                                 <td style={{ padding: "10px 5px" }}>
                                     <input type="text" className="form-control form-filter input-sm" name="b_barangay" onChange={this.handleFilterChange} />
                                 </td>
+                                <td></td>
                                 <td></td>
                                 <td></td>
                             </tr>

@@ -41,7 +41,7 @@ class TupadTransaction
      /**
      * @var string
      *
-     * @ORM\Column(name="generated_id_no", type="string", length=30)
+     * @ORM\Column(name="generated_id_no", type="string", length=50)
      */
     private $generatedIdNo;
 
@@ -123,6 +123,27 @@ class TupadTransaction
      * @Assert\NotBlank()
      */
     private $serviceType;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="source", type="string", length=50)
+     */
+    private $source;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="release_date", type="string", length=50)
+     */
+    private $releaseDate;
+
+      /**
+     * @var string
+     *
+     * @ORM\Column(name="cellphone_no", type="string", length=50)
+     */
+    private $cellphoneNo;
 
     /**
      * @var datetime
@@ -629,5 +650,77 @@ class TupadTransaction
     public function getBStatus()
     {
         return $this->bStatus;
+    }
+
+    /**
+     * Set source
+     *
+     * @param string $source
+     *
+     * @return TupadTransaction
+     */
+    public function setSource($source)
+    {
+        $this->source = $source;
+
+        return $this;
+    }
+
+    /**
+     * Get source
+     *
+     * @return string
+     */
+    public function getSource()
+    {
+        return $this->source;
+    }
+
+    /**
+     * Set releaseDate
+     *
+     * @param string $releaseDate
+     *
+     * @return TupadTransaction
+     */
+    public function setReleaseDate($releaseDate)
+    {
+        $this->releaseDate = $releaseDate;
+
+        return $this;
+    }
+
+    /**
+     * Get releaseDate
+     *
+     * @return string
+     */
+    public function getReleaseDate()
+    {
+        return $this->releaseDate;
+    }
+
+    /**
+     * Set cellphoneNo
+     *
+     * @param string $cellphoneNo
+     *
+     * @return TupadTransaction
+     */
+    public function setCellphoneNo($cellphoneNo)
+    {
+        $this->cellphoneNo = $cellphoneNo;
+
+        return $this;
+    }
+
+    /**
+     * Get cellphoneNo
+     *
+     * @return string
+     */
+    public function getCellphoneNo()
+    {
+        return $this->cellphoneNo;
     }
 }

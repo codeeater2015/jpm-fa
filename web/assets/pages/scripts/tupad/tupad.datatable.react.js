@@ -200,6 +200,7 @@ var TupadDatatable = React.createClass({
                         d.sourceBarangay = self.props.sourceBarangay;
                         d.serviceType = self.props.serviceType;
                         d.source = self.props.source;
+                        d.releaseDate = self.props.releaseDate;
                     
                         d.bName = $('#tupad_table input[name="beneficiary_name"]').val();
                         d.bMunicipality = $('#tupad_table input[name="b_municipality"]').val();

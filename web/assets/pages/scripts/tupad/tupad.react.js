@@ -10,7 +10,8 @@ var TupadComponent = React.createClass({
                     barangayNo: null,
                     barangayName: null,
                     serviceType: null,
-                    source : null
+                    source : null,
+                    releaseDate : null
                 }
             }
         }
@@ -175,6 +176,7 @@ var TupadComponent = React.createClass({
                             onHide={this.closeCreateModal}
                             serviceType={this.state.form.data.serviceType}
                             source={this.state.form.data.source}
+                            releaseDate={this.state.form.data.releaseDate}
                             municipalityNo={this.state.form.data.municipalityNo}
                             municipalityName={this.state.form.data.municipalityName}
                             barangayName={this.state.form.data.barangayName}
@@ -211,7 +213,7 @@ var TupadComponent = React.createClass({
                         </div>
 
                         <div className="col-md-2">
-                            <input type="date"  className="input-md form-control"  name="release_date" />
+                            <input type="date"  onChange={this.setFormProp}  name="releaseDate" className="input-md form-control" />
                         </div>
 
                         <div className="col-md-2">
@@ -225,6 +227,7 @@ var TupadComponent = React.createClass({
                             sourceBarangay={self.state.form.data.barangayName}
                             serviceType={self.state.form.data.serviceType}
                             source={this.state.form.data.source}
+                            releaseDate={this.state.form.data.releaseDate}
                             ref="tupadDatatableReference" />
                     </div>
                 </div>

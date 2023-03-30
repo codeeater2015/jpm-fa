@@ -13,6 +13,7 @@ var TupadCreateModal = React.createClass({
                 data: {
                     municipalityNo: "",
                     barangayNo: "",
+                    cellphoneNo : ""
                 },
                 errors: []
             }
@@ -48,7 +49,7 @@ var TupadCreateModal = React.createClass({
                     <form id="fa-form" >
                         <div className="row">
                             <div className="col-md-12">
-                                
+
                                 <div className="row">
                                     <div className="col-md-6">
                                         <FormGroup controlId="formMunicipalityNo" validationState={this.getValidationState('municipalityNo')}>
@@ -69,6 +70,27 @@ var TupadCreateModal = React.createClass({
                                 </div>
 
                                 <div className="row">
+                                    <div className="col-md-3" >
+                                        <FormGroup controlId="formServiceType" validationState={this.getValidationState('serviceType')}>
+                                            <ControlLabel > Type of Assistance : </ControlLabel>
+                                            <input type="text" value={this.props.serviceType} className="input-md form-control" disabled={true} />
+                                        </FormGroup>
+                                    </div>
+                                    <div className="col-md-3" >
+                                        <FormGroup controlId="formSource" validationState={this.getValidationState('source')}>
+                                            <ControlLabel > Source : </ControlLabel>
+                                            <input type="text" value={this.props.source} className="input-md form-control" disabled={true} />
+                                        </FormGroup>
+                                    </div>
+                                    <div className="col-md-3" >
+                                        <FormGroup controlId="formReleaseDate" validationState={this.getValidationState('releaseDate')}>
+                                            <ControlLabel > Release Date : </ControlLabel>
+                                            <input type="text" value={this.props.releaseDate} className="input-md form-control" disabled={true} />
+                                        </FormGroup>
+                                    </div>
+                                </div>
+
+                                <div className="row">
                                     <div className="col-md-9">
                                         <FormGroup controlId="formVoterName" validationState={this.getValidationState('voterName')}>
                                             <ControlLabel > Beneficiary Name : </ControlLabel>
@@ -81,7 +103,15 @@ var TupadCreateModal = React.createClass({
                                         <button style={{ marginTop: "25px" }} onClick={self.openNewProfileModal} type="button" className="btn btn-primary">New Profile</button>
                                     </div>
                                 </div>
-
+                                <div className="row">
+                                    <div className="col-md-3" >
+                                        <FormGroup controlId="formCellphoneNo" validationState={this.getValidationState('cellphoneNo')}>
+                                            <ControlLabel > Cellphone No: </ControlLabel>
+                                            <input type="text" value={this.state.form.data.cellphoneNo} name="cellphoneNo" className="input-md form-control"  onChange={this.setFormProp} />
+                                            <HelpBlock>{this.getError('cellphoneNo')}</HelpBlock>
+                                        </FormGroup>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -200,7 +230,7 @@ var TupadCreateModal = React.createClass({
         $("#fa-form #voter_select2").on("change", function () {
             self.loadVoter(3, $(this).val());
         });
-     
+
         $("#fa-form #municipality_select2").empty()
             .append($("<option/>")
                 .val(self.props.municipalityNo)
@@ -240,7 +270,7 @@ var TupadCreateModal = React.createClass({
             form.data.bMunicipality = res.municipalityName;
             form.data.bBarangay = res.barangayName;
             form.data.bExtname = res.extname;
-            form.data.isVoter = parseInt(res.isNonVoter) != 1 ? 1 : 0 ;
+            form.data.isVoter = parseInt(res.isNonVoter) != 1 ? 1 : 0;
             form.data.serviceType = self.props.serviceType;
             form.data.bStatus = res.isKalaban;
             form.data.bName = res.voterName;
@@ -323,7 +353,9 @@ var TupadCreateModal = React.createClass({
         var self = this;
         var data = self.state.form.data;
         data.proId = self.props.proId;
-
+        data.source = self.props.source;
+        data.releaseDate  = self.props.releaseDate;
+        
         console.log("form data");
         console.log(self.state.form.data);
 

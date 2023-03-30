@@ -53,6 +53,14 @@ class TupadController extends Controller
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
+        $em = $this->getDoctrine()->getManager("tupad");
+
+        $voter = $em->getRepository("AppBundle:ProjectVoter")
+                ->findOneBy([
+                    'proId' => 3,
+                    'proVoterId' => $request->get("proVoterId"),
+                ]);
+
         $entity = new TupadTransaction();
         $entity->setProVoterId($request->get("proVoterId"));
         $entity->setProIdCode($request->get('proIdCode'));
@@ -65,6 +73,9 @@ class TupadController extends Controller
         $entity->setBExtname(strtoupper($request->get('bExtname')));
         $entity->setIsVoter(strtoupper($request->get('isVoter')));
         $entity->setServiceType($request->get('serviceType'));
+        $entity->setSource($request->get('source'));
+        $entity->setReleaseDate($request->get('releaseDate'));
+        $entity->setCellphoneNo($request->get('cellphoneNo'));
         $entity->setBStatus($request->get('bStatus'));
         $entity->setRemarks(strtoupper($request->get('remarks')));
         $entity->setStatus(self::STATUS_ACTIVE);
@@ -83,14 +94,15 @@ class TupadController extends Controller
             return new JsonResponse($errors, 400);
         }
 
-
-        $em = $this->getDoctrine()->getManager("tupad");
-
         $em->persist($entity);
         $em->flush();
+
+        if($entity->getCellphoneNo() != "" ){
+            $voter->setCellphone($entity->getCellphoneNo());
+            $em->flush();
+        }
+
         $em->clear();
-
-
         $serializer = $this->get('serializer');
 
         return new JsonResponse($serializer->normalize($entity));
@@ -289,6 +301,7 @@ class TupadController extends Controller
         $select['h.b_name'] = $request->get('bName');
         $select['h.service_type'] = $request->get('serviceType');
         $select['h.source'] = $request->get('source');
+        $select['h.release_date'] = $request->get('releaseDate');
         $select['h.source_municipality'] = $request->get('sourceMunicipality');
         $select['h.source_barangay'] = $request->get('sourceBarangay');
         $select['h.b_municipality'] = $request->get('bMunicipality');
@@ -434,7 +447,7 @@ class TupadController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    public function ajaxGetMunicipalitySummaryAction(Request $request,$municipalityName)
+    public function ajaxGetMunicipalitySummaryAction(Request $request, $municipalityName)
     {
         $em = $this->getDoctrine()->getManager("tupad");
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
@@ -475,7 +488,7 @@ class TupadController extends Controller
         return new JsonResponse($data);
     }
 
-     /**
+    /**
      * @Route("/ajax_get_datatable_tupad_summary_transactions", name="ajax_get_datatable_tupad_summary_transactions", options={"expose"=true})
      * @Method("GET")
      * @param Request $request

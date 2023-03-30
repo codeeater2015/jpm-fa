@@ -27,6 +27,7 @@ var FinancialAssistanceComponent = React.createClass({
                 'Last 30 Days': [moment().subtract(29, 'days'), moment()],
                 'This Month': [moment().startOf('month'), moment().endOf('month')],
                 'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                'Last Year': [moment(moment().subtract(1,'year')).startOf('year'), moment(moment().subtract(1,'year')).endOf('year')],
                 'This Year': [moment().startOf('year'), moment().endOf('year')]
             }
         }, self.datetimeCallback);

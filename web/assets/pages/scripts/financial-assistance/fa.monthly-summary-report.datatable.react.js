@@ -124,7 +124,7 @@ var FinancialAssistanceMonthlySummaryReportDatatable = React.createClass({
                         "width": 50,
                         "className": "text-center",
                         "render": function (data) {
-                            return "<a href='javascript:void(0);' class='button'><strong>" + data + '</strong></a>';
+                            return "<a href='javascript:void(0);' class='release-button'><strong>" + data + '</strong></a>';
                         }
                     },
                     {
@@ -206,7 +206,7 @@ var FinancialAssistanceMonthlySummaryReportDatatable = React.createClass({
 
         financial_assistance_monthly_summary.on('click', '.release-button', function () {
             var data = grid_project_event.getDataTable().row($(this).parents('tr')).data();
-            self.setState({ showReleasedListModal: true, target: data.id });
+            self.setState({ showReleasedListModal: true, target: data.month_name });
         });
 
         financial_assistance_monthly_summary.on('click', '.delete-button', function () {
@@ -264,12 +264,14 @@ var FinancialAssistanceMonthlySummaryReportDatatable = React.createClass({
 
                 {
                     this.state.showReleasedListModal &&
-                    <FinancialAssistanceReleasedListModal
+                    <FinancialAssistanceMonthlyListModal
                         proId={3}
                         show={this.state.showReleasedListModal}
                         notify={this.props.notify}
                         reload={this.reload}
-                        id={this.state.target}
+                        month={this.state.target}
+                        startDate={this.props.startDate}
+                        endDate={this.props.endDate}
                         onHide={this.closeReleasedListModal}
                     />
                 }

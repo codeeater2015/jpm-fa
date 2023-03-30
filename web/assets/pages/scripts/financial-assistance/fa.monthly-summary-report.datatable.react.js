@@ -196,7 +196,7 @@ var FinancialAssistanceMonthlySummaryReportDatatable = React.createClass({
                         "className": "text-center",
                         "width": 50,
                         "render": function (data) {
-                            return "<a href='javascript:void(0);' class='button'><strong>" + self.numberWithCommas(parseFloat(data).toFixed(2)) + '</strong></a>';
+                            return "<a href='javascript:void(0);' class='release-button'><strong>" + self.numberWithCommas(parseFloat(data).toFixed(2)) + '</strong></a>';
                         }
                     }
                 ],

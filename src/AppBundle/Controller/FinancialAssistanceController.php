@@ -819,6 +819,82 @@ class FinancialAssistanceController extends Controller
     	return new JsonResponse($serializer->normalize($entity));
     }
 
+
+    /**
+    * @Route("/ajax_patch_financial_assistance_release/{trnId}", 
+    * 	name="ajax_patch_financial_assistance_release",
+    *	options={"expose" = true}
+    * )
+    * @Method("PATCH")
+    */
+
+    public function ajaxPatchFinancialAssistanceReleaseAction(Request $request,$trnId){
+        $em = $this->getDoctrine()->getManager();
+
+        $entity = $em->getRepository("AppBundle:FinancialAssistanceHeader")->find($trnId);
+
+        if(!$entity)
+            return new JsonResponse(null,404);
+        
+        $entity->setProjectedAmt(empty($request->get('projectedAmt')) ? 0 : $request->get('projectedAmt'));
+        $entity->setGrantedAmt(empty($request->get('grantedAmt'))? 0 : $request->get('grantedAmt'));
+        $entity->setReceivedBy(strtoupper($request->get('receivedBy')));
+        $entity->setReleaseDate(strtoupper($request->get('releaseDate')));
+        $entity->setReleasingOffice(strtoupper($request->get('releasingOffice')));
+
+        if(!empty($request->get('releaseDate'))  && $request->get('grantedAmt') > 0 ){
+            $entity->setIsReleased(1);
+        }
+
+    	$validator = $this->get('validator');
+        $violations = $validator->validate($entity);
+
+        $errors = [];
+
+        if(count($violations) > 0){
+            foreach( $violations as $violation ){
+                $errors[$violation->getPropertyPath()] =  $violation->getMessage();
+            }
+            return new JsonResponse($errors,400);
+        }
+        
+        $em->flush();
+    	$em->clear();
+
+        $requirements = $em->getRepository("AppBundle:FinancialMedRequirements")->findOneBy(['trnId' => $entity->getTrnId()]);
+
+        if(!$requirements)
+            return new JsonResponse(['message' => 'Requirement not found.'],404);
+      
+        $requirements->setHasReqLetter($request->get('hasReqLetter'));
+        $requirements->setHasBrgyClearance($request->get('hasBrgyClearance'));
+        $requirements->setHasPatientId($request->get('hasPatientId'));
+        $requirements->setHasMedCert($request->get('hasMedCert'));
+        $requirements->setHasMedAbst($request->get('hasMedAbst'));
+        $requirements->setHasPromisoryNote($request->get('hasPromisoryNote'));
+        $requirements->setHasBillStatement($request->get('hasBillStatement'));
+        $requirements->setHasPriceQuot($request->get('hasPriceQuot'));
+        $requirements->setHasReqOfPhysician($request->get('hasReqOfPhysician'));
+        $requirements->setHasReseta($request->get('hasReseta'));
+        $requirements->setHasSocialCastReport($request->get('hasSocialCastReport'));
+        $requirements->setHasPoliceReport($request->get('hasPoliceReport'));
+        $requirements->setHasDeathCert($request->get('hasDeathCert'));
+
+        $requirements->setIsDswdMedical($request->get('isDswdMedical'));
+        $requirements->setIsDswdOpd($request->get('isDswdOpd'));
+        $requirements->setIsDohMaipMedical($request->get('isDohMaipMedical'));
+        $requirements->setIsDohMaipOpd($request->get('isDohMaipOpd'));
+    
+        $em->flush();
+    	$em->clear();
+
+
+    	$serializer = $this->get('serializer');
+
+    	return new JsonResponse($serializer->normalize($entity));
+    }
+
+
     /**
     * @Route("/ajax_delete_financial_assistance/{trnId}", 
     * 	name="ajax_delete_financial_assistance",

@@ -3889,9 +3889,6 @@ class MobileController extends Controller
         return $response;
     }
 
-
-    /** */
-
     /**
      * @Route("/ajax_m_get_project_voters_2023",
      *       name="ajax_m_get_project_voters_2023",
@@ -4221,4 +4218,129 @@ class MobileController extends Controller
 
     }
 
+
+    /**
+     * @Route("/ajax_m_get_project_voters_canlaon",
+     *       name="ajax_m_get_project_voters_canlaon",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+     public function ajaxGetJpmProjectVotersCanlaon(Request $request)
+     {
+         $em = $this->getDoctrine()->getManager("canlaon");
+ 
+         $municipalityName = $request->get('municipalityName');
+         $barangayName = $request->get('barangayName');
+ 
+         $voterName = $request->get("voterName");
+         
+         $is1 = $request->get("is1");
+         $is2 = $request->get("is2");
+         $is3 = $request->get("is3");
+         $is4 = $request->get("is4");
+         $is5 = $request->get("is5");
+         $is6 = $request->get("is6");
+         $is7 = $request->get("is7");
+
+         $batchSize = 10;
+         $batchNo = $request->get("batchNo");
+ 
+         $batchOffset = $batchNo * $batchSize;
+ 
+         $sql = "SELECT pv.* FROM tbl_project_voter pv WHERE 1 AND ";
+ 
+         if (!is_numeric($voterName)) {
+             $sql .= " (pv.voter_name LIKE ? OR ? IS NULL ) ";
+         } else {
+             $sql .= " (pv.generated_id_no LIKE ? OR ? IS NULL ) ";
+         }
+
+         if($is1 == 1){
+            $sql .= "AND pv.is_1 = 1 ";
+         }else if($is2 == 1){
+            $sql .= "AND pv.is_2 = 1 ";
+         }else if($is3 == 1){
+            $sql .= "AND pv.is_3 = 1 ";
+         }else if($is4 == 1){
+            $sql .= "AND pv.is_4 = 1 ";
+         }else if($is5 == 1){
+            $sql .= "AND pv.is_5 = 1 ";
+         }else if($is6 == 1){
+            $sql .= "AND pv.is_6 = 1 ";
+         }else if($is7 == 1){
+            $sql .= "AND pv.is_7 = 1 ";
+         }
+ 
+ 
+         $sql .= "  AND (pv.municipality_name LIKE ? OR ? IS NULL) 
+                    AND (pv.barangay_name LIKE ? OR ? IS NULL) 
+                    AND pv.precinct_no IS NOT NULL 
+                    ORDER BY pv.voter_name ASC LIMIT {$batchSize} OFFSET {$batchOffset}";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, '%' . $voterName . '%');
+         $stmt->bindValue(2, empty($voterName) ? null : '%' . $voterName . '%');
+         $stmt->bindValue(3, '%' . $municipalityName . '%');
+         $stmt->bindValue(4, empty($municipalityName) ? null : '%' . $municipalityName . '%');
+         $stmt->bindValue(5, '%' . $barangayName . '%');
+         $stmt->bindValue(6, empty($barangayName) ? null : '%' . $barangayName . '%');
+         $stmt->execute();
+ 
+         $data = [];
+ 
+         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+             $data[] = $row;
+         }
+ 
+         return new JsonResponse($data);
+     }
+
+      /**
+     * @Route("/ajax_m_patch_project_voter_canlaon/{proVoterId}",
+     *     name="ajax_m_patch_project_voter_canlaon",
+     *    options={"expose" = true}
+     * )
+     * @Method("PATCH")
+     */
+
+    public function ajaxPatchProjectVoterCanlaonAction($proVoterId, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("canlaon");
+
+        $data = json_decode($request->getContent(), true);
+        $request->request->replace($data);
+
+        $is1 = $request->get('is1');
+        $is2 = $request->get('is2');
+        $is3 = $request->get('is3');
+        $is4 = $request->get('is4');
+        $is5 = $request->get('is5');
+        $is6 = $request->get('is6');
+        $is7 = $request->get('is7');
+
+        $cellphoneNo = $request->get('cellphoneNo');
+        $birthdate = $request->get('birthdate');
+
+        $sql = "UPDATE tbl_project_voter SET is_1 = ? , is_2 = ? , is_3 = ? , is_4 = ? , is_5 = ? , is_6 = ?, is_7 = ? , cellphone = ?, birthdate = ?
+                WHERE pro_voter_id = ? ";
+        
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1,  $is1);
+        $stmt->bindValue(2,  $is2);
+        $stmt->bindValue(3,  $is3);
+        $stmt->bindValue(4,  $is4);
+        $stmt->bindValue(5,  $is5);
+        $stmt->bindValue(6,  $is6);
+        $stmt->bindValue(7,  $is7);
+        $stmt->bindValue(8,  $cellphoneNo);
+        $stmt->bindValue(9,  $birthdate);
+        $stmt->bindValue(10,  $proVoterId);
+        $stmt->execute();
+
+        return new JsonResponse(200);
+    }
+
+ 
 }

@@ -6,13 +6,14 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
+
 /**
- * TupadTransaction
+ * TupadTransactionDetail
  *
- * @ORM\Table(name="tbl_tupad_transaction")
- * @ORM\Entity(repositoryClass="AppBundle\Repository\TupadTransactionRepository")
+ * @ORM\Table(name="tbl_tupad_transaction_dtl")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\TupadTransactionDetailRepository")
  */
-class TupadTransaction
+class TupadTransactionDetail
 {
     /**
      * @var int
@@ -22,6 +23,13 @@ class TupadTransaction
      * @ORM\GeneratedValue(strategy="AUTO")
      */
     private $id;
+        
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="hdr_id", type="integer")
+     */
+    private $hdrId;
 
     /**
      * @var int
@@ -41,23 +49,9 @@ class TupadTransaction
      /**
      * @var string
      *
-     * @ORM\Column(name="generated_id_no", type="string", length=30)
+     * @ORM\Column(name="generated_id_no", type="string", length=50)
      */
     private $generatedIdNo;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="source_municipality", type="string", length=150)
-     */
-    private $sourceMunicipality;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="source_barangay", type="string", length=150)
-     */
-    private $sourceBarangay;
 
     /**
      * @var string
@@ -108,7 +102,6 @@ class TupadTransaction
      * @ORM\Column(name="b_extname", type="string", length=150)
      */
     private $bExtname;
-
     /**
      * @var int
      *
@@ -116,34 +109,19 @@ class TupadTransaction
      */
     private $isVoter;
 
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="b_birthdate", type="string", length=150)
+     */
+    private $bBirthdate;
+    
     /**
      * @var string
      *
-     * @ORM\Column(name="service_type", type="string", length=50)
-     * @Assert\NotBlank()
+     * @ORM\Column(name="b_cellphone_no", type="string", length=50)
      */
-    private $serviceType;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="source", type="string", length=50)
-     */
-    private $source;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="release_date", type="string", length=50)
-     */
-    private $releaseDate;
-
-      /**
-     * @var string
-     *
-     * @ORM\Column(name="cellphone_no", type="string", length=50)
-     */
-    private $cellphoneNo;
+    private $bCellphoneNo;
 
     /**
      * @var datetime
@@ -166,27 +144,6 @@ class TupadTransaction
      */
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="remarks", type="string", length=256)
-     */
-    private $remarks;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="status", type="string", length=3)
-     */
-    private $status;
-
-     /**
-     * @var string
-     *
-     * @ORM\Column(name="b_status", type="string", length=3)
-     */
-    private $bStatus;
-
-    /**
      * Get id
      *
      * @return integer
@@ -197,11 +154,35 @@ class TupadTransaction
     }
 
     /**
+     * Set hdrId
+     *
+     * @param integer $hdrId
+     *
+     * @return TupadTransactionDetail
+     */
+    public function setHdrId($hdrId)
+    {
+        $this->hdrId = $hdrId;
+
+        return $this;
+    }
+
+    /**
+     * Get hdrId
+     *
+     * @return integer
+     */
+    public function getHdrId()
+    {
+        return $this->hdrId;
+    }
+
+    /**
      * Set proVoterId
      *
      * @param integer $proVoterId
      *
-     * @return TupadTransaction
+     * @return TupadTransactionDetail
      */
     public function setProVoterId($proVoterId)
     {
@@ -225,7 +206,7 @@ class TupadTransaction
      *
      * @param string $proIdCode
      *
-     * @return TupadTransaction
+     * @return TupadTransactionDetail
      */
     public function setProIdCode($proIdCode)
     {
@@ -249,7 +230,7 @@ class TupadTransaction
      *
      * @param string $generatedIdNo
      *
-     * @return TupadTransaction
+     * @return TupadTransactionDetail
      */
     public function setGeneratedIdNo($generatedIdNo)
     {
@@ -269,59 +250,11 @@ class TupadTransaction
     }
 
     /**
-     * Set sourceMunicipality
-     *
-     * @param string $sourceMunicipality
-     *
-     * @return TupadTransaction
-     */
-    public function setSourceMunicipality($sourceMunicipality)
-    {
-        $this->sourceMunicipality = $sourceMunicipality;
-
-        return $this;
-    }
-
-    /**
-     * Get sourceMunicipality
-     *
-     * @return string
-     */
-    public function getSourceMunicipality()
-    {
-        return $this->sourceMunicipality;
-    }
-
-    /**
-     * Set sourceBarangay
-     *
-     * @param string $sourceBarangay
-     *
-     * @return TupadTransaction
-     */
-    public function setSourceBarangay($sourceBarangay)
-    {
-        $this->sourceBarangay = $sourceBarangay;
-
-        return $this;
-    }
-
-    /**
-     * Get sourceBarangay
-     *
-     * @return string
-     */
-    public function getSourceBarangay()
-    {
-        return $this->sourceBarangay;
-    }
-
-    /**
      * Set bMunicipality
      *
      * @param string $bMunicipality
      *
-     * @return TupadTransaction
+     * @return TupadTransactionDetail
      */
     public function setBMunicipality($bMunicipality)
     {
@@ -345,7 +278,7 @@ class TupadTransaction
      *
      * @param string $bBarangay
      *
-     * @return TupadTransaction
+     * @return TupadTransactionDetail
      */
     public function setBBarangay($bBarangay)
     {
@@ -369,7 +302,7 @@ class TupadTransaction
      *
      * @param string $bName
      *
-     * @return TupadTransaction
+     * @return TupadTransactionDetail
      */
     public function setBName($bName)
     {
@@ -393,7 +326,7 @@ class TupadTransaction
      *
      * @param string $bFirstname
      *
-     * @return TupadTransaction
+     * @return TupadTransactionDetail
      */
     public function setBFirstname($bFirstname)
     {
@@ -417,7 +350,7 @@ class TupadTransaction
      *
      * @param string $bMiddlename
      *
-     * @return TupadTransaction
+     * @return TupadTransactionDetail
      */
     public function setBMiddlename($bMiddlename)
     {
@@ -441,7 +374,7 @@ class TupadTransaction
      *
      * @param string $bLastname
      *
-     * @return TupadTransaction
+     * @return TupadTransactionDetail
      */
     public function setBLastname($bLastname)
     {
@@ -465,7 +398,7 @@ class TupadTransaction
      *
      * @param string $bExtname
      *
-     * @return TupadTransaction
+     * @return TupadTransactionDetail
      */
     public function setBExtname($bExtname)
     {
@@ -489,7 +422,7 @@ class TupadTransaction
      *
      * @param integer $isVoter
      *
-     * @return TupadTransaction
+     * @return TupadTransactionDetail
      */
     public function setIsVoter($isVoter)
     {
@@ -509,27 +442,51 @@ class TupadTransaction
     }
 
     /**
-     * Set serviceType
+     * Set bBirthdate
      *
-     * @param string $serviceType
+     * @param string $bBirthdate
      *
-     * @return TupadTransaction
+     * @return TupadTransactionDetail
      */
-    public function setServiceType($serviceType)
+    public function setBBirthdate($bBirthdate)
     {
-        $this->serviceType = $serviceType;
+        $this->bBirthdate = $bBirthdate;
 
         return $this;
     }
 
     /**
-     * Get serviceType
+     * Get bBirthdate
      *
      * @return string
      */
-    public function getServiceType()
+    public function getBBirthdate()
     {
-        return $this->serviceType;
+        return $this->bBirthdate;
+    }
+
+    /**
+     * Set bCellphoneNo
+     *
+     * @param string $bCellphoneNo
+     *
+     * @return TupadTransactionDetail
+     */
+    public function setBCellphoneNo($bCellphoneNo)
+    {
+        $this->bCellphoneNo = $bCellphoneNo;
+
+        return $this;
+    }
+
+    /**
+     * Get bCellphoneNo
+     *
+     * @return string
+     */
+    public function getBCellphoneNo()
+    {
+        return $this->bCellphoneNo;
     }
 
     /**
@@ -537,7 +494,7 @@ class TupadTransaction
      *
      * @param \DateTime $createdAt
      *
-     * @return TupadTransaction
+     * @return TupadTransactionDetail
      */
     public function setCreatedAt($createdAt)
     {
@@ -561,7 +518,7 @@ class TupadTransaction
      *
      * @param string $createdBy
      *
-     * @return TupadTransaction
+     * @return TupadTransactionDetail
      */
     public function setCreatedBy($createdBy)
     {
@@ -578,77 +535,5 @@ class TupadTransaction
     public function getCreatedBy()
     {
         return $this->createdBy;
-    }
-
-    /**
-     * Set remarks
-     *
-     * @param string $remarks
-     *
-     * @return TupadTransaction
-     */
-    public function setRemarks($remarks)
-    {
-        $this->remarks = $remarks;
-
-        return $this;
-    }
-
-    /**
-     * Get remarks
-     *
-     * @return string
-     */
-    public function getRemarks()
-    {
-        return $this->remarks;
-    }
-
-    /**
-     * Set status
-     *
-     * @param string $status
-     *
-     * @return TupadTransaction
-     */
-    public function setStatus($status)
-    {
-        $this->status = $status;
-
-        return $this;
-    }
-
-    /**
-     * Get status
-     *
-     * @return string
-     */
-    public function getStatus()
-    {
-        return $this->status;
-    }
-
-    /**
-     * Set bStatus
-     *
-     * @param string $bStatus
-     *
-     * @return TupadTransaction
-     */
-    public function setBStatus($bStatus)
-    {
-        $this->bStatus = $bStatus;
-
-        return $this;
-    }
-
-    /**
-     * Get bStatus
-     *
-     * @return string
-     */
-    public function getBStatus()
-    {
-        return $this->bStatus;
     }
 }

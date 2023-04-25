@@ -24,7 +24,7 @@ var TupadCreateNewProfileModal = React.createClass({
         return (
             <Modal style={{ marginTop: "20px" }} keyboard={false} dialogClassName="modal-custom-55" enforceFocus={false} backdrop="static" show={this.props.show} onHide={this.props.onHide}>
                 <Modal.Header className="modal-header bg-blue-dark font-white" closeButton>
-                    <Modal.Title>New Tupad Beneficiary</Modal.Title>
+                    <Modal.Title>New Assistance Profile</Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsClass="modal-body overflow-auto">
                     <form id="new-voter-create-form" onSubmit={this.submit}>

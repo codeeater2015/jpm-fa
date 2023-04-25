@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use AppBundle\Entity\TupadTransaction;
+use AppBundle\Entity\TupadTransactionDetail;
 use AppBundle\Entity\ProjectVoter;
 
 /**
@@ -56,10 +57,10 @@ class TupadController extends Controller
         $em = $this->getDoctrine()->getManager("tupad");
 
         $voter = $em->getRepository("AppBundle:ProjectVoter")
-                ->findOneBy([
-                    'proId' => 3,
-                    'proVoterId' => $request->get("proVoterId"),
-                ]);
+            ->findOneBy([
+                'proId' => 3,
+                'proVoterId' => $request->get("proVoterId"),
+            ]);
 
         $entity = new TupadTransaction();
         $entity->setProVoterId($request->get("proVoterId"));
@@ -97,7 +98,7 @@ class TupadController extends Controller
         $em->persist($entity);
         $em->flush();
 
-        if($entity->getCellphoneNo() != "" ){
+        if ($entity->getCellphoneNo() != "") {
             $voter->setCellphone($entity->getCellphoneNo());
             $em->flush();
         }
@@ -107,6 +108,122 @@ class TupadController extends Controller
 
         return new JsonResponse($serializer->normalize($entity));
     }
+
+    /**
+     * @Route("/ajax_tupad_patch_transaction/{hdrId}", 
+     * 	name="ajax_tupad_patch_transaction",
+     *	options={"expose" = true}
+     * )
+     * @Method("PATCH")
+     */
+
+    public function ajaxPatchTupadTransactionAction(Request $request, $hdrId)
+    {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        $em = $this->getDoctrine()->getManager("tupad");
+
+        $hdr = $em->getRepository("AppBundle:TupadTransaction")
+            ->find($hdrId);
+
+        if (!$hdr)
+            return new JsonResponse(null, 404);
+
+        $voter = $em->getRepository("AppBundle:ProjectVoter")
+            ->findOneBy([
+                'proId' => 3,
+                'proVoterId' => $hdr->getProVoterId(),
+            ]);
+        
+
+        $hdr->setCellphoneNo($request->get('cellphoneNo'));
+     
+        $validator = $this->get('validator');
+        $violations = $validator->validate($hdr);
+
+        $errors = [];
+
+        if (count($violations) > 0) {
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()] = $violation->getMessage();
+            }
+            return new JsonResponse($errors, 400);
+        }
+
+        $em->flush();
+
+        if ($hdr->getCellphoneNo() != "") {
+            $voter->setCellphone($hdr->getCellphoneNo());
+            $em->flush();
+        }
+
+        $em->clear();
+        $serializer = $this->get('serializer');
+
+        return new JsonResponse($serializer->normalize($hdr));
+    }
+
+    /**
+     * @Route("/ajax_tupad_post_transaction_detail/{hdrId}", 
+     * 	name="ajax_tupad_post_transaction_detail",
+     *	options={"expose" = true}
+     * )
+     * @Method("POST")
+     */
+
+    public function ajaxPostTupadTransactionDetailAction(Request $request, $hdrId)
+    {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        $em = $this->getDoctrine()->getManager("tupad");
+
+        $voter = $em->getRepository("AppBundle:ProjectVoter")
+            ->findOneBy([
+                'proId' => 3,
+                'proVoterId' => $request->get("proVoterId"),
+            ]);
+
+        $entity = new TupadTransactionDetail();
+        $entity->setHdrId($hdrId);
+        $entity->setProVoterId($request->get("proVoterId"));
+        $entity->setProIdCode($voter->getProIdCode());
+        $entity->setGeneratedIdNo($voter->getGeneratedIdNo());
+        $entity->setBMunicipality($voter->getMunicipalityName());
+        $entity->setBBarangay($voter->getBarangayName());
+        $entity->setBName($voter->getVoterName());
+        $entity->setBExtname($voter->getExtname());
+        $entity->setIsVoter(!$voter->getIsNonVoter());
+        $entity->setBCellphoneNo($request->get("cellphoneNo"));
+        $entity->setCreatedAt(new \DateTime());
+        $entity->setCreatedBy($user->getUsername());
+
+
+        $validator = $this->get('validator');
+        $violations = $validator->validate($entity);
+
+        $errors = [];
+
+        if (count($violations) > 0) {
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()] = $violation->getMessage();
+            }
+            return new JsonResponse($errors, 400);
+        }
+
+        $em->persist($entity);
+        $em->flush();
+
+        if ($entity->getBCellphoneNo() != "") {
+            $voter->setCellphone($entity->getBCellphoneNo());
+            $em->flush();
+        }
+
+        $em->clear();
+        $serializer = $this->get('serializer');
+
+        return new JsonResponse($serializer->normalize($entity));
+    }
+
 
     /**
      * @Route("/ajax_select2_tupad_project_voters", 
@@ -396,6 +513,29 @@ class TupadController extends Controller
         return new JsonResponse(null, 200);
     }
 
+
+    /**
+     * @Route("/ajax_delete_tupad_transaction_detail/{id}", 
+     * 	name="ajax_delete_tupad_transaction_detail",
+     *	options={"expose" = true}
+     * )
+     * @Method("DELETE")
+     */
+
+    public function ajaxDeleteTupadTransactionDetailAction($id)
+    {
+        $em = $this->getDoctrine()->getManager("tupad");
+        $entity = $em->getRepository("AppBundle:TupadTransactionDetail")->find($id);
+
+        if (!$entity)
+            return new JsonResponse(null, 404);
+
+        $em->remove($entity);
+        $em->flush();
+
+        return new JsonResponse(null, 200);
+    }
+
     /**
      * @Route("/ajax_get_assistance_summary", name="ajax_get_assistance_summary", options={"expose"=true})
      * @Method("GET")
@@ -578,4 +718,126 @@ class TupadController extends Controller
 
         return new JsonResponse($res);
     }
+
+
+    /**
+     * @Route("/ajax_get_tupad_transction/{trnId}",
+     *       name="ajax_get_tupad_transction",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetTupadTransaction($trnId)
+    {
+        $em = $this->getDoctrine()->getManager("tupad");
+        $trn = $em->getRepository("AppBundle:TupadTransaction")
+            ->findOneBy([
+                'id' => $trnId
+            ]);
+
+        if (!$trn) {
+            return new JsonResponse(['message' => 'not found']);
+        }
+
+        $serializer = $this->get("serializer");
+        $trn = $serializer->normalize($trn);
+
+        return new JsonResponse($trn);
+    }
+
+
+    /**
+     * @Route("/ajax_get_datatable_tupad_transaction_detail", name="ajax_get_datatable_tupad_transaction_detail", options={"expose"=true})
+     * @Method("GET")
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function ajaxGetDatatableTupadTransactionDetailAction(Request $request)
+    {
+        $columns = array(
+            0 => "h.id",
+            1 => "h.b_name",
+            2 => "h.service_type",
+            3 => "h.source_municipality",
+            4 => "h.source_barangay",
+            5 => "h.is_voter",
+        );
+
+        $sWhere = "";
+
+        $select['h.b_name'] = $request->get('bName');
+        $select['h.hdr_id'] = $request->get('hdrId');
+
+        foreach ($select as $key => $value) {
+            $searchValue = $select[$key];
+            if ($searchValue != null || !empty($searchValue)) {
+                if ($key == "h.hdr_id") {
+                    $sWhere .= " AND " . $key . " = " . $searchValue;
+                } else {
+                    $sWhere .= " AND " . $key . " LIKE \"%" . $searchValue . "%\"";
+                }
+            }
+        }
+
+        $sOrder = "";
+
+        if (null !== $request->query->get('order')) {
+            $sOrder = "ORDER BY  ";
+            for ($i = 0; $i < intval(count($request->query->get('order'))); $i++) {
+                if ($request->query->get('columns')[$request->query->get('order')[$i]['column']]['orderable']) {
+                    $selected_column = $columns[$request->query->get('order')[$i]['column']];
+                    $sOrder .= " " . $selected_column . " " .
+                        ($request->query->get('order')[$i]['dir'] === 'asc' ? 'ASC' : 'DESC') . ", ";
+                }
+            }
+
+            $sOrder = substr_replace($sOrder, "", -2);
+            if ($sOrder == "ORDER BY") {
+                $sOrder = "";
+            }
+        }
+
+        $start = 1;
+        $length = 1;
+
+        if (null !== $request->query->get('start') && null !== $request->query->get('length')) {
+            $start = intval($request->query->get('start'));
+            $length = intval($request->query->get('length'));
+        }
+
+        $em = $this->getDoctrine()->getManager("tupad");
+        $em->getConnection()->getConfiguration()->setSQLLogger(null);
+
+        $sql = "SELECT COALESCE(count(h.id),0) FROM tbl_tupad_transaction_dtl h WHERE 1 ";
+
+        $stmt = $em->getConnection()->query($sql);
+        $recordsTotal = $stmt->fetchColumn();
+
+        $sql = "SELECT COALESCE(COUNT(h.id),0) FROM tbl_tupad_transaction_dtl h WHERE 1 ";
+
+        $sql .= $sWhere . " " . $sOrder;
+        $stmt = $em->getConnection()->query($sql);
+        $recordsFiltered = $stmt->fetchColumn();
+
+        $sql = "SELECT h.* FROM tbl_tupad_transaction_dtl h 
+                WHERE 1 " . $sWhere . " " . $sOrder . " LIMIT {$length} OFFSET {$start} ";
+
+        $stmt = $em->getConnection()->query($sql);
+        $data = [];
+
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        $draw = (null !== $request->query->get('draw')) ? $request->query->get('draw') : 0;
+        $res['data'] = $data;
+        $res['recordsTotal'] = $recordsTotal;
+        $res['recordsFiltered'] = $recordsFiltered;
+        $res['draw'] = $draw;
+
+        return new JsonResponse($res);
+    }
+
 }

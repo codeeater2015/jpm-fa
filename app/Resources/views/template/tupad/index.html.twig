@@ -27,7 +27,10 @@
     {% if app.environment == "prod" %}
         <script type="text/javascript" src="{{ asset('compiled/js/tupad.react.min.js', 'compiled') }}"></script>
     {% else %}
+        <script type="text/babel" src="{{ asset('scripts/tupad/tupad-member-create-modal.react.js', 'pages') }}"></script>
+        <script type="text/babel" src="{{ asset('scripts/tupad/tupad-member-datatable.react.js', 'pages') }}"></script>
         <script type="text/babel" src="{{ asset('scripts/tupad/tupad.create-new-profile-modal.react.js', 'pages') }}"></script>
+        <script type="text/babel" src="{{ asset('scripts/tupad/tupad-edit.modal.react.js', 'pages') }}"></script>
         <script type="text/babel" src="{{ asset('scripts/tupad/tupad-create.modal.react.js', 'pages') }}"></script>
         <script type="text/babel" src="{{ asset('scripts/tupad/tupad.datatable.react.js', 'pages') }}"></script>
         <script type="text/babel" src="{{ asset('scripts/tupad/tupad.react.js', 'pages') }}"></script>

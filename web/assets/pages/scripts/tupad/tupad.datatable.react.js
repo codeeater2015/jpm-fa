@@ -201,7 +201,7 @@ var TupadDatatable = React.createClass({
                         d.serviceType = self.props.serviceType;
                         d.source = self.props.source;
                         d.releaseDate = self.props.releaseDate;
-                    
+
                         d.bName = $('#tupad_table input[name="beneficiary_name"]').val();
                         d.bMunicipality = $('#tupad_table input[name="b_municipality"]').val();
                         d.bBarangay = $('#tupad_table input[name="b_barangay"]').val();
@@ -230,7 +230,10 @@ var TupadDatatable = React.createClass({
                     },
                     {
                         "data": "b_name",
-                        "className": "text-left"
+                        "className": "text-left",
+                        "render": function (data) {
+                            return "<a href='javascript:void(0);' class='release-button'><strong>" + data + '</strong></a>';
+                        }
                     },
                     {
                         "data": "service_type",
@@ -260,8 +263,8 @@ var TupadDatatable = React.createClass({
                     {
                         "data": "is_voter",
                         "className": "text-center",
-                        "width": 50, 
-                        "render" : function(data){
+                        "width": 50,
+                        "render": function (data) {
                             return parseInt(data) == 1 ? "YES" : "NO";
                         }
                     },
@@ -269,13 +272,13 @@ var TupadDatatable = React.createClass({
                     {
                         "data": "source",
                         "className": "text-center",
-                        "width": 50 
+                        "width": 50
                     },
-                    
+
                     {
                         "data": "release_date",
                         "className": "text-center",
-                        "width": 50 
+                        "width": 50
                     }
 
                     // {
@@ -288,6 +291,11 @@ var TupadDatatable = React.createClass({
                     // }
                 ],
             }
+        });
+
+        tupad_table.on('click', '.release-button', function () {
+            var data = grid_project_event.getDataTable().row($(this).parents('tr')).data();
+            self.setState({ showEditModal: true, target: data.id });
         });
 
         tupad_table.on('click', '.delete-button', function () {
@@ -350,6 +358,18 @@ var TupadDatatable = React.createClass({
     render: function () {
         return (
             <div>
+
+                {
+                    this.state.showEditModal &&
+                    <TupadEditModal
+                        proId={3}
+                        show={this.state.showEditModal}
+                        notify={this.props.notify}
+                        reload={this.reload}
+                        onHide={this.closeEditModal}
+                        trnId={this.state.target}
+                    />
+                }
                 <div className="table-container" style={{ marginTop: "20px" }}>
                     <table id="tupad_table" className="table table-striped table-bordered" width="100%">
                         <thead>

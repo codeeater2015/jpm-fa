@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(name="tbl_project_voter")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\ProjectVoterRepository")\
- * @UniqueEntity(fields={"proId","proIdCode","electId"},message="This value is already in use.", errorPath="proIdCode")
+ * @UniqueEntity(fields={"proId","electId","generatedIdNo"},message="This value is already in use.", errorPath="proIdCode")
  */
 class ProjectVoter
 {
@@ -100,34 +100,6 @@ class ProjectVoter
      */
     private $barangayName;
 
-     /**
-     * @var string
-     *
-     * @ORM\Column(name="ass_mun_no", type="string", length=15)
-     */
-    private $assMunNo;
-
-     /**
-     * @var string
-     *
-     * @ORM\Column(name="ass_mun_name", type="string", length=15)
-     */
-    private $assMunName;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="ass_brgy_no", type="string", length=15)
-     */
-    private $assBrgyNo;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="ass_brgy_name", type="string", length=255)
-     */
-    private $assBrgyName;
-
     /**
      * @var string
      *
@@ -213,20 +185,6 @@ class ProjectVoter
      * @ORM\Column(name="is_kalaban_reason", type="string", length=30)
      */
     private $isKalabanReason;
-
-      /**
-     * @var int
-     *
-     * @ORM\Column(name="rec_form_sub", type="integer")
-     */
-    private $recFormSub;
-
-      /**
-     * @var int
-     *
-     * @ORM\Column(name="house_form_sub", type="integer")
-     */
-    private $houseFormSub;
 
     /**
      * @var string
@@ -409,55 +367,6 @@ class ProjectVoter
      */
     private $brgyCluster;
 
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="is_bisaya", type="integer", scale=1)
-     */
-    private $isBisaya;
-
-     /**
-     * @var int
-     *
-     * @ORM\Column(name="is_cuyonon", type="integer", scale=1)
-     */
-    private $isCuyonon;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="is_tagalog", type="integer", scale=1)
-     */
-    private $isTagalog;
-
-     /**
-     * @var int
-     *
-     * @ORM\Column(name="is_ilonggo", type="integer", scale=1)
-     */
-    private $isIlonggo;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="is_catholic", type="integer", scale=1)
-     */
-    private $isCatholic;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="is_inc", type="integer", scale=1)
-     */
-    private $isInc;
-
-    /**
-     * @var int
-     *
-     * @ORM\Column(name="is_islam", type="integer", scale=1)
-     */
-    private $isIslam;
-
      /**
      * @var string
      *
@@ -465,6 +374,55 @@ class ProjectVoter
      * @Assert\NotBlank(groups={"create","edit"})
      */
     private $gender;
+
+     /**
+     * @var int
+     *
+     * @ORM\Column(name="is_1", type="integer", scale=1)
+     */
+    private $is1;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="is_2", type="integer", scale=1)
+     */
+    private $is2;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="is_3", type="integer", scale=1)
+     */
+    private $is3;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="is_4", type="integer", scale=1)
+     */
+    private $is4;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="is_5", type="integer", scale=1)
+     */
+    private $is5;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="is_6", type="integer", scale=1)
+     */
+    private $is6;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="is_7", type="integer", scale=1)
+     */
+    private $is7;
 
 
     /**
@@ -715,102 +673,6 @@ class ProjectVoter
     public function getBarangayName()
     {
         return $this->barangayName;
-    }
-
-    /**
-     * Set assMunNo
-     *
-     * @param string $assMunNo
-     *
-     * @return ProjectVoter
-     */
-    public function setAssMunNo($assMunNo)
-    {
-        $this->assMunNo = $assMunNo;
-
-        return $this;
-    }
-
-    /**
-     * Get assMunNo
-     *
-     * @return string
-     */
-    public function getAssMunNo()
-    {
-        return $this->assMunNo;
-    }
-
-    /**
-     * Set assMunName
-     *
-     * @param string $assMunName
-     *
-     * @return ProjectVoter
-     */
-    public function setAssMunName($assMunName)
-    {
-        $this->assMunName = $assMunName;
-
-        return $this;
-    }
-
-    /**
-     * Get assMunName
-     *
-     * @return string
-     */
-    public function getAssMunName()
-    {
-        return $this->assMunName;
-    }
-
-    /**
-     * Set assBrgyNo
-     *
-     * @param string $assBrgyNo
-     *
-     * @return ProjectVoter
-     */
-    public function setAssBrgyNo($assBrgyNo)
-    {
-        $this->assBrgyNo = $assBrgyNo;
-
-        return $this;
-    }
-
-    /**
-     * Get assBrgyNo
-     *
-     * @return string
-     */
-    public function getAssBrgyNo()
-    {
-        return $this->assBrgyNo;
-    }
-
-    /**
-     * Set assBrgyName
-     *
-     * @param string $assBrgyName
-     *
-     * @return ProjectVoter
-     */
-    public function setAssBrgyName($assBrgyName)
-    {
-        $this->assBrgyName = $assBrgyName;
-
-        return $this;
-    }
-
-    /**
-     * Get assBrgyName
-     *
-     * @return string
-     */
-    public function getAssBrgyName()
-    {
-        return $this->assBrgyName;
     }
 
     /**
@@ -1558,222 +1420,6 @@ class ProjectVoter
     }
 
     /**
-     * Set isBisaya
-     *
-     * @param integer $isBisaya
-     *
-     * @return ProjectVoter
-     */
-    public function setIsBisaya($isBisaya)
-    {
-        $this->isBisaya = $isBisaya;
-
-        return $this;
-    }
-
-    /**
-     * Get isBisaya
-     *
-     * @return integer
-     */
-    public function getIsBisaya()
-    {
-        return $this->isBisaya;
-    }
-
-    /**
-     * Set isCuyonon
-     *
-     * @param integer $isCuyonon
-     *
-     * @return ProjectVoter
-     */
-    public function setIsCuyonon($isCuyonon)
-    {
-        $this->isCuyonon = $isCuyonon;
-
-        return $this;
-    }
-
-    /**
-     * Get isCuyonon
-     *
-     * @return integer
-     */
-    public function getIsCuyonon()
-    {
-        return $this->isCuyonon;
-    }
-
-    /**
-     * Set isTagalog
-     *
-     * @param integer $isTagalog
-     *
-     * @return ProjectVoter
-     */
-    public function setIsTagalog($isTagalog)
-    {
-        $this->isTagalog = $isTagalog;
-
-        return $this;
-    }
-
-    /**
-     * Get isTagalog
-     *
-     * @return integer
-     */
-    public function getIsTagalog()
-    {
-        return $this->isTagalog;
-    }
-
-    /**
-     * Set isIlonggo
-     *
-     * @param integer $isIlonggo
-     *
-     * @return ProjectVoter
-     */
-    public function setIsIlonggo($isIlonggo)
-    {
-        $this->isIlonggo = $isIlonggo;
-
-        return $this;
-    }
-
-    /**
-     * Get isIlonggo
-     *
-     * @return integer
-     */
-    public function getIsIlonggo()
-    {
-        return $this->isIlonggo;
-    }
-
-    /**
-     * Set isCatholic
-     *
-     * @param integer $isCatholic
-     *
-     * @return ProjectVoter
-     */
-    public function setIsCatholic($isCatholic)
-    {
-        $this->isCatholic = $isCatholic;
-
-        return $this;
-    }
-
-    /**
-     * Get isCatholic
-     *
-     * @return integer
-     */
-    public function getIsCatholic()
-    {
-        return $this->isCatholic;
-    }
-
-    /**
-     * Set isInc
-     *
-     * @param integer $isInc
-     *
-     * @return ProjectVoter
-     */
-    public function setIsInc($isInc)
-    {
-        $this->isInc = $isInc;
-
-        return $this;
-    }
-
-    /**
-     * Get isInc
-     *
-     * @return integer
-     */
-    public function getIsInc()
-    {
-        return $this->isInc;
-    }
-
-    /**
-     * Set isIslam
-     *
-     * @param integer $isIslam
-     *
-     * @return ProjectVoter
-     */
-    public function setIsIslam($isIslam)
-    {
-        $this->isIslam = $isIslam;
-
-        return $this;
-    }
-
-    /**
-     * Get isIslam
-     *
-     * @return integer
-     */
-    public function getIsIslam()
-    {
-        return $this->isIslam;
-    }
-
-    /**
-     * Set recFormSub
-     *
-     * @param integer $recFormSub
-     *
-     * @return ProjectVoter
-     */
-    public function setRecFormSub($recFormSub)
-    {
-        $this->recFormSub = $recFormSub;
-
-        return $this;
-    }
-
-    /**
-     * Get recFormSub
-     *
-     * @return integer
-     */
-    public function getRecFormSub()
-    {
-        return $this->recFormSub;
-    }
-
-    /**
-     * Set houseFormSub
-     *
-     * @param integer $houseFormSub
-     *
-     * @return ProjectVoter
-     */
-    public function setHouseFormSub($houseFormSub)
-    {
-        $this->houseFormSub = $houseFormSub;
-
-        return $this;
-    }
-
-    /**
-     * Get houseFormSub
-     *
-     * @return integer
-     */
-    public function getHouseFormSub()
-    {
-        return $this->houseFormSub;
-    }
-
-    /**
      * Set clusterNo
      *
      * @param integer $clusterNo
@@ -1915,5 +1561,29 @@ class ProjectVoter
     public function getIsKalabanReason()
     {
         return $this->isKalabanReason;
+    }
+
+    /**
+     * Set toSend
+     *
+     * @param integer $toSend
+     *
+     * @return ProjectVoter
+     */
+    public function setToSend($toSend)
+    {
+        $this->toSend = $toSend;
+
+        return $this;
+    }
+
+    /**
+     * Get toSend
+     *
+     * @return integer
+     */
+    public function getToSend()
+    {
+        return $this->toSend;
     }
 }

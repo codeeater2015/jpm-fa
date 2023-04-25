@@ -731,7 +731,7 @@ var FinancialAssistanceReleaseModal = React.createClass({
         data.trnId = self.props.trnId;
 
         self.requestPost = $.ajax({
-            url: Routing.generate("ajax_patch_financial_assistance_full", { trnId: self.props.trnId }),
+            url: Routing.generate("ajax_patch_financial_assistance_release", { trnId: self.props.trnId }),
             data: data,
             type: 'PATCH'
         }).done(function (res) {

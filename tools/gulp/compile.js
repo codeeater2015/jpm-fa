@@ -1376,6 +1376,9 @@ gulp.task('compile-organization-target-summary',function(cb){
 gulp.task('compile-financial-assistance',function(cb){
     pump([
         gulp.src([
+            myPath + 'financial-assistance/fa.monthly-summary-report-detail.datatable.react.js',
+            myPath + 'financial-assistance/fa.monthly-list.modal.react.js',
+
             myPath + 'financial-assistance/fa.municipality-list.modal.react.js',
             myPath + 'financial-assistance/fa.municipality-summary-report-detail.datatable.react.js',
             myPath + 'financial-assistance/fa.daily-summary-report-detail.datatable.react.js',
@@ -1467,6 +1470,10 @@ gulp.task('compile-pulahan',function(cb){
 gulp.task('compile-tupad',function(cb){
     pump([
         gulp.src([
+            myPath + 'tupad/tupad-member-create-modal.react.js',
+            myPath + 'tupad/tupad-member-datatable.react.js',
+            myPath + 'tupad/tupad-edit.modal.react.js',
+
             myPath + 'tupad/tupad.create-new-profile-modal.react.js',
             myPath + 'tupad/tupad-create.modal.react.js',
             myPath + 'tupad/tupad.datatable.react.js',

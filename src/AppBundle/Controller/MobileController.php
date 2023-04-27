@@ -4218,7 +4218,6 @@ class MobileController extends Controller
 
     }
 
-
     /**
      * @Route("/ajax_m_get_project_voters_canlaon",
      *       name="ajax_m_get_project_voters_canlaon",
@@ -4243,6 +4242,8 @@ class MobileController extends Controller
          $is5 = $request->get("is5");
          $is6 = $request->get("is6");
          $is7 = $request->get("is7");
+         $is8 = $request->get("is8");
+
 
          $batchSize = 10;
          $batchNo = $request->get("batchNo");
@@ -4271,6 +4272,8 @@ class MobileController extends Controller
             $sql .= "AND pv.is_6 = 1 ";
          }else if($is7 == 1){
             $sql .= "AND pv.is_7 = 1 ";
+         }else if($is8 == 1){
+            $sql .= "AND pv.is_8 = 1 ";
          }
  
  
@@ -4319,11 +4322,12 @@ class MobileController extends Controller
         $is5 = $request->get('is5');
         $is6 = $request->get('is6');
         $is7 = $request->get('is7');
+        $is8 = $request->get('is8');
 
         $cellphoneNo = $request->get('cellphoneNo');
         $birthdate = $request->get('birthdate');
 
-        $sql = "UPDATE tbl_project_voter SET is_1 = ? , is_2 = ? , is_3 = ? , is_4 = ? , is_5 = ? , is_6 = ?, is_7 = ? , cellphone = ?, birthdate = ?
+        $sql = "UPDATE tbl_project_voter SET is_1 = ? , is_2 = ? , is_3 = ? , is_4 = ? , is_5 = ? , is_6 = ?, is_7 = ? , is_8 = ?, cellphone = ?, birthdate = ?
                 WHERE pro_voter_id = ? ";
         
         $stmt = $em->getConnection()->prepare($sql);
@@ -4334,13 +4338,54 @@ class MobileController extends Controller
         $stmt->bindValue(5,  $is5);
         $stmt->bindValue(6,  $is6);
         $stmt->bindValue(7,  $is7);
-        $stmt->bindValue(8,  $cellphoneNo);
-        $stmt->bindValue(9,  $birthdate);
-        $stmt->bindValue(10,  $proVoterId);
+        $stmt->bindValue(8,  $is8);
+        $stmt->bindValue(9,  $cellphoneNo);
+        $stmt->bindValue(10,  $birthdate);
+        $stmt->bindValue(11,  $proVoterId);
         $stmt->execute();
 
         return new JsonResponse(200);
     }
 
  
+    /**
+     * @Route("/ajax_m_get_canlaon_barangay_summary",
+     *       name="ajax_m_get_canlaon_barangay_summary",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+     public function ajaxGetCanlaonBarangaySummary(Request $request)
+     {
+         $em = $this->getDoctrine()->getManager("canlaon");
+ 
+         $municipalityName = $request->get('municipalityName');
+         $barangayName = $request->get('barangayName');
+ 
+ 
+         $sql  = "SELECT 
+                    barangay_name,
+                    COALESCE(SUM( CASE WHEN pv.is_1 = 1 THEN 1 ELSE 0 END),0) AS total_1,
+                    COALESCE(SUM( CASE WHEN pv.is_2 = 1 THEN 1 ELSE 0 END),0) AS total_2,
+                    COALESCE(SUM( CASE WHEN pv.is_3 = 1 THEN 1 ELSE 0 END),0) AS total_3,
+                    COALESCE(SUM( CASE WHEN pv.is_4 = 1 THEN 1 ELSE 0 END),0) AS total_4,
+                    COALESCE(SUM( CASE WHEN pv.is_5 = 1 THEN 1 ELSE 0 END),0) AS total_5,
+                    COALESCE(SUM( CASE WHEN pv.is_6 = 1 THEN 1 ELSE 0 END),0) AS total_6,
+                    COALESCE(SUM( CASE WHEN pv.is_7 = 1 THEN 1 ELSE 0 END),0) AS total_7,
+                    COALESCE(SUM( CASE WHEN pv.is_8 = 1 THEN 1 ELSE 0 END),0) AS total_8
+                    
+                    FROM tbl_project_voter pv GROUP  BY barangay_name ORDER BY barangay_name";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->execute();
+ 
+         $data = [];
+ 
+         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+             $data[] = $row;
+         }
+ 
+         return new JsonResponse($data);
+     }
 }

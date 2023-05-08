@@ -11,6 +11,18 @@ use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
+
+use AppBundle\Entity\ProjectVoterSummary;
+use AppBundle\Entity\ProjectVoterSummaryAssigned;
+use Box\Spout\Writer\WriterFactory;
+use Box\Spout\Common\Type;
+
+use Box\Spout\Writer\Style\Border;
+use Box\Spout\Writer\Style\BorderBuilder;
+use Box\Spout\Writer\Style\Color;
+use Box\Spout\Writer\Style\StyleBuilder;
+
 
 /**
  * @Route("/mobi")
@@ -4054,16 +4066,16 @@ class MobileController extends Controller
 
     public function ajaxGetMemberByMunicipalitySummary(Request $request)
     {
-        $em = $this->getDoctrine()->getManager("province"); 
+        $em = $this->getDoctrine()->getManager("province");
         $municipalities = $request->get('municipalities');
         $results = [];
 
         $municipalityStr = '';
 
-        foreach($municipalities as $municipality){
-            $municipalityStr .=  '"'. $municipality . '",';
+        foreach ($municipalities as $municipality) {
+            $municipalityStr .= '"' . $municipality . '",';
         }
-        
+
         $municipalityStr = substr($municipalityStr, 0, -1);
         $municipalityStr = '(' . $municipalityStr . ')';
 
@@ -4099,23 +4111,23 @@ class MobileController extends Controller
      * @Method("GET")
      */
 
-     public function ajaxGetMemberByBarangaySummary(Request $request)
-     {
-         $em = $this->getDoctrine()->getManager("province"); 
-         $municipality = $request->get('municipality');
-         $barangays = $request->get('barangays');
-         $results = [];
- 
-         $barangayStr = "";
- 
-         foreach($barangays as $barangay){
-             $barangayStr .= "'" . $barangay . "',";
-         }
-         
-         $barangayStr = substr($barangayStr, 0, -1);
-         $barangayStr = '(' . $barangayStr . ')';
- 
-         $sql = "SELECT 
+    public function ajaxGetMemberByBarangaySummary(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("province");
+        $municipality = $request->get('municipality');
+        $barangays = $request->get('barangays');
+        $results = [];
+
+        $barangayStr = "";
+
+        foreach ($barangays as $barangay) {
+            $barangayStr .= "'" . $barangay . "',";
+        }
+
+        $barangayStr = substr($barangayStr, 0, -1);
+        $barangayStr = '(' . $barangayStr . ')';
+
+        $sql = "SELECT 
          COALESCE( COUNT(pv.pro_voter_id),0) AS total_members,
          COALESCE(COUNT(CASE WHEN pv.voter_group = 'LGC' THEN 1 END),0) AS total_lgc,
          COALESCE(COUNT(CASE WHEN pv.voter_group = 'LOPP' THEN 1 END),0) AS total_lopp,
@@ -4128,15 +4140,15 @@ class MobileController extends Controller
          WHERE pv.pro_id = 3 AND pv.elect_id = 4 
          AND pv.has_photo = 1 AND pv.precinct_no IS NOT NULL AND pv.voter_no IS NOT NULL  
          AND pv.voter_group IN ('LGC','LOPP','LPPP','LPPP1','LPPP2','LPPP3') AND pv.municipality_name = '${municipality}' AND pv.barangay_name IN ${barangayStr}";
- 
-         $stmt = $em->getConnection()->prepare($sql);
-         $stmt->execute();
- 
-         $results = $stmt->fetch(\PDO::FETCH_ASSOC);
- 
- 
-         return new JsonResponse($results);
-     }
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+
+        $results = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+
+        return new JsonResponse($results);
+    }
 
 
     /**
@@ -4147,12 +4159,12 @@ class MobileController extends Controller
      * @Method("GET")
      */
 
-     public function ajaxGetMemberProvinceSummary(Request $request)
-     {
-         $em = $this->getDoctrine()->getManager("province"); 
-         $results = [];
- 
-         $sql = "SELECT 
+    public function ajaxGetMemberProvinceSummary(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("province");
+        $results = [];
+
+        $sql = "SELECT 
          COALESCE( COUNT(pv.pro_voter_id),0) AS total_members,
          COALESCE(COUNT(CASE WHEN pv.voter_group = 'LGC' THEN 1 END),0) AS total_lgc,
          COALESCE(COUNT(CASE WHEN pv.voter_group = 'LOPP' THEN 1 END),0) AS total_lopp,
@@ -4165,18 +4177,18 @@ class MobileController extends Controller
          WHERE pv.pro_id = 3 AND pv.elect_id = 4 
          AND pv.has_photo = 1 AND pv.precinct_no IS NOT NULL AND pv.voter_no IS NOT NULL  
          AND pv.voter_group IN ('LGC','LOPP','LPPP','LPPP1','LPPP2','LPPP3') ";
- 
-         $stmt = $em->getConnection()->prepare($sql);
-         $stmt->execute();
- 
-         $results = $stmt->fetch(\PDO::FETCH_ASSOC);
- 
- 
-         return new JsonResponse($results);
- 
-     }
 
-     /**
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+
+        $results = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+
+        return new JsonResponse($results);
+
+    }
+
+    /**
      * @Route("/jpm/ajax_get_member_summary_by_district", 
      *       name="ajax_get_member_summary_by_district",
      *		options={ "expose" = true }
@@ -4186,11 +4198,11 @@ class MobileController extends Controller
 
     public function ajaxGetMemberByDistrictSummary(Request $request)
     {
-        $em = $this->getDoctrine()->getManager("province"); 
+        $em = $this->getDoctrine()->getManager("province");
         $district = $request->get('district');
         $results = [];
 
-     
+
 
         $sql = 'SELECT 
         COALESCE( COUNT(pv.pro_voter_id),0) AS total_members,
@@ -4208,7 +4220,7 @@ class MobileController extends Controller
         AND pv.voter_group IN ("LGC","LOPP","LPPP","LPPP1","LPPP2","LPPP3") AND m.district = ? ';
 
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1,$district);
+        $stmt->bindValue(1, $district);
         $stmt->execute();
 
         $results = $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -4226,81 +4238,81 @@ class MobileController extends Controller
      * @Method("GET")
      */
 
-     public function ajaxGetJpmProjectVotersCanlaon(Request $request)
-     {
-         $em = $this->getDoctrine()->getManager("canlaon");
- 
-         $municipalityName = $request->get('municipalityName');
-         $barangayName = $request->get('barangayName');
- 
-         $voterName = $request->get("voterName");
-         
-         $is1 = $request->get("is1");
-         $is2 = $request->get("is2");
-         $is3 = $request->get("is3");
-         $is4 = $request->get("is4");
-         $is5 = $request->get("is5");
-         $is6 = $request->get("is6");
-         $is7 = $request->get("is7");
-         $is8 = $request->get("is8");
+    public function ajaxGetJpmProjectVotersCanlaon(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("canlaon");
+
+        $municipalityName = $request->get('municipalityName');
+        $barangayName = $request->get('barangayName');
+
+        $voterName = $request->get("voterName");
+
+        $is1 = $request->get("is1");
+        $is2 = $request->get("is2");
+        $is3 = $request->get("is3");
+        $is4 = $request->get("is4");
+        $is5 = $request->get("is5");
+        $is6 = $request->get("is6");
+        $is7 = $request->get("is7");
+        $is8 = $request->get("is8");
 
 
-         $batchSize = 10;
-         $batchNo = $request->get("batchNo");
- 
-         $batchOffset = $batchNo * $batchSize;
- 
-         $sql = "SELECT pv.* FROM tbl_project_voter pv WHERE 1 AND ";
- 
-         if (!is_numeric($voterName)) {
-             $sql .= " (pv.voter_name LIKE ? OR ? IS NULL ) ";
-         } else {
-             $sql .= " (pv.generated_id_no LIKE ? OR ? IS NULL ) ";
-         }
+        $batchSize = 10;
+        $batchNo = $request->get("batchNo");
 
-         if($is1 == 1){
+        $batchOffset = $batchNo * $batchSize;
+
+        $sql = "SELECT pv.* FROM tbl_project_voter pv WHERE 1 AND ";
+
+        if (!is_numeric($voterName)) {
+            $sql .= " (pv.voter_name LIKE ? OR ? IS NULL ) ";
+        } else {
+            $sql .= " (pv.generated_id_no LIKE ? OR ? IS NULL ) ";
+        }
+
+        if ($is1 == 1) {
             $sql .= "AND pv.is_1 = 1 ";
-         }else if($is2 == 1){
+        } else if ($is2 == 1) {
             $sql .= "AND pv.is_2 = 1 ";
-         }else if($is3 == 1){
+        } else if ($is3 == 1) {
             $sql .= "AND pv.is_3 = 1 ";
-         }else if($is4 == 1){
+        } else if ($is4 == 1) {
             $sql .= "AND pv.is_4 = 1 ";
-         }else if($is5 == 1){
+        } else if ($is5 == 1) {
             $sql .= "AND pv.is_5 = 1 ";
-         }else if($is6 == 1){
+        } else if ($is6 == 1) {
             $sql .= "AND pv.is_6 = 1 ";
-         }else if($is7 == 1){
+        } else if ($is7 == 1) {
             $sql .= "AND pv.is_7 = 1 ";
-         }else if($is8 == 1){
+        } else if ($is8 == 1) {
             $sql .= "AND pv.is_8 = 1 ";
-         }
- 
- 
-         $sql .= "  AND (pv.municipality_name LIKE ? OR ? IS NULL) 
+        }
+
+
+        $sql .= "  AND (pv.municipality_name LIKE ? OR ? IS NULL) 
                     AND (pv.barangay_name LIKE ? OR ? IS NULL) 
                     AND pv.precinct_no IS NOT NULL 
                     ORDER BY pv.voter_name ASC LIMIT {$batchSize} OFFSET {$batchOffset}";
- 
-         $stmt = $em->getConnection()->prepare($sql);
-         $stmt->bindValue(1, '%' . $voterName . '%');
-         $stmt->bindValue(2, empty($voterName) ? null : '%' . $voterName . '%');
-         $stmt->bindValue(3, '%' . $municipalityName . '%');
-         $stmt->bindValue(4, empty($municipalityName) ? null : '%' . $municipalityName . '%');
-         $stmt->bindValue(5, '%' . $barangayName . '%');
-         $stmt->bindValue(6, empty($barangayName) ? null : '%' . $barangayName . '%');
-         $stmt->execute();
- 
-         $data = [];
- 
-         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-             $data[] = $row;
-         }
- 
-         return new JsonResponse($data);
-     }
 
-      /**
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, '%' . $voterName . '%');
+        $stmt->bindValue(2, empty($voterName) ? null : '%' . $voterName . '%');
+        $stmt->bindValue(3, '%' . $municipalityName . '%');
+        $stmt->bindValue(4, empty($municipalityName) ? null : '%' . $municipalityName . '%');
+        $stmt->bindValue(5, '%' . $barangayName . '%');
+        $stmt->bindValue(6, empty($barangayName) ? null : '%' . $barangayName . '%');
+        $stmt->execute();
+
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return new JsonResponse($data);
+    }
+
+    /**
      * @Route("/ajax_m_patch_project_voter_canlaon/{proVoterId}",
      *     name="ajax_m_patch_project_voter_canlaon",
      *    options={"expose" = true}
@@ -4329,25 +4341,25 @@ class MobileController extends Controller
 
         $sql = "UPDATE tbl_project_voter SET is_1 = ? , is_2 = ? , is_3 = ? , is_4 = ? , is_5 = ? , is_6 = ?, is_7 = ? , is_8 = ?, cellphone = ?, birthdate = ?
                 WHERE pro_voter_id = ? ";
-        
+
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1,  $is1);
-        $stmt->bindValue(2,  $is2);
-        $stmt->bindValue(3,  $is3);
-        $stmt->bindValue(4,  $is4);
-        $stmt->bindValue(5,  $is5);
-        $stmt->bindValue(6,  $is6);
-        $stmt->bindValue(7,  $is7);
-        $stmt->bindValue(8,  $is8);
-        $stmt->bindValue(9,  $cellphoneNo);
-        $stmt->bindValue(10,  $birthdate);
-        $stmt->bindValue(11,  $proVoterId);
+        $stmt->bindValue(1, $is1);
+        $stmt->bindValue(2, $is2);
+        $stmt->bindValue(3, $is3);
+        $stmt->bindValue(4, $is4);
+        $stmt->bindValue(5, $is5);
+        $stmt->bindValue(6, $is6);
+        $stmt->bindValue(7, $is7);
+        $stmt->bindValue(8, $is8);
+        $stmt->bindValue(9, $cellphoneNo);
+        $stmt->bindValue(10, $birthdate);
+        $stmt->bindValue(11, $proVoterId);
         $stmt->execute();
 
         return new JsonResponse(200);
     }
 
- 
+
     /**
      * @Route("/ajax_m_get_canlaon_barangay_summary",
      *       name="ajax_m_get_canlaon_barangay_summary",
@@ -4356,15 +4368,11 @@ class MobileController extends Controller
      * @Method("GET")
      */
 
-     public function ajaxGetCanlaonBarangaySummary(Request $request)
-     {
-         $em = $this->getDoctrine()->getManager("canlaon");
- 
-         $municipalityName = $request->get('municipalityName');
-         $barangayName = $request->get('barangayName');
- 
- 
-         $sql  = "SELECT 
+    public function ajaxGetCanlaonBarangaySummary(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("canlaon");
+
+        $sql = "SELECT 
                     barangay_name,
                     COALESCE(SUM( CASE WHEN pv.is_1 = 1 THEN 1 ELSE 0 END),0) AS total_1,
                     COALESCE(SUM( CASE WHEN pv.is_2 = 1 THEN 1 ELSE 0 END),0) AS total_2,
@@ -4373,19 +4381,145 @@ class MobileController extends Controller
                     COALESCE(SUM( CASE WHEN pv.is_5 = 1 THEN 1 ELSE 0 END),0) AS total_5,
                     COALESCE(SUM( CASE WHEN pv.is_6 = 1 THEN 1 ELSE 0 END),0) AS total_6,
                     COALESCE(SUM( CASE WHEN pv.is_7 = 1 THEN 1 ELSE 0 END),0) AS total_7,
-                    COALESCE(SUM( CASE WHEN pv.is_8 = 1 THEN 1 ELSE 0 END),0) AS total_8
+                    COALESCE(SUM( CASE WHEN pv.is_8 = 1 THEN 1 ELSE 0 END),0) AS total_8,
+                    COALESCE(COUNT(pv.pro_voter_id ),0) AS total_voter
                     
                     FROM tbl_project_voter pv GROUP  BY barangay_name ORDER BY barangay_name";
- 
-         $stmt = $em->getConnection()->prepare($sql);
-         $stmt->execute();
- 
-         $data = [];
- 
-         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-             $data[] = $row;
-         }
- 
-         return new JsonResponse($data);
-     }
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return new JsonResponse($data);
+    }
+
+    /**
+     * @Route("/ajax_download_canlcaon_barangay_summary_excel",
+     *     name="ajax_download_canlcaon_barangay_summary_excel",
+     *     options={"expose" = true}
+     *     )
+     * @Method("GET")
+     */
+
+    public function ajaxDownloadCanlaonBarangaySummaryExcel(Request $request)
+    {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        $em = $this->getDoctrine()->getManager("canlaon");
+
+        $filename = md5(uniqid(rand(), true)) . ".xlsx";
+        $fileRoot = __DIR__ . '/../../../web/uploads/exports/';
+
+        $defaultStyle = (new StyleBuilder())
+            ->setFontName('Arial')
+            ->setFontSize(11)
+            ->build();
+
+        $headingStyle = (new StyleBuilder())
+            ->setFontName('Arial')
+            ->setFontSize(11)
+            ->setFontBold()
+            ->setShouldWrapText()
+            ->build();
+
+        $writer = WriterFactory::create(Type::XLSX);
+        $writer->setDefaultRowStyle($defaultStyle);
+        $writer->openToFile($fileRoot . $filename);
+        $writer->addRowWithStyle(['BARANGAY', 'NORV','TOTAL','1', '2', '3', '4', '5', '6', '7', '8'], $headingStyle);
+
+
+        $sql = "SELECT 
+        barangay_name,
+        COALESCE(SUM( CASE WHEN pv.is_1 = 1 THEN 1 ELSE 0 END),0) AS total_1,
+        COALESCE(SUM( CASE WHEN pv.is_2 = 1 THEN 1 ELSE 0 END),0) AS total_2,
+        COALESCE(SUM( CASE WHEN pv.is_3 = 1 THEN 1 ELSE 0 END),0) AS total_3,
+        COALESCE(SUM( CASE WHEN pv.is_4 = 1 THEN 1 ELSE 0 END),0) AS total_4,
+        COALESCE(SUM( CASE WHEN pv.is_5 = 1 THEN 1 ELSE 0 END),0) AS total_5,
+        COALESCE(SUM( CASE WHEN pv.is_6 = 1 THEN 1 ELSE 0 END),0) AS total_6,
+        COALESCE(SUM( CASE WHEN pv.is_7 = 1 THEN 1 ELSE 0 END),0) AS total_7,
+        COALESCE(SUM( CASE WHEN pv.is_8 = 1 THEN 1 ELSE 0 END),0) AS total_8,
+        COALESCE(COUNT(pv.pro_voter_id ),0) AS total_voter
+        
+        FROM tbl_project_voter pv GROUP  BY barangay_name ORDER BY barangay_name";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+
+        $data = [];
+        $g1 = 0;
+        $g2 = 0;
+        $g3 = 0;
+        $g4 = 0;
+        $g5 = 0;
+        $g6 = 0;
+        $g7 = 0;
+        $g8 = 0;
+        $gtotal = 0;
+        $gnorv = 0;
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $total = 0;
+            $total = $row['total_1'];
+            $total += $row['total_2'];
+            $total += $row['total_3'];
+            $total += $row['total_4'];
+            $total += $row['total_5'];
+            $total += $row['total_6'];
+            $total += $row['total_7'];
+            $total += $row['total_8'];
+
+            $g1 += $row['total_1'];
+            $g2 += $row['total_2'];
+            $g3 += $row['total_3'];
+            $g4 += $row['total_4'];
+            $g5 += $row['total_5'];
+            $g6 += $row['total_6'];
+            $g7 += $row['total_7'];
+            $g8 += $row['total_8'];
+            $gtotal += $total;
+            $gnorv += $row['total_voter'];
+
+            $writer->addRow([
+                $row['barangay_name'],
+                $row['total_voter'],
+                $total,
+                $row['total_1'],
+                $row['total_2'],
+                $row['total_3'],
+                $row['total_4'],
+                $row['total_5'],
+                $row['total_6'],
+                $row['total_7'],
+                $row['total_8']
+            ]);
+        }
+
+        $writer->addRow([
+            "Grand Total",
+            $gnorv,
+            $gtotal,
+            $g1,
+            $g2,
+            $g3,
+            $g4,
+            $g5,
+            $g6,
+            $g7,
+            $g8
+        ]);
+
+        $writer->close();
+
+        $response = new BinaryFileResponse($fileRoot . $filename);
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT);
+
+        return $response;
+    }
+
+
 }

@@ -200,6 +200,7 @@ var TupadComponent = React.createClass({
                                 <option value="SLP">Sustainable Livelihood Program(SLP)</option>
                                 <option value="AICS_EDUC">DSWD-AICS Educational Assistance</option>
                                 <option value="TUPAD">Tulong Panghanapbuhay (Disadvantage /Displaced Workers)</option>
+                                <option value="TUPAD_2023">Tupad 2023</option>
                             </select>
                         </div>
 
@@ -209,6 +210,10 @@ var TupadComponent = React.createClass({
                                 <option value="VICE">VICE OLA / PROVINCE</option>
                                 <option value="SIR GING">SIR GING</option>
                                 <option value="SIR TON">SIR TON</option>
+                                <option value="ERWIN">ERWIN GROUP</option>
+                                <option value="VERANO_FRANCISCO">VERANO/FRANCISCO GROUP</option>
+                                <option value="FRANCISCO">FRANCISCO GROUP</option>
+                                <option value="PIA_ARIEL">PIA/ARIEL GROUP</option>
                             </select>
                         </div>
 

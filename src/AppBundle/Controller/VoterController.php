@@ -44,7 +44,7 @@ class VoterController extends Controller
         return $this->render('template/voter/index.html.twig', ['user' => $user, "hostIp" => $hostIp, 'imgUrl' => $imgUrl]);
     }
 
-    
+
     /**
      * @Route("/public", name="voter_public", options={"main" = true })
      */
@@ -114,8 +114,11 @@ class VoterController extends Controller
 
         $em = $this->getDoctrine()->getManager();
 
+        // $sql = "SELECT * FROM psw_municipality m
+        //         WHERE m.province_code = ? AND m.name LIKE ? ORDER BY m.name ASC LIMIT 30 ";
+
         $sql = "SELECT * FROM psw_municipality m
-                WHERE m.province_code = ? AND m.name LIKE ? ORDER BY m.name ASC LIMIT 30 ";
+          ORDER BY m.name ASC LIMIT 30 ";
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, $provinceCode);
@@ -969,7 +972,7 @@ class VoterController extends Controller
         $filters['v.brgy_cluster'] = $request->get("brgyCluster");
         $filters['v.is_non_voter'] = $request->get("isNonVoter");
         $filters['v.elect_id'] = $request->get('electId');
-        
+
         $columns = array(
             0 => 'v.voter_id',
             1 => 'v.voter_name',
@@ -982,9 +985,10 @@ class VoterController extends Controller
 
         foreach ($filters as $field => $searchText) {
             if ($searchText != "") {
-                if ($field == 'v.voter_id' || $field == 'v.elect_id' || $field == 'v.voter_group'|| $field == 'v.rec_form_sub' || $field == 'v.house_form_sub' || $field == 'v.is_non_voter' ) {
+                if ($field == 'v.voter_id' || $field == 'v.elect_id' || $field == 'v.voter_group' || $field == 'v.rec_form_sub' || $field == 'v.house_form_sub' || $field == 'v.is_non_voter') {
                     $whereStmt .= "{$field} = '{$searchText}' AND ";
-                }if ($field == 'v.municipality_no' || $field == 'v.brgy_no' || $field == 'v.precinct_no' || $field == 'v.province_code' || $field == 'v.brgy_cluster' || $field == 'v.voter_group' ) {
+                }
+                if ($field == 'v.municipality_no' || $field == 'v.brgy_no' || $field == 'v.precinct_no' || $field == 'v.province_code' || $field == 'v.brgy_cluster' || $field == 'v.voter_group') {
                     $temp = $searchText == "" ? null : "'{$searchText}  '";
                     $whereStmt .= "({$field} = '{$searchText}' OR {$temp} IS NULL) AND ";
                 } else {
@@ -1020,7 +1024,7 @@ class VoterController extends Controller
         // }
 
         // $voterGroup  = $request->get("voterGroup");
-        
+
         // if(!empty($voterGroup)){
         //     if(strtoupper($voterGroup) == 'ALL'){
         //         $whereStmt .= " AND v.voter_group IS NOT NULL AND v.voter_group <> '' ";
@@ -1221,7 +1225,8 @@ class VoterController extends Controller
             if ($searchText != "") {
                 if ($field == 'v.voter_id') {
                     $whereStmt .= "{$field} = '{$searchText}' AND ";
-                }if ($field == 'v.province_code' && $field == 'v.municipality_no' || $field == 'v.brgy_no' || $field == 'v.precinct_no') {
+                }
+                if ($field == 'v.province_code' && $field == 'v.municipality_no' || $field == 'v.brgy_no' || $field == 'v.precinct_no') {
                     $temp = $searchText == "" ? null : "'{$searchText}  '";
                     $whereStmt .= "({$field} = '{$searchText}' OR {$temp} IS NULL) AND ";
                 } else {
@@ -1521,7 +1526,8 @@ class VoterController extends Controller
         return new JsonResponse($proVoter);
     }
 
-    private function getLGC($municipalityNo, $barangayNo){
+    private function getLGC($municipalityNo, $barangayNo)
+    {
         $em = $this->getDoctrine()->getManager();
         $sql = "SELECT pv.* FROM tbl_location_assignment l INNER JOIN tbl_project_voter pv ON pv.pro_id_code = l.pro_id_code 
         WHERE l.municipality_no = ? AND l.barangay_no = ? ";
@@ -3166,7 +3172,7 @@ class VoterController extends Controller
                 foreach ($namePart as $name) {
                     $prefix .= substr($name, 0, 1);
                 }
-        
+
                 $sql = "UPDATE tbl_project_voter pv SET pv.pro_id_code = ? WHERE pv.pro_voter_id = ? ";
                 $stmt = $em->getConnection()->prepare($sql);
                 $stmt->bindValue(1, $prefix . $municipalityNo . $proIdCode);
@@ -4114,7 +4120,7 @@ class VoterController extends Controller
         $entity->setIpGroup(trim(strtoupper($request->get('ipGroup'))));
         $entity->setVoterGroup(trim(strtoupper($request->get('voterGroup'))));
         $entity->setPosition(trim(strtoupper($request->get('position'))));
-        
+
         $entity->setBirthdate(trim($request->get('birthdate')));
         $entity->setIsNonVoter(1);
         $entity->setHasId(0);

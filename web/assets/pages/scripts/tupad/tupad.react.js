@@ -159,6 +159,11 @@ var TupadComponent = React.createClass({
         this.refs.tupadDatatableReference.reload();
     },
 
+    onSuccessCreate: function (trn) {
+        this.refs.tupadDatatableReference.reload();
+        this.refs.tupadDatatableReference.openProfile(trn.id);
+    },
+
     render: function () {
         var self = this;
 
@@ -177,6 +182,7 @@ var TupadComponent = React.createClass({
                             serviceType={this.state.form.data.serviceType}
                             source={this.state.form.data.source}
                             releaseDate={this.state.form.data.releaseDate}
+                            success={this.onSuccessCreate}
                             municipalityNo={this.state.form.data.municipalityNo}
                             municipalityName={this.state.form.data.municipalityName}
                             barangayName={this.state.form.data.barangayName}

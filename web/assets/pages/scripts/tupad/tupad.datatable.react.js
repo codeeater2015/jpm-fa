@@ -351,6 +351,10 @@ var TupadDatatable = React.createClass({
         }
     },
 
+    openProfile: function (id) {
+        this.setState({ showEditModal: true, target: id });
+    },
+
     isEmpty: function (value) {
         return value == null || value == "" || value == "undefined" || value <= 0;
     },

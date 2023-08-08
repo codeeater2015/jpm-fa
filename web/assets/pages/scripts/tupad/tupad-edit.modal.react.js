@@ -62,7 +62,7 @@ var TupadEditModal = React.createClass({
                         />
                     }
 
-                    <form id="fa-form" >
+                    <form id="fa-edit-form" >
                         <div className="row">
                             <div className="col-md-12">
 
@@ -101,7 +101,7 @@ var TupadEditModal = React.createClass({
                                     <div className="col-md-3" >
                                         <FormGroup controlId="formReleaseDate" validationState={this.getValidationState('releaseDate')}>
                                             <ControlLabel > Release Date : </ControlLabel>
-                                            <input type="date" value={this.state.form.data.releaseDate} className="input-md form-control" disabled={true} />
+                                            <input type="date" value={this.state.form.data.releaseDate} className="input-md form-control"  name="releaseDate"  onChange={this.setFormProp}/>
                                         </FormGroup>
                                     </div>
                                 </div>
@@ -179,19 +179,19 @@ var TupadEditModal = React.createClass({
             form.data.sourceBarangay = res.sourceBarangay;
             form.data.cellphoneNo = res.cellphoneNo;
 
-            $("#fa-form #voter_select2").empty()
+            $("#fa-edit-form #voter_select2").empty()
                 .append($("<option/>")
                     .val(res.proVoterId)
                     .text(res.bName))
                 .trigger("change");
 
-            $("#fa-form #municipality_select2").empty()
+            $("#fa-edit-form #municipality_select2").empty()
                 .append($("<option/>")
                     .val(res.sourceMunicipality)
                     .text(res.sourceMunicipality))
                 .trigger("change");
 
-            $("#fa-form #barangay_select2").empty()
+            $("#fa-edit-form #barangay_select2").empty()
                 .append($("<option/>")
                     .val(res.sourceBarangay)
                     .text(res.sourceBarangay))
@@ -231,7 +231,7 @@ var TupadEditModal = React.createClass({
     initSelect2: function () {
         var self = this;
 
-        $("#fa-form #municipality_select2").select2({
+        $("#fa-edit-form #municipality_select2").select2({
             casesentitive: false,
             placeholder: "Select City/Municipality",
             allowClear: true,
@@ -256,7 +256,7 @@ var TupadEditModal = React.createClass({
             }
         });
 
-        $("#fa-form #barangay_select2").select2({
+        $("#fa-edit-form #barangay_select2").select2({
             casesentitive: false,
             placeholder: "Select Barangay",
             allowClear: true,
@@ -268,7 +268,7 @@ var TupadEditModal = React.createClass({
                 data: function (params) {
                     return {
                         searchText: params.term,
-                        municipalityNo: $("#fa-form #municipality_select2").val(),
+                        municipalityNo: $("#fa-edit-form #municipality_select2").val(),
                         provinceCode: 53
                     };
                 },
@@ -282,7 +282,7 @@ var TupadEditModal = React.createClass({
             }
         });
 
-        $("#fa-form #voter_select2").select2({
+        $("#fa-edit-form #voter_select2").select2({
             casesentitive: false,
             placeholder: "Enter Name...",
             allowClear: true,
@@ -298,7 +298,7 @@ var TupadEditModal = React.createClass({
                         electId: 4,
                         proId: 3,
                         provinceCode: 53,
-                        municipalityNo: $("#fa-form #municipality_select2").val()
+                        municipalityNo: $("#fa-edit-form #municipality_select2").val()
                     };
                 },
                 processResults: function (data, params) {
@@ -314,7 +314,7 @@ var TupadEditModal = React.createClass({
             }
         });
 
-        $("#fa-form #voter_select2").on("change", function () {
+        $("#fa-edit-form #voter_select2").on("change", function () {
             self.loadVoter(3, $(this).val());
         });
     },
@@ -414,7 +414,7 @@ var TupadEditModal = React.createClass({
             type: 'PATCH'
         }).done(function (res) {
             self.reset();
-            $("#fa-form #voter_select2").empty().trigger("change");
+            $("#fa-edit-form #voter_select2").empty().trigger("change");
             self.props.reload();
         }).fail(function (err) {
             self.setErrors(err.responseJSON);

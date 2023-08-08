@@ -85,7 +85,7 @@ var TupadCreateModal = React.createClass({
                                     <div className="col-md-3" >
                                         <FormGroup controlId="formReleaseDate" validationState={this.getValidationState('releaseDate')}>
                                             <ControlLabel > Release Date : </ControlLabel>
-                                            <input type="text" value={this.props.releaseDate} className="input-md form-control" disabled={true} />
+                                            <input type="date" value={this.props.releaseDate} className="input-md form-control" name="releaseDate"  onChange={this.setFormProp} />
                                         </FormGroup>
                                     </div>
                                 </div>
@@ -367,6 +367,7 @@ var TupadCreateModal = React.createClass({
             self.reset();
             $("#fa-form #voter_select2").empty().trigger("change");
             self.props.reload();
+            self.props.success(res);
         }).fail(function (err) {
             self.setErrors(err.responseJSON);
         });

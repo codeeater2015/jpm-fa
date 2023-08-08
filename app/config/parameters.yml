@@ -21,11 +21,11 @@ parameters:
     # elect_name: election_result
     # elect_user: root
     # elect_password: kmmsitdadmin
-    canlaon_host : localhost
-    canlaon_port : 3307
-    canlaon_name: voter_kanlaon
-    canlaon_user: root
-    canlaon_password: kmmsitdadmin
+    # canlaon_host : localhost
+    # canlaon_port : 3307
+    # canlaon_name: voter_kanlaon
+    # canlaon_user: root
+    # canlaon_password: kmmsitdadmin
 #    rescue_host: 127.0.0.1
 #    rescue_port: 3308
 #    rescue_name: voter_province_2021

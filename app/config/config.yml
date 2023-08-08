@@ -84,22 +84,22 @@ doctrine:
                 user:     "%voter_province_user%"
                 password: "%voter_province_password%"
                 charset:  UTF8
-            election:
-                driver:   pdo_mysql
-                host:     "%elect_host%"
-                port:     "%elect_port%"
-                dbname:   "%elect_name%"
-                user:     "%elect_user%"
-                password: "%elect_password%"
-                charset:  UTF8
-            canlaon:
-                driver:   pdo_mysql
-                host:     "%canlaon_host%"
-                port:     "%canlaon_port%"
-                dbname:   "%canlaon_name%"
-                user:     "%canlaon_user%"
-                password: "%canlaon_password%"
-                charset:  UTF8
+            # election:
+            #     driver:   pdo_mysql
+            #     host:     "%elect_host%"
+            #     port:     "%elect_port%"
+            #     dbname:   "%elect_name%"
+            #     user:     "%elect_user%"
+            #     password: "%elect_password%"
+            #     charset:  UTF8
+            # canlaon:
+            #     driver:   pdo_mysql
+            #     host:     "%canlaon_host%"
+            #     port:     "%canlaon_port%"
+            #     dbname:   "%canlaon_name%"
+            #     user:     "%canlaon_user%"
+            #     password: "%canlaon_password%"
+            #     charset:  UTF8
 
         # if using pdo_sqlite as your database driver:
         #   1. add the path in parameters.yml
@@ -124,14 +124,14 @@ doctrine:
                 connection: province
                 mappings:
                     AppBundle:  ~
-            election:
-                connection: election
-                mappings:
-                    AppBundle:  ~
-            canlaon:
-                connection: canlaon
-                mappings:
-                    AppBundle:  ~
+            # election:
+            #     connection: election
+            #     mappings:
+            #         AppBundle:  ~
+            # canlaon:
+            #     connection: canlaon
+            #     mappings:
+            #         AppBundle:  ~
 
 #    orm:
 #        auto_generate_proxy_classes: "%kernel.debug%"

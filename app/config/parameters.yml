@@ -7,14 +7,14 @@ parameters:
     database_user: jpm_admin
     database_password: kmmsitdadmin
     tupad_host: localhost
-    tupad_port: jpm_admin
+    tupad_port: 3306
     tupad_name: tupad_2023
-    tupad_user: root 
+    tupad_user: jpm_admin 
     tupad_password: kmmsitdadmin
     voter_province_host : localhost
-    voter_province_port : jpm_admin
+    voter_province_port : 3306
     voter_province_name: voter_province_merged
-    voter_province_user: root
+    voter_province_user: jpm_admin
     voter_province_password: kmmsitdadmin
     # elect_host : localhost
     # elect_port : 3307

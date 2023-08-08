@@ -7,34 +7,34 @@ parameters:
     database_user: jpm_admin
     database_password: kmmsitdadmin
     tupad_host: localhost
-    tupad_port: 3306
+    tupad_port: jpm_admin
     tupad_name: tupad_2023
-    tupad_user: jpm_admin
+    tupad_user: root 
     tupad_password: kmmsitdadmin
     voter_province_host : localhost
-    voter_province_port : 3306
+    voter_province_port : jpm_admin
     voter_province_name: voter_province_merged
-    voter_province_user: jpm_admin
+    voter_province_user: root
     voter_province_password: kmmsitdadmin
-    elect_host : localhost
-    elect_port : 3306
-    elect_name: election_result
-    elect_user: jpm_admin
-    elect_password: kmmsitdadmin
+    # elect_host : localhost
+    # elect_port : 3307
+    # elect_name: election_result
+    # elect_user: root
+    # elect_password: kmmsitdadmin
     canlaon_host : localhost
-    canlaon_port : 3306
+    canlaon_port : 3307
     canlaon_name: voter_kanlaon
-    canlaon_user: jpm_admin
+    canlaon_user: root
     canlaon_password: kmmsitdadmin
 #    rescue_host: 127.0.0.1
 #    rescue_port: 3308
 #    rescue_name: voter_province_2021
-#    rescue_user: jpm_admin
+#    rescue_user: root
 #    rescue_password: 
 #    province_host: 127.0.0.1
 #    province_port: 3308
 #    province_name: voter_province_2021
-#    province_user: jpm_admin
+#    province_user: root
 #    province_password: 
 #    remote_host: 119.93.144.107
 #    remote_port: 3308

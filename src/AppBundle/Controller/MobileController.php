@@ -4424,7 +4424,7 @@ class MobileController extends Controller
             ->setFontName('Arial')
             ->setFontSize(11)
             ->setFontBold()
-            ->setShouldWrapText()
+            ->setShouldWrapText(false)
             ->build();
 
         $writer = WriterFactory::create(Type::XLSX);
@@ -4486,31 +4486,31 @@ class MobileController extends Controller
 
             $writer->addRow([
                 $row['barangay_name'],
-                $row['total_voter'],
-                $total,
-                $row['total_1'],
-                $row['total_2'],
-                $row['total_3'],
-                $row['total_4'],
-                $row['total_5'],
-                $row['total_6'],
-                $row['total_7'],
-                $row['total_8']
+                $row['total_voter'] == 0 ? "" : number_format($row['total_voter']),
+                $total == 0 ? "" : number_format($total),
+                $row['total_1'] == 0 ? "" : $row['total_1'],
+                $row['total_2'] == 0 ? "" : $row['total_2'],
+                $row['total_3'] == 0 ? "" : $row['total_3'],
+                $row['total_4'] == 0 ? "" : $row['total_4'],
+                $row['total_5'] == 0 ? "" : $row['total_5'],
+                $row['total_6'] == 0 ? "" : $row['total_6'],
+                $row['total_7'] == 0 ? "" : $row['total_7'],
+                $row['total_8'] == 0 ? "" : $row['total_8']
             ]);
         }
 
         $writer->addRow([
             "Grand Total",
-            $gnorv,
-            $gtotal,
-            $g1,
-            $g2,
-            $g3,
-            $g4,
-            $g5,
-            $g6,
-            $g7,
-            $g8
+            $gnorv == 0 ? "" : number_format($gnorv),
+            $gtotal == 0 ? "" : number_format($gtotal),
+            $g1 == 0 ? ""  : $g1,
+            $g2 == 0 ? "" : $g2,
+            $g3 == 0 ? "" : $g3,
+            $g4 == 0 ? "" :  $g4,
+            $g5 == 0 ? ""  : $g5,
+            $g6 == 0 ? "" : $g6,
+            $g7 == 0 ? "" : $g7,
+            $g8 == 0 ? "" :  $g8
         ]);
 
         $writer->close();

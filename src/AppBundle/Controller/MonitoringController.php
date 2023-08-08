@@ -145,8 +145,8 @@ class MonitoringController extends Controller
                 flush();
             }
 
-            $header->setTotalProcessed($processed);
-            $header->setTotalImported($imported);
+            // $header->setTotalProcessed($processed);
+            // $header->setTotalImported($imported);
 
             $em->flush();
 

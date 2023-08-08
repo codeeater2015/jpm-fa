@@ -95,6 +95,12 @@ var TupadCreateNewProfileModal = React.createClass({
                                     <HelpBlock>{this.getError('gender')}</HelpBlock>
                                 </FormGroup>
                             </div>
+                            <div className="col-md-3" >
+                                <FormGroup controlId="formBirthdate" validationState={this.getValidationState('birthdate')}>
+                                    <ControlLabel > Birthday : </ControlLabel>
+                                    <input type="date" value={this.props.birthdate} className="input-md form-control" onChange={this.setFormProp} name="birthdate" />
+                                </FormGroup>
+                            </div>
                         </div>
                         <div className="row">
                             <div className="col-md-12 text-right">

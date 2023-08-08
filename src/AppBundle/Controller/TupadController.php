@@ -331,6 +331,7 @@ class TupadController extends Controller
         $voterName = $entity->getLastname() . ', ' . $entity->getFirstname() . ' ' . $entity->getMiddlename() . ' ' . $entity->getExtname();
         $entity->setVoterName(trim(strtoupper($voterName)));
         $entity->setGender($request->get('gender'));
+        $entity->setBirthdate($request->get("birthdate"));
 
         $entity->setIsNonVoter(1);
         $entity->setHasId(0);

@@ -114,11 +114,8 @@ class VoterController extends Controller
 
         $em = $this->getDoctrine()->getManager();
 
-        // $sql = "SELECT * FROM psw_municipality m
-        //         WHERE m.province_code = ? AND m.name LIKE ? ORDER BY m.name ASC LIMIT 30 ";
-
         $sql = "SELECT * FROM psw_municipality m
-          ORDER BY m.name ASC LIMIT 30 ";
+        WHERE m.province_code = ? AND m.name LIKE ? ORDER BY m.name ASC LIMIT 30 ";
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, $provinceCode);

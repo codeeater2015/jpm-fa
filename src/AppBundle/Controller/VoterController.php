@@ -114,6 +114,8 @@ class VoterController extends Controller
 
         $em = $this->getDoctrine()->getManager();
 
+
+
         $sql = "SELECT * FROM psw_municipality m
         WHERE m.province_code = ? AND m.name LIKE ? ORDER BY m.name ASC LIMIT 30 ";
 
@@ -239,6 +241,8 @@ class VoterController extends Controller
 
         $em = $this->getDoctrine()->getManager();
 
+
+        
         $sql = "SELECT b.* FROM psw_barangay b
                 INNER JOIN psw_municipality m ON m.municipality_code = b.municipality_code AND m.province_code = ?
                 WHERE m.municipality_no = ? AND b.name LIKE ? ORDER BY b.name ASC LIMIT 30 ";

@@ -304,7 +304,7 @@ class RemotePhotoUploaderController extends Controller
             $row['total_linked_photo'] = $counts['total_linked_photo'];
             $row['total_unlinked_photo'] = $counts['total_unlinked_photo'];
             $row['total_cleared'] = $counts['total_cleared'];
-            
+
 
             $sql = "SELECT COUNT(*) AS total_linked,
                     COALESCE(COUNT(CASE WHEN pv.has_id = 1  then 1 end),0) as total_has_id,
@@ -901,6 +901,8 @@ class RemotePhotoUploaderController extends Controller
 
         $realImagePath = realpath($imagePath);
 
+        return JsonResponse(['message' => 'test']);
+        
         $date = date('Y-m-d');
         $zip = new \ZipArchive();
 

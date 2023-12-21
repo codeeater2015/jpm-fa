@@ -986,11 +986,10 @@ class VoterController extends Controller
 
         foreach ($filters as $field => $searchText) {
             if ($searchText != "") {
-                if ($field == 'v.voter_id' || $field == 'v.elect_id' || $field == 'v.voter_group' || $field == 'v.rec_form_sub' || $field == 'v.house_form_sub' || $field == 'v.is_non_voter') {
+                if ($field == 'v.voter_id' || $field == 'v.elect_id' || $field == 'v.voter_group'  || $field == 'v.is_non_voter'  || $field == 'v.province_code' || $field == 'v.municipality_no' || $field == 'v.brgy_no' ) {
                     $whereStmt .= "{$field} = '{$searchText}' AND ";
-                }
-                if ($field == 'v.municipality_no' || $field == 'v.brgy_no' || $field == 'v.precinct_no' || $field == 'v.province_code' || $field == 'v.brgy_cluster' || $field == 'v.voter_group') {
-                    $temp = $searchText == "" ? null : "'{$searchText}  '";
+                }elseif ($field == 'v.precinct_no') {
+                    $temp = $searchText == "" ? null : "'{$searchText}'";
                     $whereStmt .= "({$field} = '{$searchText}' OR {$temp} IS NULL) AND ";
                 } else {
                     $whereStmt .= "{$field} LIKE '%{$searchText}%' AND ";
@@ -1060,6 +1059,8 @@ class VoterController extends Controller
         $sql = "SELECT v.* FROM tbl_project_voter v WHERE 1 " . $whereStmt . ' ' . $orderStmt . " LIMIT {$length} OFFSET {$start} ";
 
         $stmt = $em->getConnection()->query($sql);
+        $stmt->execute();
+
         $data = [];
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {

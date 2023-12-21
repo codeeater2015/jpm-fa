@@ -10,8 +10,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  * ProjectVoter
  *
  * @ORM\Table(name="tbl_project_voter")
- * @ORM\Entity(repositoryClass="AppBundle\Repository\ProjectVoterRepository")\
- * @UniqueEntity(fields={"proId","electId","generatedIdNo"},message="This value is already in use.", errorPath="proIdCode")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\ProjectVoterRepository")
+ * 
  */
 class ProjectVoter
 {
@@ -150,12 +150,33 @@ class ProjectVoter
      */
     private $cellphone;
 
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="old_voter_group", type="string", length=30)
+     */
+    private $oldVoterGroup;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="is_on_hold", type="integer")
+     */
+    private $isOnHold;
+
     /**
      * @var int
      *
      * @ORM\Column(name="has_photo", type="integer")
      */
     private $hasPhoto;
+    
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="has_photo_2023", type="integer")
+     */
+    private $hasPhoto2023;
     
 
     /**
@@ -262,7 +283,7 @@ class ProjectVoter
     /**
      * @var string
      *
-     * @ORM\Column(name="status", type="string", length=3)
+     * @ORM\Column(name="status", type="string", length=30)
      */
     private $status;
 
@@ -326,46 +347,12 @@ class ProjectVoter
     private $ipGroup;
 
     /**
-     * @var string
-     *
-     * @ORM\Column(name="special_op_group", type="string", length=50)
-     */
-    private $specialOpGroup;
-
-     /**
-     * @var string
-     *
-     * @ORM\Column(name="special_op_pro_id_code", type="string", length=50)
-     */
-    private $specialOpProIdCode;
-
-    /**
-     * @var string
-     *
-     * @ORM\Column(name="dialect", type="string", length=150)
-     */
-    private $dialect;
-
-    /**
      * @var int
      *
      * @ORM\Column(name="is_non_voter", type="integer", scale=1)
      */
     private $isNonVoter;
 
-     /**
-     * @var int
-     *
-     * @ORM\Column(name="cluster_no", type="integer", scale=1)
-     */
-    private $clusterNo;
-
-     /**
-     * @var int
-     *
-     * @ORM\Column(name="brgy_cluster", type="integer", scale=1)
-     */
-    private $brgyCluster;
 
      /**
      * @var string
@@ -374,7 +361,6 @@ class ProjectVoter
      * @Assert\NotBlank(groups={"create","edit"})
      */
     private $gender;
-
 
     /**
      * Get proVoterId
@@ -867,6 +853,54 @@ class ProjectVoter
     }
 
     /**
+     * Set isKalaban
+     *
+     * @param integer $isKalaban
+     *
+     * @return ProjectVoter
+     */
+    public function setIsKalaban($isKalaban)
+    {
+        $this->isKalaban = $isKalaban;
+
+        return $this;
+    }
+
+    /**
+     * Get isKalaban
+     *
+     * @return integer
+     */
+    public function getIsKalaban()
+    {
+        return $this->isKalaban;
+    }
+
+    /**
+     * Set isKalabanReason
+     *
+     * @param string $isKalabanReason
+     *
+     * @return ProjectVoter
+     */
+    public function setIsKalabanReason($isKalabanReason)
+    {
+        $this->isKalabanReason = $isKalabanReason;
+
+        return $this;
+    }
+
+    /**
+     * Get isKalabanReason
+     *
+     * @return string
+     */
+    public function getIsKalabanReason()
+    {
+        return $this->isKalabanReason;
+    }
+
+    /**
      * Set religion
      *
      * @param string $religion
@@ -912,6 +946,30 @@ class ProjectVoter
     public function getDidChanged()
     {
         return $this->didChanged;
+    }
+
+    /**
+     * Set toSend
+     *
+     * @param integer $toSend
+     *
+     * @return ProjectVoter
+     */
+    public function setToSend($toSend)
+    {
+        $this->toSend = $toSend;
+
+        return $this;
+    }
+
+    /**
+     * Get toSend
+     *
+     * @return integer
+     */
+    public function getToSend()
+    {
+        return $this->toSend;
     }
 
     /**
@@ -1299,30 +1357,6 @@ class ProjectVoter
     }
 
     /**
-     * Set dialect
-     *
-     * @param string $dialect
-     *
-     * @return ProjectVoter
-     */
-    public function setDialect($dialect)
-    {
-        $this->dialect = $dialect;
-
-        return $this;
-    }
-
-    /**
-     * Get dialect
-     *
-     * @return string
-     */
-    public function getDialect()
-    {
-        return $this->dialect;
-    }
-
-    /**
      * Set isNonVoter
      *
      * @param integer $isNonVoter
@@ -1371,170 +1405,74 @@ class ProjectVoter
     }
 
     /**
-     * Set clusterNo
+     * Set hasPhoto2023
      *
-     * @param integer $clusterNo
+     * @param integer $hasPhoto2023
      *
      * @return ProjectVoter
      */
-    public function setClusterNo($clusterNo)
+    public function setHasPhoto2023($hasPhoto2023)
     {
-        $this->clusterNo = $clusterNo;
+        $this->hasPhoto2023 = $hasPhoto2023;
 
         return $this;
     }
 
     /**
-     * Get clusterNo
+     * Get hasPhoto2023
      *
      * @return integer
      */
-    public function getClusterNo()
+    public function getHasPhoto2023()
     {
-        return $this->clusterNo;
+        return $this->hasPhoto2023;
     }
 
     /**
-     * Set brgyCluster
+     * Set oldVoterGroup
      *
-     * @param integer $brgyCluster
+     * @param string $oldVoterGroup
      *
      * @return ProjectVoter
      */
-    public function setBrgyCluster($brgyCluster)
+    public function setOldVoterGroup($oldVoterGroup)
     {
-        $this->brgyCluster = $brgyCluster;
+        $this->oldVoterGroup = $oldVoterGroup;
 
         return $this;
     }
 
     /**
-     * Get brgyCluster
-     *
-     * @return integer
-     */
-    public function getBrgyCluster()
-    {
-        return $this->brgyCluster;
-    }
-
-    /**
-     * Set specialOpGroup
-     *
-     * @param string $specialOpGroup
-     *
-     * @return ProjectVoter
-     */
-    public function setSpecialOpGroup($specialOpGroup)
-    {
-        $this->specialOpGroup = $specialOpGroup;
-
-        return $this;
-    }
-
-    /**
-     * Get specialOpGroup
+     * Get oldVoterGroup
      *
      * @return string
      */
-    public function getSpecialOpGroup()
+    public function getOldVoterGroup()
     {
-        return $this->specialOpGroup;
+        return $this->oldVoterGroup;
     }
 
     /**
-     * Set specialOpProIdCode
+     * Set isOnHold
      *
-     * @param string $specialOpProIdCode
+     * @param integer $isOnHold
      *
      * @return ProjectVoter
      */
-    public function setSpecialOpProIdCode($specialOpProIdCode)
+    public function setIsOnHold($isOnHold)
     {
-        $this->specialOpProIdCode = $specialOpProIdCode;
+        $this->isOnHold = $isOnHold;
 
         return $this;
     }
 
     /**
-     * Get specialOpProIdCode
-     *
-     * @return string
-     */
-    public function getSpecialOpProIdCode()
-    {
-        return $this->specialOpProIdCode;
-    }
-
-    /**
-     * Set isKalaban
-     *
-     * @param integer $isKalaban
-     *
-     * @return ProjectVoter
-     */
-    public function setIsKalaban($isKalaban)
-    {
-        $this->isKalaban = $isKalaban;
-
-        return $this;
-    }
-
-    /**
-     * Get isKalaban
+     * Get isOnHold
      *
      * @return integer
      */
-    public function getIsKalaban()
+    public function getIsOnHold()
     {
-        return $this->isKalaban;
-    }
-
-    /**
-     * Set isKalabanReason
-     *
-     * @param string $isKalabanReason
-     *
-     * @return ProjectVoter
-     */
-    public function setIsKalabanReason($isKalabanReason)
-    {
-        $this->isKalabanReason = $isKalabanReason;
-
-        return $this;
-    }
-
-    /**
-     * Get isKalabanReason
-     *
-     * @return string
-     */
-    public function getIsKalabanReason()
-    {
-        return $this->isKalabanReason;
-    }
-
-    /**
-     * Set toSend
-     *
-     * @param integer $toSend
-     *
-     * @return ProjectVoter
-     */
-    public function setToSend($toSend)
-    {
-        $this->toSend = $toSend;
-
-        return $this;
-    }
-
-    /**
-     * Get toSend
-     *
-     * @return integer
-     */
-    public function getToSend()
-    {
-        return $this->toSend;
+        return $this->isOnHold;
     }
 }

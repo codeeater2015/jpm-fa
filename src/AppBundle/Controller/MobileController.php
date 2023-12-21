@@ -350,6 +350,7 @@ class MobileController extends Controller
         $em = $this->getDoctrine()->getManager();
         $imgUrl = $this->getParameter('img_url');
 
+
         $projectVoter = $em->getRepository("AppBundle:ProjectVoter")->findOneBy([
             'generatedIdNo' => $generatedIdNo,
             'proId' => $proId,
@@ -487,7 +488,7 @@ class MobileController extends Controller
         $em = $this->getDoctrine()->getManager();
         $imgUrl = $this->getParameter('img_url');
 
-        $batchSize = 5;
+        $batchSize = 10;
         $batchNo = $request->get("batchNo");
         $voterName = $request->get("voterName");
         $eventId = $request->get('eventId');
@@ -533,6 +534,111 @@ class MobileController extends Controller
         WHERE ed.event_id  = ? AND (pv.voter_name LIKE ? OR ? IS NULL ) 
         AND (pv.barangay_name = ? OR ? IS NULL) 
         ORDER BY ed.attended_at DESC LIMIT {$batchSize} OFFSET {$batchOffset}";
+
+        //return new JsonResponse($sql);
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, $eventId);
+        $stmt->bindValue(2, '%' . strtoupper(trim($voterName)) . '%');
+        $stmt->bindValue(3, empty($voterName) ? null : $voterName);
+        $stmt->bindValue(4, strtoupper(trim($barangayName)));
+        $stmt->bindValue(5, empty($barangayName) ? null : $barangayName);
+        $stmt->execute();
+
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $row['imgUrl'] = $imgUrl . self::ACTIVE_PROJECT . '_' . $row['generated_id_no'] . '?' . strtotime((new \DateTime())->format('Y-m-d H:i:s'));
+            $row['cellphone_no'] = $row['cellphone'];
+            $data[] = $row;
+        }
+
+        foreach ($data as &$row) {
+            //$lgc = $this->getLGC($row['municipality_no'], $row['brgy_no']);
+            $row['lgc'] = [
+                'voter_name' => '- disabled -',
+                //$lgc['voter_name'],
+                'cellphone' => '- disabled -' //$lgc['cellphone']
+            ];
+        }
+
+        return new JsonResponse([
+            "data" => $data,
+            "totalExpected" => $summary['total_expected'],
+            "totalAttended" => $summary['total_attended'],
+            "totalLgc" => $summary['total_lgc'],
+            'totalLgo' => $summary['total_lgo'],
+            "totalLopp" => $summary['total_lopp'],
+            "totalLppp" => $summary['total_lppp'],
+            "totalLppp1" => $summary['total_lppp1'],
+            'totalLppp2' => $summary['total_lppp2'],
+            'totalLppp3' => $summary['total_lppp3'],
+            'totalJpm' => $summary['total_jpm']
+        ]);
+    }
+
+    /**
+     * @Route("/ajax_m_get_active_event_attendees_pending_photo",
+     *       name="ajax_m_get_active_event_attendees_pending_photo",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetActiveEventAttendeesPendingPhoto(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $imgUrl = $this->getParameter('img_url');
+
+        $batchSize = 10;
+        $batchNo = $request->get("batchNo");
+        $voterName = $request->get("voterName");
+        $eventId = $request->get('eventId');
+        $barangayName = $request->get('barangayName');
+
+        $batchOffset = $batchNo * $batchSize;
+
+        $event = $em->getRepository("AppBundle:ProjectEventHeader")->findOneBy([
+            'eventId' => $eventId,
+            'status' => self::ACTIVE_STATUS,
+        ]);
+
+        if (!$event) {
+            return new JsonResponse(null, 404);
+        }
+
+        $sql = "SELECT
+         COALESCE(SUM( CASE WHEN ed.has_attended = 1 THEN 1 ELSE 0 END),0) AS total_attended,
+         COALESCE(SUM( CASE WHEN pv.voter_group = 'LGC' THEN 1 ELSE 0 END),0) AS total_lgc,
+         COALESCE(SUM( CASE WHEN pv.voter_group = 'LGO' THEN 1 ELSE 0 END),0) AS total_lgo,
+         COALESCE(SUM( CASE WHEN pv.voter_group = 'LOPP' THEN 1 ELSE 0 END),0) AS total_lopp,
+         COALESCE(SUM( CASE WHEN pv.voter_group = 'LPPP' THEN 1 ELSE 0 END),0) AS total_lppp,
+         COALESCE(SUM( CASE WHEN pv.voter_group = 'LPPP1' THEN 1 ELSE 0 END),0) AS total_lppp1,
+         COALESCE(SUM( CASE WHEN pv.voter_group = 'LPPP2' THEN 1 ELSE 0 END),0) AS total_lppp2,
+         COALESCE(SUM( CASE WHEN pv.voter_group = 'LPPP3' THEN 1 ELSE 0 END),0) AS total_lppp3,
+         COALESCE(SUM( CASE WHEN pv.voter_group = 'JPM' THEN 1 ELSE 0 END),0) AS total_jpm,
+         COALESCE(COUNT(ed.event_detail_id),0) AS total_expected
+         FROM tbl_project_event_detail ed INNER JOIN tbl_project_voter pv 
+         ON pv.pro_voter_id = ed.pro_voter_id 
+         WHERE ed.event_id = ? AND (pv.barangay_name = ? OR ? IS NULL )";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, $eventId);
+        $stmt->bindValue(2, strtoupper(trim($barangayName)));
+        $stmt->bindValue(3, empty($barangayName) ? null : $barangayName);
+        $stmt->execute();
+
+        $summary = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        $sql = "SELECT pv.*
+         FROM tbl_project_event_detail ed
+         INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = ed.pro_voter_id
+         WHERE ed.event_id  = ? AND (pv.voter_name LIKE ? OR ? IS NULL ) 
+         AND (pv.barangay_name = ? OR ? IS NULL) 
+         AND pv.has_photo_2023 = 0
+         ORDER BY ed.attended_at DESC LIMIT {$batchSize} OFFSET {$batchOffset}";
+
+        //return new JsonResponse($sql);
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, $eventId);
@@ -1761,6 +1867,8 @@ class MobileController extends Controller
         $projectVoter->setHasPhoto(1);
         $projectVoter->setDidChanged(1);
         $projectVoter->setToSend(1);
+        $projectVoter->setHasPhoto2023(1);
+        $projectVoter->setHasId(0);
         $projectVoter->setPhotoAt(new \DateTime());
         $projectVoter->setUpdatedAt(new \DateTime());
         $projectVoter->setUpdatedBy("android_app");
@@ -1896,6 +2004,40 @@ class MobileController extends Controller
         $proVoter->setHasId(null);
         $proVoter->setHasPhoto(1);
         $proVoter->setDidChange(1);
+        $proVoter->setUpdatedAt(new \DateTime());
+        $proVoter->setUpdatedBy('android_app');
+
+        $em->flush();
+        $em->clear();
+
+        return new JsonResponse(null, 200);
+    }
+
+    /**
+     * @Route("/ajax_get_m_project_voter_reprint_id_alt/{proId}/{proVoterId}",
+     *     name="ajax_get_m_project_voter_reprint_id_alt",
+     *    options={"expose" = true}
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxResetIdAltAction(Request $request, $proId, $proVoterId)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $proVoter = $em->getRepository("AppBundle:ProjectVoter")->findOneBy([
+            'proId' => $proId,
+            'proVoterId' => $proVoterId,
+        ]);
+
+        if (!$proVoter) {
+            return new JsonResponse(null, 404);
+        }
+
+        $proVoter->setHasId(null);
+        $proVoter->setHasPhoto(1);
+        $proVoter->setHasPhoto2023(1);
+        $proVoter->setDidChanged(1);
         $proVoter->setUpdatedAt(new \DateTime());
         $proVoter->setUpdatedBy('android_app');
 
@@ -3911,14 +4053,14 @@ class MobileController extends Controller
 
     public function ajaxGetJpmProjectVoters2023(Request $request)
     {
-        $em = $this->getDoctrine()->getManager("province");
+        $em = $this->getDoctrine()->getManager();
 
         $provinceCode = $request->get('provinceCode');
         $municipalityNo = $request->get('municipalityNo');
         $municipalityName = $request->get('municipalityName');
         $barangayName = $request->get('barangayName');
         $voterGroup = $request->get('voterGroup');
-        $groupFilter = strtoupper($request->get("groupFilter"));
+        //$groupFilter = strtoupper($request->get("groupFilter"));
 
         $brgyNo = $request->get("brgyNo");
         $voterName = $request->get("voterName");
@@ -3936,23 +4078,22 @@ class MobileController extends Controller
             $sql .= " (pv.generated_id_no LIKE ? OR ? IS NULL ) ";
         }
 
-        switch ($groupFilter) {
-            case "MEMBERS":
-                $sql .= "   AND pv.voter_group IN ('LGC','LOPP','LPPP','LPPP1','LPPP2','LPPP3') AND pv.has_photo = 1 AND pv.is_kalaban <> 1 ";
-                break;
-            case "NON_MEMBERS":
-                $sql .= " AND pv.voter_group NOT IN ('LGC','LOPP','LPPP','LPPP1','LPPP2','LPPP3') AND (pv.has_photo = 0 OR pv.has_photo IS NULL) ";
-                break;
-            case "BLOCKED":
-                $sql .= " AND pv.is_kalaban = 1 ";
-                break;
-        }
+        // switch ($groupFilter) {
+        //     case "MEMBERS":
+        //         $sql .= "   AND pv.voter_group IN ('LGC','LOPP','LPPP','LPPP1','LPPP2','LPPP3') AND pv.has_photo = 1 AND pv.is_kalaban <> 1 ";
+        //         break;
+        //     case "NON_MEMBERS":
+        //         $sql .= " AND pv.voter_group NOT IN ('LGC','LOPP','LPPP','LPPP1','LPPP2','LPPP3') AND (pv.has_photo = 0 OR pv.has_photo IS NULL) ";
+        //         break;
+        //     case "BLOCKED":
+        //         $sql .= " AND pv.is_kalaban = 1 ";
+        //         break;
+        // }
 
 
         $sql .= "AND pv.elect_id = ? 
         AND (pv.municipality_name LIKE ? OR ? IS NULL) 
         AND (pv.barangay_name LIKE ? OR ? IS NULL) 
-        AND (pv.voter_group = ? OR ? IS NULL) 
         AND pv.precinct_no IS NOT NULL 
         ORDER BY pv.voter_name ASC LIMIT {$batchSize} OFFSET {$batchOffset}";
 
@@ -3964,8 +4105,6 @@ class MobileController extends Controller
         $stmt->bindValue(5, empty($municipalityName) ? null : '%' . $municipalityName . '%');
         $stmt->bindValue(6, '%' . $barangayName . '%');
         $stmt->bindValue(7, empty($barangayName) ? null : '%' . $barangayName . '%');
-        $stmt->bindValue(8, $voterGroup);
-        $stmt->bindValue(9, empty($voterGroup) ? null : $voterGroup);
         $stmt->execute();
 
         $data = [];
@@ -4430,7 +4569,7 @@ class MobileController extends Controller
         $writer = WriterFactory::create(Type::XLSX);
         $writer->setDefaultRowStyle($defaultStyle);
         $writer->openToFile($fileRoot . $filename);
-        $writer->addRowWithStyle(['BARANGAY', 'NORV','TOTAL','1', '2', '3', '4', '5', '6', '7', '8'], $headingStyle);
+        $writer->addRowWithStyle(['BARANGAY', 'NORV', 'TOTAL', '1', '2', '3', '4', '5', '6', '7', '8'], $headingStyle);
 
 
         $sql = "SELECT 
@@ -4503,14 +4642,14 @@ class MobileController extends Controller
             "Grand Total",
             $gnorv == 0 ? "" : number_format($gnorv),
             $gtotal == 0 ? "" : number_format($gtotal),
-            $g1 == 0 ? ""  : $g1,
+            $g1 == 0 ? "" : $g1,
             $g2 == 0 ? "" : $g2,
             $g3 == 0 ? "" : $g3,
-            $g4 == 0 ? "" :  $g4,
-            $g5 == 0 ? ""  : $g5,
+            $g4 == 0 ? "" : $g4,
+            $g5 == 0 ? "" : $g5,
             $g6 == 0 ? "" : $g6,
             $g7 == 0 ? "" : $g7,
-            $g8 == 0 ? "" :  $g8
+            $g8 == 0 ? "" : $g8
         ]);
 
         $writer->close();
@@ -4519,6 +4658,134 @@ class MobileController extends Controller
         $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT);
 
         return $response;
+    }
+
+    /**
+     * BCBP Functions
+     */
+
+
+    /**
+     * @Route("/ajax_m_get_bcbp_profiles",
+     *       name="ajax_m_get_bcbp_profiles",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetBcbpProfiles(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $name = $request->get('name');
+
+        $batchSize = 10;
+        $batchNo = $request->get("batchNo");
+
+        $batchOffset = $batchNo * $batchSize;
+
+        $sql = "SELECT b.* FROM tbl_temp_bcbp_profile b WHERE 1 AND ";
+
+        if (!is_numeric($name)) {
+            $sql .= " (b.name LIKE ? OR ? IS NULL ) ";
+        }
+
+        $sql .= " ORDER BY b.name ASC LIMIT {$batchSize} OFFSET {$batchOffset}";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, '%' . $name . '%');
+        $stmt->bindValue(2, empty($name) ? null : '%' . $name . '%');
+        $stmt->execute();
+
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return new JsonResponse($data);
+    }
+
+
+     /**
+     * @Route("/ajax_m_get_deactivated_profiles",
+     *       name="ajax_m_get_deactivated_profiles",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+     public function ajaxGetDeactivatedProfiles(Request $request)
+     {
+         $em = $this->getDoctrine()->getManager();
+ 
+         $batchSize = 10;
+         $batchNo = $request->get("batchNo");
+         $voterName = $request->get("voterName");
+         $barangayName = $request->get('barangayName');
+ 
+         $batchOffset = $batchNo * $batchSize;
+ 
+         $sql = "SELECT pv.*
+         FROM tbl_project_voter pv
+         WHERE (pv.voter_name LIKE ? OR ? IS NULL ) 
+         AND (pv.barangay_name = ? OR ? IS NULL) 
+         AND pv.is_on_hold = 1
+         ORDER BY pv.voter_name ASC LIMIT {$batchSize} OFFSET {$batchOffset}";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, '%' . strtoupper(trim($voterName)) . '%');
+         $stmt->bindValue(2, empty($voterName) ? null : $voterName);
+         $stmt->bindValue(3, strtoupper(trim($barangayName)));
+         $stmt->bindValue(4, empty($barangayName) ? null : $barangayName);
+         $stmt->execute();
+ 
+         $data = [];
+ 
+         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+             $row['cellphone_no'] = $row['cellphone'];
+             $data[] = $row;
+         }
+ 
+         return new JsonResponse([
+             "data" => $data
+         ]);
+     }
+
+     
+    /**
+     * @Route("/ajax_m_deactivate_profile/{proVoterId}",
+     *       name="ajax_m_deactivate_profile",
+     *        options={ "expose" = true }
+     * )
+     * @Method("POST")
+     */
+
+    public function ajaxDeactivateProfile(Request $request, $proVoterId)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $projectVoter = $em->getRepository("AppBundle:ProjectVoter")->findOneBy(['proVoterId' => $proVoterId]);
+
+        if ($projectVoter) {
+
+            if ($projectVoter->getStatus() != 'A') {
+                return new JsonResponse(['message' => "Opps! Action denied... Voter either blocked or deactivated..."], 400);
+            }
+
+            $projectVoter->setStatus('DEACTIVATED');
+            $projectVoter->setIsOnHold(1);
+            $projectVoter->setOldVoterGroup($projectVoter->getVoterGroup());
+            $projectVoter->setVoterGroup("");
+        }
+
+        $em->flush();
+        $em->clear();
+
+        $serializer = $this->get('serializer');
+        $projectVoter = $serializer->normalize($projectVoter);
+
+        return new JsonResponse($projectVoter);
     }
 
 

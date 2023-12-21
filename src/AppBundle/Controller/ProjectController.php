@@ -167,9 +167,11 @@ class ProjectController extends Controller
 
         $munNo = $proVoter->getMunicipalityNo();
         $voterName = $proVoter->getVoterName();
-            
+        
         if($proVoter->getGeneratedIdNo() == '' || $proVoter->getGeneratedIdNo() == null){
+           
             $proIdCode = !empty($proVoter->getProIdCode()) ? $proVoter->getProIdCode() : $this->generateProIdCode($proId,$voterName,$munNo) ;
+            
             $generatedIdNo = date('Y-m-d') . '-' . $proVoter->getMunicipalityNo() .'-' . $proVoter->getBrgyNo() .'-'. $proIdCode;
             $proVoter->setProIdCode($proIdCode);
             $proVoter->setGeneratedIdNo($generatedIdNo);

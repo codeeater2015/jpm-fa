@@ -70,6 +70,12 @@ class FieldUploadDtl
      * @ORM\Column(name="is_downloaded", type="integer", scale = 1)
      */
     private $isDownloaded;
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="is_cleared", type="integer", scale = 1)
+     */
+    private $isCleared;
 
      /**
      * @var string
@@ -447,5 +453,29 @@ class FieldUploadDtl
     public function getIsNotFound()
     {
         return $this->isNotFound;
+    }
+
+    /**
+     * Set isDuplicate
+     *
+     * @param integer $isDuplicate
+     *
+     * @return FieldUploadDtl
+     */
+    public function setIsDuplicate($isDuplicate)
+    {
+        $this->isDuplicate = $isDuplicate;
+
+        return $this;
+    }
+
+    /**
+     * Get isDuplicate
+     *
+     * @return integer
+     */
+    public function getIsDuplicate()
+    {
+        return $this->isDuplicate;
     }
 }

@@ -43,13 +43,13 @@ var SmsSection = React.createClass({
       <div className="portlet light bordered overflow-auto">
         <div className="portlet-body">
           <div className="col-md-12">
-            <h3 className="h3 m-b-md">SMS Section</h3>
+            <h3 className="h3 m-b-md">BCBP Inbox</h3>
 
-            {
+            {/* {
               isLoading ? 
               <button type="button" disabled className="demo-loading-btn btn btn-primary"> Please wait... Syncing sender... </button> : 
               <button type="button" onClick={this.syncSender} className="demo-loading-btn btn btn-primary"> Sync Sender</button>
-            }
+            } */}
             
           </div>
           <div className="col-md-12">

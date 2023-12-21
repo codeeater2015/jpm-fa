@@ -180,7 +180,7 @@ var PulahanCreateModal = React.createClass({
                     return {
                         results: data.map(function (item) {
                             var text = item.voter_name + ' - ' + item.precinct_no + ' ( ' + item.municipality_name + ', ' + item.barangay_name + ' )';
-                            return { id: item.voter_id, text: text };
+                            return { id: item.pro_voter_id, text: text };
                         })
                     };
                 },

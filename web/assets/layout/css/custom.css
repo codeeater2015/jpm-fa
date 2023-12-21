@@ -48,6 +48,10 @@ tr.shown td.details-control {
     width: 85%;
 }
 
+.modal-custom-70.modal-dialog {
+    width: 70%;
+}
+
 .modal-custom-55.modal-dialog {
     width: 55%;
 }

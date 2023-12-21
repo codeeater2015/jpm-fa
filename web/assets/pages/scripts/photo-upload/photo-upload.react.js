@@ -196,7 +196,7 @@ var PhotoUpload = React.createClass({
                             <div className="portlet-body">
                                 <div className="row">
                                     <div className="col-md-8">
-                                        <h4><strong>Field Photo Uploads</strong></h4>
+                                        <h4><strong>Operation Center Photo Uploads</strong></h4>
                                     </div>
                                     <div className="col-md-4">
                                         <FormGroup controlId="formVoterGroup" >

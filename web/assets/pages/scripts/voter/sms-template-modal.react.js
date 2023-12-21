@@ -87,13 +87,13 @@ var SmsTemplateModal = React.createClass({
             data : data
         }).done(function(res){
             
-            self.props.notify("Template has been saved...", "teal");
+            //self.props.notify("Template has been saved...", "teal");
             self.props.onSuccess();
             self.props.onHide();
 
         }).fail(function(err){
             self.setErrors(err.responseJSON);
-            self.props.notify("Form validation failed...", "ruby");
+            //self.props.notify("Form validation failed...", "ruby");
         });
     },
 

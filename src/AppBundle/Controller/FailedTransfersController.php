@@ -66,7 +66,7 @@ class FailedTransfersController extends Controller
             }
         }
         
-        $sWhere .= " AND pv.elect_id = 3 AND pv.pro_id = 3 AND pv.to_migrate = 1 AND pv.is_migration_failed = 1 AND pv.is_transfered <> 1 AND has_photo = 1  ";
+        $sWhere .= " AND pv.elect_id = 4 AND pv.pro_id = 3 AND pv.to_process = 1 AND pv.is_not_found = 1 AND pv.is_found <> 1 AND has_photo = 1  ";
         $sOrder = "";
 
         if(null !== $request->query->get('order')){
@@ -99,7 +99,7 @@ class FailedTransfersController extends Controller
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
-        $sql = "SELECT COALESCE(count(pv.pro_voter_id),0) FROM tbl_project_voter pv WHERE pv.is_migration_failed = 1 AND is_transfered <> 1 AND has_photo = 1 ";
+        $sql = "SELECT COALESCE(count(pv.pro_voter_id),0) FROM tbl_project_voter pv WHERE pv.is_not_found = 1 AND is_found <> 1 AND has_photo = 1 ";
         $stmt = $em->getConnection()->query($sql);
         $recordsTotal = $stmt->fetchColumn();
 
@@ -152,17 +152,16 @@ class FailedTransfersController extends Controller
                 AND p.elect_id = ? 
                 AND (municipality_no = ? OR ? IS NULL)
                 AND (brgy_no = ? OR ? IS NULL)
-                AND to_migrate = 1 
-                AND is_migration_failed = 1
-                AND is_transfered <> 1 
-                AND is_failed_transfer <> 1
+                AND to_process = 1 
+                AND is_processed = 1 
+                AND is_not_found = 1
                 AND has_photo = 1
                 ORDER BY p.voter_name ASC LIMIT 10";
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1,$searchText);
-        $stmt->bindValue(2,53);
-        $stmt->bindValue(3,3);
+        $stmt->bindValue(2, 53);
+        $stmt->bindValue(3, 4);
         $stmt->bindValue(4, $municipalityNo);
         $stmt->bindValue(5, empty($municipalityNo) ? null : $municipalityNo);
         $stmt->bindValue(6, $brgyNo);
@@ -209,7 +208,7 @@ class FailedTransfersController extends Controller
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1,$searchText);
-        $stmt->bindValue(2,4);
+        $stmt->bindValue(2, 23);
         $stmt->bindValue(3, $municipalityNo);
         $stmt->bindValue(4, empty($municipalityNo) ? null : $municipalityNo);
         $stmt->execute();
@@ -256,7 +255,7 @@ class FailedTransfersController extends Controller
         WHERE pv.elect_id = ? AND pv.pro_voter_id = ? ";
 
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1, 3);
+        $stmt->bindValue(1, 4);
         $stmt->bindValue(2, $proVoterId);
         $stmt->execute();
 
@@ -268,7 +267,7 @@ class FailedTransfersController extends Controller
         WHERE pv.elect_id = ? AND pv.pro_voter_id = ? ";
 
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1, 4);
+        $stmt->bindValue(1, 23);
         $stmt->bindValue(2, $targetProVoterId);
         $stmt->execute();
 
@@ -324,7 +323,7 @@ class FailedTransfersController extends Controller
             $stmt->execute();
 
             $sql = "UPDATE tbl_project_voter pv
-                    SET pv.is_transfered =  1
+                    SET pv.is_processed =  1 , is_found = 1
                     WHERE pv.elect_id = ? AND pv.pro_id = ? AND pv.pro_voter_id = ? ";
 
             $stmt = $em->getConnection()->prepare($sql);
@@ -368,7 +367,7 @@ class FailedTransfersController extends Controller
         if($sourceFound){
 
             $sql = "UPDATE tbl_project_voter pv
-                    SET pv.is_failed_transfer =  1
+                    SET pv.is_processed =  1, is_not_found = 1 
                     WHERE pv.elect_id = ? AND pv.pro_id = ? AND pv.pro_voter_id = ? ";
 
             $stmt = $em->getConnection()->prepare($sql);

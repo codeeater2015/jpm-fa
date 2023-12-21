@@ -1,7 +1,7 @@
 <?php
 namespace AppBundle\Controller;
 
-use function GuzzleHttp\default_ca_bundle;
+//use function GuzzleHttp\default_ca_bundle;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -12,6 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 use AppBundle\Entity\ReceivedSms;
 use AppBundle\Entity\SendSms;
 use AppBundle\Entity\SmsTemplate;
+use AppBundle\Entity\TempBcbpProfile;
+
 
 /**
  * @Route("/sms")
@@ -144,8 +146,23 @@ class SmsController extends Controller
         $data = [];
 
         while($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $row['MessageFrom'] = str_replace('+63','0',$row['MessageFrom']);
+           
             $data[] = $row; 
+        }
+
+        foreach($data as &$row){
+            $sql = "SELECT * from tbl_temp_bcbp_profile WHERE contact_number = ? LIMIT 1";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, str_replace("+", '',$row['MessageFrom']));
+            $stmt->execute();
+            $profile = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+            if($profile){
+                $row['senderName'] = $profile['name'];
+            }else{
+                $row['senderName'] = '';
+            }
         }
 
         $draw = (null !== $request->query->get('draw')) ? $request->query->get('draw') : 0;
@@ -361,6 +378,29 @@ class SmsController extends Controller
         }elseif($action == 'TBMUN'){
             $params = explode(" ", strtoupper($message),5);
             $this->_handleTextBlastByMunicipality($from,$gateway,$params);
+        }elseif($action == 'BCBPREG'){
+            $params = explode(",", strtoupper($params[1]),6);
+            $this->_newBcbpMember($from,$gateway,$params);
+            //$this->_handleTextBlastByMunicipality($from,$gateway,$params);
+        }elseif($action == 'BCBPREG2'){
+            $params = explode(",", strtoupper($message),6);
+            $this->_newBcbpMemberAlt($from,$gateway,$params);
+            //$this->_handleTextBlastByMunicipality($from,$gateway,$params);
+        }elseif($action == 'BCBPTXTGROUP'){
+            $params = explode(" ", strtoupper($message),3);
+            $this->_txtBcbpGroup($from,$gateway,$params);
+        }elseif($action == 'BCBPTXTCHAPTER'){
+            $params = explode(" ", strtoupper($message),3);
+            $this->_txtBcbpChapter($from,$gateway,$params);
+        }elseif($action == 'BCBPTXTBATCH'){
+            $params = explode(" ", strtoupper($message),3);
+            $this->_txtBcbpBatch($from,$gateway,$params);
+        }elseif($action == 'BCBPTXTUNIT'){
+            $params = explode(" ", strtoupper($message),3);
+            $this->_txtBcbpUnit($from,$gateway,$params);
+        }elseif($action == 'BCBPTXTCOUPLE'){
+            $params = explode(" ", strtoupper($message),3);
+            $this->_txtBcbpCouple($from,$gateway,$params);
         }
 
         $response = new Response("result=1");
@@ -368,6 +408,217 @@ class SmsController extends Controller
         $response->headers->set("Content-Length", 8);
 
         return $response;
+    }
+
+    private function _txtBcbpGroup($from,$gateway,$message_arr){
+        $em = $this->getDoctrine()->getManager();
+
+        $groupName = trim(strtoupper($message_arr[1]));
+        $message = trim (strtoupper($message_arr[2]));
+        
+        $sql = "SELECT * FROM tbl_temp_bcbp_profile p
+                WHERE p.group_name = ? ORDER BY p.group_name ASC , p.name ASC ";
+
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1,$groupName);
+        $stmt->execute();
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $messageText = $message;
+
+            $sms = new SendSms();
+            $sms->setMessageText($messageText);
+            $sms->setMessageTo($row['contact_number']);
+            $sms->setMessageFrom("BCBP");
+    
+            $em->persist($sms);
+            $em->flush();
+        }
+    }
+    private function _txtBcbpCouple($from,$gateway,$message_arr){
+        $em = $this->getDoctrine()->getManager();
+
+        $coupleName = trim(strtoupper($message_arr[1]));
+        $message = trim (strtoupper($message_arr[2]));
+        
+        $sql = "SELECT * FROM tbl_temp_bcbp_profile p
+                WHERE p.couple_name = ? ORDER BY p.couple_name ASC , p.name ASC ";
+
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1,$coupleName);
+        $stmt->execute();
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $messageText = $message;
+
+            $sms = new SendSms();
+            $sms->setMessageText($messageText);
+            $sms->setMessageTo($row['contact_number']);
+            $sms->setMessageFrom("BCBP");
+    
+            $em->persist($sms);
+            $em->flush();
+        }
+    }
+
+    private function _txtBcbpChapter($from,$gateway,$message_arr){
+        $em = $this->getDoctrine()->getManager();
+
+        $chapterName = trim(strtoupper($message_arr[1]));
+        $message = trim (strtoupper($message_arr[2]));
+        
+        $sql = "SELECT * FROM tbl_temp_bcbp_profile p
+                WHERE p.chapter_name = ? ORDER BY p.chapter_name ASC , p.name ASC ";
+
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1,$chapterName);
+        $stmt->execute();
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $messageText = $message;
+
+            $sms = new SendSms();
+            $sms->setMessageText($messageText);
+            $sms->setMessageTo($row['contact_number']);
+            $sms->setMessageFrom("BCBP");
+    
+            $em->persist($sms);
+            $em->flush();
+        }
+    }
+    private function _txtBcbpBatch($from,$gateway,$message_arr){
+        $em = $this->getDoctrine()->getManager();
+
+        $batchName = trim(strtoupper($message_arr[1]));
+        $message = trim (strtoupper($message_arr[2]));
+        
+        $sql = "SELECT * FROM tbl_temp_bcbp_profile p
+                WHERE p.batch_name = ? ORDER BY p.batch_name ASC , p.name ASC ";
+
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1,$batchName);
+        $stmt->execute();
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $messageText = $message;
+
+            $sms = new SendSms();
+            $sms->setMessageText($messageText);
+            $sms->setMessageTo($row['contact_number']);
+            $sms->setMessageFrom("BCBP");
+    
+            $em->persist($sms);
+            $em->flush();
+        }
+    }
+    private function _txtBcbpUnit($from,$gateway,$message_arr){
+        $em = $this->getDoctrine()->getManager();
+
+        $unitName = trim(strtoupper($message_arr[1]));
+        $message = trim (strtoupper($message_arr[2]));
+        
+        $sql = "SELECT * FROM tbl_temp_bcbp_profile p
+                WHERE p.unit_name = ? ORDER BY p.unit_name ASC , p.name ASC ";
+
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1,$unitName);
+        $stmt->execute();
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $messageText = $message;
+
+            $sms = new SendSms();
+            $sms->setMessageText($messageText);
+            $sms->setMessageTo($row['contact_number']);
+            $sms->setMessageFrom("BCBP");
+    
+            $em->persist($sms);
+            $em->flush();
+        }
+    }
+
+    private function _newBcbpMember($from,$gateway,$message_arr){
+        $em = $this->getDoctrine()->getManager();
+
+        $name = trim(strtoupper($message_arr[0]));
+        $birthdate = trim (strtoupper($message_arr[1]));
+        $gender  = trim(strtoupper($message_arr[2]));
+        $chapter = trim(strtoupper($message_arr[3]));
+        $batch = trim(strtoupper($message_arr[4]));
+        $contactNumber = trim(strtoupper($message_arr[5]));
+
+        
+        $entity = new TempBcbpProfile();
+
+        $entity->setName($name);
+        $entity->setBirthDate($birthdate);
+        $entity->setGender($gender);
+    	$entity->setChapterName($chapter);
+        $entity->setBatchName($batch);
+        $entity->setContactNumber($contactNumber);
+        $entity->setSourceNumber($from);
+
+    	$validator = $this->get('validator');
+        $violations = $validator->validate($entity);
+
+        $errors = [];
+
+        if(count($violations) > 0){
+            foreach( $violations as $violation ){
+                $errors[$violation->getPropertyPath()] =  $violation->getMessage();
+            }
+            return new JsonResponse($errors,400);
+        }
+        
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($entity);
+        $em->flush();
+    	$em->clear();
+
+    }
+
+    private function _newBcbpMemberAlt($from,$gateway,$message_arr){
+        $em = $this->getDoctrine()->getManager();
+
+        $name = trim(strtoupper($message_arr[0]));
+        $birthdate = trim (strtoupper($message_arr[1]));
+        $gender  = trim(strtoupper($message_arr[2]));
+        $chapter = trim(strtoupper($message_arr[3]));
+        $batch = trim(strtoupper($message_arr[4]));
+
+        
+        $entity = new TempBcbpProfile();
+
+        $entity->setName($name);
+        $entity->setBirthDate($birthdate);
+        $entity->setGender($gender);
+    	$entity->setChapterName($chapter);
+        $entity->setBatchName($batch);
+        $entity->setContactNumber($from);
+        $entity->setSourceNumber($from);
+
+    	$validator = $this->get('validator');
+        $violations = $validator->validate($entity);
+
+        $errors = [];
+
+        if(count($violations) > 0){
+            foreach( $violations as $violation ){
+                $errors[$violation->getPropertyPath()] =  $violation->getMessage();
+            }
+            return new JsonResponse($errors,400);
+        }
+        
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($entity);
+        $em->flush();
+    	$em->clear();
+
     }
 
     private function _handleIdInquiry($from,$gateway,$message_arr){

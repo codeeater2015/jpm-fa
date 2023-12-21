@@ -1061,4 +1061,114 @@ class DataController extends Controller
 
         return $response;
     }
+
+    /**
+     * @Route("/ajax_compare_member/{municipalityNo}",
+     *       name="ajax_compare_member",
+     *       options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+     public function ajaxCompareMember($municipalityNo)
+     {
+         $em = $this->getDoctrine()->getManager();
+         $em2023 = $this->getDoctrine()->getManager("voter2023");
+
+         $response = new StreamedResponse();
+         $response->headers->set("Cache-Control", "no-cache, must-revalidate");
+         $response->headers->set("X-Accel-Buffering", "no");
+         $response->setStatusCode(200);
+ 
+         $response->setCallback(function () use ($em, $em2023, $municipalityNo) {
+ 
+             $sql = "SELECT pv.* FROM tbl_project_voter pv WHERE pv.elect_id = 4 AND pv.pro_id = 3 AND pv.municipality_no = ? AND to_process = 1 AND is_processed <> 1 ORDER BY pv.voter_name ASC LIMIT 2000";
+ 
+             echo "Query : " . $sql;
+             echo "<br/><br/>";
+             echo "<br/><br/>";
+ 
+             $stmt = $em->getConnection()->prepare($sql);
+             $stmt->bindValue(1, $municipalityNo);
+             $stmt->execute();
+ 
+             $voters = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+             $counter = 0;
+ 
+             foreach ($voters as $row) {
+                 $counter++;
+ 
+                 $sql = "SELECT * FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.voter_name = ? AND pv.precinct_no = ? ";
+                 $stmt = $em2023->getConnection()->prepare($sql);
+                 $stmt->bindValue(1, $row['municipality_no']);
+                 $stmt->bindValue(2, $row['voter_name']);
+                 $stmt->bindValue(3, $row['precinct_no']);
+                 $stmt->execute();
+ 
+                 $destRecord = $stmt->fetch(\PDO::FETCH_ASSOC);
+                 $recordFound = $destRecord == null ? false : true;
+ 
+                 if ($recordFound) {
+                     $sql = "UPDATE tbl_project_voter pv
+                             SET pv.is_processed = 1, is_found = 1
+                             WHERE pv.elect_id = 4 AND pv.pro_id = 3 AND pv.pro_voter_id = ? ";
+ 
+                     $stmt = $em->getConnection()->prepare($sql);
+                   
+                     $stmt->bindValue(1, $row['pro_voter_id']);
+                     $stmt->execute();
+ 
+                     $sql = "UPDATE tbl_project_voter pv
+                             SET pv.is_jpm =  1,
+                              pro_id_code = ? ,
+                              has_id = ? , 
+                              has_photo = ? , 
+                              photo_at = ? , 
+                              is_non_voter = ? , 
+                              generated_id_no = ? , 
+                              date_generated = ? , 
+                              voter_group = ? , 
+                              is_kalaban = ?,
+                              cellphone = ? ,
+                              birthdate = ?
+                             WHERE pv.pro_voter_id = ? ";
+ 
+                     $stmt = $em2023->getConnection()->prepare($sql);
+                     
+                     $stmt->bindValue(1, $row['pro_id_code']);
+                     $stmt->bindValue(2, $row['has_id']);
+                     $stmt->bindValue(3, $row['has_photo']);
+                     $stmt->bindValue(4, $row['photo_at']);
+                     $stmt->bindValue(5, $row['is_non_voter']);
+                     $stmt->bindValue(6, $row['generated_id_no']);
+                     $stmt->bindValue(7, $row['date_generated']);
+                     $stmt->bindValue(8, $row['voter_group']);
+                     $stmt->bindValue(9, $row['is_kalaban']);
+                     $stmt->bindValue(10, $row['cellphone']);
+                     $stmt->bindValue(11, $row['birthdate']);
+                     $stmt->bindValue(12, $destRecord['pro_voter_id']);
+
+                     $stmt->execute();
+ 
+                 } else {
+ 
+                     $sql = "UPDATE tbl_project_voter pv
+                             SET pv.is_processed =  1, pv.is_not_found = 1
+                             WHERE pv.elect_id = 4 AND pv.pro_id = 3 AND pv.pro_voter_id = ? ";
+ 
+                     $stmt = $em->getConnection()->prepare($sql);
+                     $stmt->bindValue(1, $row['pro_voter_id']);
+                     $stmt->execute();
+                 }
+ 
+                 echo $counter . '. Voter name : ' . $row['voter_name'] . ' Has found : ' . ($recordFound ? "YES" : "NO") . '<br/>';
+ 
+                 flush();
+             }
+         });
+ 
+         $em->clear();
+ 
+         return $response;
+     }
 }

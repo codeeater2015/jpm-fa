@@ -1490,6 +1490,29 @@ gulp.task('compile-tupad',function(cb){
     ], cb);
 });
 
+
+gulp.task('compile-bcbp',function(cb){
+    pump([
+        gulp.src([
+            myPath + 'voter/sms-template-modal.react.js',
+            myPath + 'bcbp/bcbp.edit-modal.react.js',
+            myPath + 'bcbp/bcbp.create-modal.react.js',
+            myPath + 'bcbp/bcbp.sms-modal.react.js',
+            myPath + 'bcbp/bcbp.datatable.react.js',
+            myPath + 'bcbp/bcbp.react.js'
+        ]),
+        concat('bcbp.react.js'),
+        rename({suffix: '.min'}),
+        react(),
+        gulp.dest(jsPath),
+        bust({
+            relativePath : "web"
+        }),
+        gulp.dest('.')
+    ], cb);
+});
+
+
 gulp.task('compile-tupad-summary',function(cb){
     pump([
         gulp.src([
@@ -1552,6 +1575,31 @@ gulp.task('compile-photo-upload',function(cb){
         gulp.dest('.')
     ], cb);
 });
+
+gulp.task('compile-remote-photo-upload',function(cb){
+    pump([
+        gulp.src([
+            myPath + 'voter/voter-temporary-edit-modal.react.js',
+            myPath + 'voter/voter-temporary-create-modal.react.js',
+            myPath + 'voter/voter-crop-modalv2.react.js',
+            myPath + 'voter/voter-jpm-modal.react.js',
+            myPath + 'remote-photo-uploader/remote-photo-upload-item-edit.modal.react.js',
+            myPath + 'remote-photo-uploader/remote-photo-upload-items.modal.react.js',
+            myPath + 'remote-photo-uploader/remote-photo-upload-modal.react.js',
+            myPath + 'remote-photo-uploader/remote-photo-upload.datatable.react.js',
+            myPath + 'remote-photo-uploader/remote-photo-upload.react.js'
+        ]),
+        concat('remote-photo-upload.react.js'),
+        rename({suffix: '.min'}),
+        react(),
+        gulp.dest(jsPath),
+        bust({
+            relativePath : "web"
+        }),
+        gulp.dest('.')
+    ], cb);
+});
+
 
 gulp.task('compile-special-operation',function(cb){
     pump([

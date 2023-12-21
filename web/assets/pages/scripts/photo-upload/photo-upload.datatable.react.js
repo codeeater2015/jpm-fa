@@ -70,7 +70,7 @@ var FieldUploadDatatable = React.createClass({
                     {
                         'className': 'text-center valign-middle',
                         'orderable': false,
-                        'targets': [0, 2, 3, 4, 5, 6, 7, 8]
+                        'targets': [0, 2, 3, 4, 5, 6, 7]
                     }
                 ],
                 "order": [
@@ -144,42 +144,42 @@ var FieldUploadDatatable = React.createClass({
                         "className": "text-center",
                         "width": 40
                     },
-                    {
-                        "data": "total_precincts",
-                        "className": "text-center",
-                        "width": 40,
-                        "render" : function(data,type,row){
-                            var totalMember = 0;
-                            var totalPrecints = parseInt(data);
-                            switch(self.props.voterGroup){
-                                case 'LPPP' : 
-                                    totalMember = totalPrecints;
-                                    break;
-                                case 'LPPP1' :
-                                    totalMember = totalPrecints * 6;
-                                    break;
-                                case 'LPPP2' : 
-                                    totalMember = totalPrecints * 6 * 4;
-                                    break;
-                                case 'LPPP3' :
-                                    totalMember = totalPrecints * 6 * 4 * 4;
-                                    break;
-                            }
+                    // {
+                    //     "data": "total_precincts",
+                    //     "className": "text-center",
+                    //     "width": 40,
+                    //     "render" : function(data,type,row){
+                    //         var totalMember = 0;
+                    //         var totalPrecints = parseInt(data);
+                    //         switch(self.props.voterGroup){
+                    //             case 'LPPP' : 
+                    //                 totalMember = totalPrecints;
+                    //                 break;
+                    //             case 'LPPP1' :
+                    //                 totalMember = totalPrecints * 6;
+                    //                 break;
+                    //             case 'LPPP2' : 
+                    //                 totalMember = totalPrecints * 6 * 4;
+                    //                 break;
+                    //             case 'LPPP3' :
+                    //                 totalMember = totalPrecints * 6 * 4 * 4;
+                    //                 break;
+                    //         }
 
                             
                              
-                            let gUploads =  self.state.gUploads + parseInt(row.total_photos);
-                            let gLinked =  self.state.gLinked + parseInt(row.total_linked_photo);
-                            let gUnlinked =  self.state.gUnlinked + parseInt(row.total_unlinked_photo);
-                            let gPhotos =  self.state.gPhotos + parseInt(row.total_has_photo);
-                            let gId =  self.state.gId + parseInt(row.total_has_id);
-                            let gTarget = self.state.gTarget + parseInt(totalMember);
+                    //         let gUploads =  self.state.gUploads + parseInt(row.total_photos);
+                    //         let gLinked =  self.state.gLinked + parseInt(row.total_linked_photo);
+                    //         let gUnlinked =  self.state.gUnlinked + parseInt(row.total_unlinked_photo);
+                    //         let gPhotos =  self.state.gPhotos + parseInt(row.total_has_photo);
+                    //         let gId =  self.state.gId + parseInt(row.total_has_id);
+                    //         let gTarget = self.state.gTarget + parseInt(totalMember);
                             
-                            self.setState({ gPhotos : gPhotos, gUploads : gUploads, gLinked : gLinked, gId : gId, gTarget : gTarget , gUnlinked : gUnlinked });
+                    //         self.setState({ gPhotos : gPhotos, gUploads : gUploads, gLinked : gLinked, gId : gId, gTarget : gTarget , gUnlinked : gUnlinked });
 
-                            return totalMember;
-                        }
-                    },
+                    //         return totalMember;
+                    //     }
+                    // },
                     {
                         "width": 120,
                         "render": function (data, type, row) {
@@ -306,7 +306,6 @@ var FieldUploadDatatable = React.createClass({
                                 <th className="text-center">UnLinked</th>
                                 <th className="text-center"><small>W/PHOTO</small></th>
                                 <th className="text-center"><small>W/ID</small></th>
-                                <th className="text-center">Target</th>
                                 <th></th>
                             </tr>
                             <tr>
@@ -317,7 +316,6 @@ var FieldUploadDatatable = React.createClass({
                                 <td className="text-center">{this.state.gUnlinked}</td>
                                 <td className="text-center">{this.state.gPhotos}</td>
                                 <td className="text-center">{this.state.gId}</td>
-                                <td className="text-center">{this.state.gTarget}</td>
                                 <td className="text-center">
                                 </td>
                             </tr>
@@ -326,7 +324,6 @@ var FieldUploadDatatable = React.createClass({
                                 <td style={{ padding: "10px 5px" }}>
                                     <input type="text" className="form-control form-filter input-sm" name="barangay_name" onChange={this.handleFilterChange} />
                                 </td>
-                                <td ></td>
                                 <td ></td>
                                 <td ></td>
                                 <td ></td>

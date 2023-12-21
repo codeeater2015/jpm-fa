@@ -25,7 +25,7 @@ var PhotoUploadModal = React.createClass({
                         {this.state.images.map(function (item) {
                             let imgUrl = Routing.generate("ajax_get_field_upload_photo", { id: item.id });
                             console.log(imgUrl);
-
+                            
                             return (
                                 <img
                                     src={imgUrl}

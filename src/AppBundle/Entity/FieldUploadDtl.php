@@ -70,6 +70,12 @@ class FieldUploadDtl
      * @ORM\Column(name="is_downloaded", type="integer", scale = 1)
      */
     private $isDownloaded;
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="is_cleared", type="integer", scale = 1)
+     */
+    private $isCleared;
 
      /**
      * @var string
@@ -471,5 +477,29 @@ class FieldUploadDtl
     public function getIsDuplicate()
     {
         return $this->isDuplicate;
+    }
+
+    /**
+     * Set isCleared
+     *
+     * @param integer $isCleared
+     *
+     * @return FieldUploadDtl
+     */
+    public function setIsCleared($isCleared)
+    {
+        $this->isCleared = $isCleared;
+
+        return $this;
+    }
+
+    /**
+     * Get isCleared
+     *
+     * @return integer
+     */
+    public function getIsCleared()
+    {
+        return $this->isCleared;
     }
 }

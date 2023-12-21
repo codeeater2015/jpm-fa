@@ -88,7 +88,7 @@ var ReceivedSmsDatatable = React.createClass({
                             var content = data;
 
                             if(row.voter_name != '- - - -')
-                                content = '<strong>' + row.VoterName + '</strong> : '  + data;
+                                content = '<strong>' + row.senderName + '</strong> : '  + data;
 
                             return content;
                         }

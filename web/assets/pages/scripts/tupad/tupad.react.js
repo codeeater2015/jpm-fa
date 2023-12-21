@@ -220,6 +220,18 @@ var TupadComponent = React.createClass({
                                 <option value="VERANO_FRANCISCO">VERANO/FRANCISCO GROUP</option>
                                 <option value="FRANCISCO">FRANCISCO GROUP</option>
                                 <option value="PIA_ARIEL">PIA/ARIEL GROUP</option>
+                                <option value="ARIEL_LAPANGAN">ARIEL LAPANGAN (AL)</option>
+                                <option value="HADJI_JOJO_KAP_BATALLA">HADJI JOJO / KAP BATALLA</option>
+                                <option value="SHA">MAAM SHA</option>
+                                <option value="DANY">DANY</option>
+                                <option value="ERLY">ERLY</option>
+                                <option value="IYA">IYA</option>
+                                <option value="MAYONG">MAYONG</option>
+                                <option value="ROSE">ROSE</option>
+                                <option value="APOSTOL">APOSTOL</option>
+                                <option value="TABONG">TABONG</option>
+                                <option value="TATA">TATA</option>
+                                <option value="MERCA">MERCA</option>
                             </select>
                         </div>
 

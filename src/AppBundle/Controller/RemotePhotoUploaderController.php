@@ -901,7 +901,7 @@ class RemotePhotoUploaderController extends Controller
 
         $realImagePath = realpath($imagePath);
 
-        return new JsonResponse(['message' => 'test']);
+        //return new JsonResponse(['message' => 'test']);
 
         $date = date('Y-m-d');
         $zip = new \ZipArchive();

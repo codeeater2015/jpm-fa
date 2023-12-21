@@ -2,20 +2,25 @@
 parameters:
     container.autowiring.strict_mode: true
     database_host: localhost
-    database_port: 3306
-    database_name: voter_province_2021
-    database_user: jpm_admin
+    database_port: 3307
+    database_name: election_2025
+    database_user: root
     database_password: kmmsitdadmin
     tupad_host: localhost
-    tupad_port: 3306
+    tupad_port: 3307
     tupad_name: tupad_2023
-    tupad_user: jpm_admin 
+    tupad_user: root 
     tupad_password: kmmsitdadmin
     voter_province_host : localhost
-    voter_province_port : 3306
+    voter_province_port : 3307
     voter_province_name: voter_province_merged
-    voter_province_user: jpm_admin
+    voter_province_user: root
     voter_province_password: kmmsitdadmin
+    voter_2023_host : localhost
+    voter_2023_port : 3307
+    voter_2023_name: voter_2023
+    voter_2023_user: root
+    voter_2023_password: kmmsitdadmin
     # elect_host : localhost
     # elect_port : 3307
     # elect_name: election_result
@@ -49,7 +54,7 @@ parameters:
     mailer_password: null
     secret: ThisTokenIsNotSoSecretChangeIt
     asset_version: 20170519
-    img_url:  http://192.168.1.4:3100/voter/photo/
+    img_url:  http://192.168.20.141:3100/voter/photo/
     host_ip : 192.168.1.4
     report_url : http://192.168.1.4:83/voter-report/web/voter/
     report_ip : 192.168.1.4:83

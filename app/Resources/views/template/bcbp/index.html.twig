@@ -1,0 +1,39 @@
+{% extends "main.html.twig" %}
+{% block sidebar_close %}page-sidebar-closed{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="{{ asset('assets/global/plugins/lightbox/src/css/lightbox.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/global/plugins/jquery-file-upload/css/jquery.fileupload.css') }}" type="text/css" rel="stylesheet"/>
+    <link href="{{ asset('assets/global/plugins/jquery-file-upload/css/jquery.fileupload-ui.css') }}" type="text/css" rel="stylesheet"/>
+    <link href="{{ asset('assets/global/plugins/cropper/cropper.css') }}" type="text/css" rel="stylesheet"/>
+{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-12">
+            <div id="page-container">
+                {{ include('tpl/_loading.html.twig')}}
+            </div>
+        </div>
+    </div
+{% endblock %}
+
+{% block isReact %}{% endblock %}
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript" src="{{ asset('assets/global/plugins/classname/index.js') }}"></script>
+
+
+    {% if app.environment == "prod" %}
+        <script type="text/javascript" src="{{ asset('compiled/js/bcbp.react.min.js', 'compiled') }}"></script>
+    {% else %}
+        <script type="text/babel" src="{{ asset('scripts/voter/sms-template-modal.react.js', 'pages') }}"></script> 
+        <script type="text/babel" src="{{ asset('scripts/bcbp/bcbp.edit-modal.react.js', 'pages') }}"></script>
+        <script type="text/babel" src="{{ asset('scripts/bcbp/bcbp.create-modal.react.js', 'pages') }}"></script>
+        <script type="text/babel" src="{{ asset('scripts/bcbp/bcbp.sms-modal.react.js', 'pages') }}"></script>
+        <script type="text/babel" src="{{ asset('scripts/bcbp/bcbp.datatable.react.js', 'pages') }}"></script>
+        <script type="text/babel" src="{{ asset('scripts/bcbp/bcbp.react.js', 'pages') }}"></script>
+    {% endif %}
+    
+{% endblock %}

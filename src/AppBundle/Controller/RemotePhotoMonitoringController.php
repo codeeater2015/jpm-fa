@@ -1382,7 +1382,7 @@ class RemotePhotoMonitoringController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $sql = 'SELECT COUNT(*) AS uploaded_photos, uh.municipality_name, ud.created_by,ud.created_at , b.name AS barangay_name
+        $sql = 'SELECT COUNT(*) AS uploaded_photos, uh.municipality_name, ud.created_by,ud.created_at , uh.voter_group, b.name AS barangay_name
         FROM tbl_field_upload_dtl ud 
         INNER JOIN tbl_field_upload_hdr uh 
         ON uh.id = ud.hdr_id 
@@ -1391,7 +1391,7 @@ class RemotePhotoMonitoringController extends Controller
         INNER JOIN psw_barangay b
         ON b.municipality_code = m.municipality_code 
         WHERE m.province_code = 53 AND ud.is_cleared = 0 AND b.brgy_no = uh.brgy_no
-        GROUP BY uh.id 
+        GROUP BY uh.id,uh.brgy_no,uh.voter_group 
         ORDER BY  ud.created_at  desc 
         LIMIT 15';
 

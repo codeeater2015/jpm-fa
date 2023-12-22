@@ -195,7 +195,7 @@ var RemotePhotoUploadMonitoring = React.createClass({
                                         this.state.recentUploads.map(function (item) {
                                             return (
                                                 <li>
-                                                    New <strong className="font-red">  {item.uploaded_photos}  </strong>uploads from <strong className="font-blue">{item.barangay_name}, {item.municipality_name}</strong>. <br/>  <small> By {item.created_by}  : {item.created_at}</small>
+                                                    New <strong className="font-red">  {item.uploaded_photos} </strong> <strong>{item.voter_group} </strong>uploads from <strong className="font-blue">{item.barangay_name}, {item.municipality_name}</strong>. <br/>  <small> By {item.created_by}  : {item.created_at}</small>
                                                 </li>)
                                         })
 

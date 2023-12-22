@@ -1600,6 +1600,22 @@ gulp.task('compile-remote-photo-upload',function(cb){
     ], cb);
 });
 
+gulp.task('compile-remote-photo-upload-monitoring',function(cb){
+    pump([
+        gulp.src([
+            myPath + 'remote-photo-upload-monitoring/remote-photo-upload-monitoring.react.js'
+        ]),
+        concat('remote-photo-upload-monitoring.react.js'),
+        rename({suffix: '.min'}),
+        react(),
+        gulp.dest(jsPath),
+        bust({
+            relativePath : "web"
+        }),
+        gulp.dest('.')
+    ], cb);
+});
+
 
 gulp.task('compile-special-operation',function(cb){
     pump([

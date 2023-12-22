@@ -70,12 +70,20 @@ class FieldUploadDtl
      * @ORM\Column(name="is_downloaded", type="integer", scale = 1)
      */
     private $isDownloaded;
+
      /**
      * @var string
      *
      * @ORM\Column(name="is_cleared", type="integer", scale = 1)
      */
     private $isCleared;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="is_new_upload", type="integer", scale = 1)
+     */
+    private $isNewUpload;
 
      /**
      * @var string
@@ -501,5 +509,29 @@ class FieldUploadDtl
     public function getIsCleared()
     {
         return $this->isCleared;
+    }
+
+    /**
+     * Set isNewUpload
+     *
+     * @param integer $isNewUpload
+     *
+     * @return FieldUploadDtl
+     */
+    public function setIsNewUpload($isNewUpload)
+    {
+        $this->isNewUpload = $isNewUpload;
+
+        return $this;
+    }
+
+    /**
+     * Get isNewUpload
+     *
+     * @return integer
+     */
+    public function getIsNewUpload()
+    {
+        return $this->isNewUpload;
     }
 }

@@ -4860,7 +4860,7 @@ class MobileController extends Controller
 
      public function ajaxPatchElectPrep2024HasAttendedAction($proVoterId, $hasAttended, Request $request)
      {
-         $em = $this->getDoctrine()->getManager();
+         $em = $this->getDoctrine()->getManager("electPrep2024");
          $user = $this->get('security.token_storage')->getToken()->getUser();
  
          $proVoter = $em->getRepository("AppBundle:ProjectVoter")->find($proVoterId);

@@ -30,7 +30,7 @@ use Box\Spout\Writer\Style\StyleBuilder;
 
 class MobileController extends Controller
 {
-    const ACTIVE_ELECTION = 4;
+    const ACTIVE_ELECTION = 423;
     const ACTIVE_PROJECT = 3;
     const ACTIVE_STATUS = 'A';
 
@@ -4789,4 +4789,105 @@ class MobileController extends Controller
     }
 
 
+    /**
+     * @Route("/ajax_m_get_elect_prep_2024_project_voters",
+     *       name="ajax_m_get_elect_prep_2024_project_voters",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+     public function ajaxGetElectPrep2024ProjectVoters(Request $request)
+     {
+         $em = $this->getDoctrine()->getManager("electPrep2024");
+ 
+         $provinceCode = $request->get('provinceCode');
+         $municipalityNo = $request->get('municipalityNo');
+         $municipalityName = $request->get('municipalityName');
+         $barangayName = $request->get('barangayName');
+         $voterGroup = $request->get('voterGroup');
+ 
+         $brgyNo = $request->get("brgyNo");
+         $voterName = $request->get("voterName");
+         $imgUrl = $this->getParameter('img_url');
+         $batchSize = 10;
+         $batchNo = $request->get("batchNo");
+ 
+         $batchOffset = $batchNo * $batchSize;
+ 
+         $sql = "SELECT pv.* FROM tbl_project_voter pv WHERE 1 AND ";
+ 
+         if (!is_numeric($voterName)) {
+             $sql .= " (pv.voter_name LIKE ? OR ? IS NULL ) ";
+         } else {
+             $sql .= " (pv.generated_id_no LIKE ? OR ? IS NULL ) ";
+         }
+ 
+         $sql .= "AND pv.elect_id = ? 
+         AND (pv.municipality_name LIKE ? OR ? IS NULL) 
+         AND (pv.barangay_name LIKE ? OR ? IS NULL) 
+         AND pv.precinct_no IS NOT NULL 
+         ORDER BY pv.voter_name ASC LIMIT {$batchSize} OFFSET {$batchOffset}";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, '%' . $voterName . '%');
+         $stmt->bindValue(2, empty($voterName) ? null : '%' . $voterName . '%');
+         $stmt->bindValue(3, self::ACTIVE_ELECTION);
+         $stmt->bindValue(4, '%' . $municipalityName . '%');
+         $stmt->bindValue(5, empty($municipalityName) ? null : '%' . $municipalityName . '%');
+         $stmt->bindValue(6, '%' . $barangayName . '%');
+         $stmt->bindValue(7, empty($barangayName) ? null : '%' . $barangayName . '%');
+         $stmt->execute();
+ 
+         $data = [];
+ 
+         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+             $row['imgUrl'] = $imgUrl . '3_' . $row['generated_id_no'] . '?' . strtotime((new \DateTime())->format('Y-m-d H:i:s'));
+             $row['cellphone_no'] = $row['cellphone'];
+             $data[] = $row;
+         }
+
+         return new JsonResponse($data);
+     }
+
+    /**
+     * @Route("/ajax_patch_elect_prep_2024_has_attended/{proVoterId}/{hasAttended}",
+     *     name="ajax_patch_elect_prep_2024_has_attended",
+     *    options={"expose" = true}
+     * )
+     * @Method("PATCH")
+     */
+
+     public function ajaxPatchElectPrep2024HasAttendedAction($proVoterId, $hasAttended, Request $request)
+     {
+         $em = $this->getDoctrine()->getManager();
+         $user = $this->get('security.token_storage')->getToken()->getUser();
+ 
+         $proVoter = $em->getRepository("AppBundle:ProjectVoter")->find($proVoterId);
+ 
+         if (!$proVoter) {
+             return new JsonResponse([], 404);
+         }
+ 
+         $proVoter->setHasAttended($hasAttended);
+         $proVoter->setDidChanged(1);
+         
+         $validator = $this->get('validator');
+         $violations = $validator->validate($proVoter);
+ 
+         $errors = [];
+ 
+         if (count($violations) > 0) {
+             foreach ($violations as $violation) {
+                 $errors[$violation->getPropertyPath()] = $violation->getMessage();
+             }
+             return new JsonResponse($errors, 400);
+         }
+ 
+         $em->flush();
+         $serializer = $this->get('serializer');
+ 
+         return new JsonResponse($serializer->normalize($proVoter));
+     }
+ 
 }

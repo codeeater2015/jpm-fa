@@ -170,6 +170,13 @@ class ProjectVoter
      * @ORM\Column(name="has_photo", type="integer")
      */
     private $hasPhoto;
+
+        /**
+     * @var int
+     *
+     * @ORM\Column(name="has_attended", type="integer")
+     */
+    private $hasAttended;
     
     /**
      * @var int
@@ -1474,5 +1481,29 @@ class ProjectVoter
     public function getIsOnHold()
     {
         return $this->isOnHold;
+    }
+
+    /**
+     * Set hasAttended
+     *
+     * @param integer $hasAttended
+     *
+     * @return ProjectVoter
+     */
+    public function setHasAttended($hasAttended)
+    {
+        $this->hasAttended = $hasAttended;
+
+        return $this;
+    }
+
+    /**
+     * Get hasAttended
+     *
+     * @return integer
+     */
+    public function getHasAttended()
+    {
+        return $this->hasAttended;
     }
 }

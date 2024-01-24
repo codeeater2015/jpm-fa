@@ -4889,4 +4889,5 @@ class MobileController extends Controller
  
          return new JsonResponse($serializer->normalize($proVoter));
      }
+ 
 }

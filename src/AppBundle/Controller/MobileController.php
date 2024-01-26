@@ -4053,7 +4053,7 @@ class MobileController extends Controller
 
     public function ajaxGetJpmProjectVoters2023(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $provinceCode = $request->get('provinceCode');
         $municipalityNo = $request->get('municipalityNo');
@@ -4078,17 +4078,6 @@ class MobileController extends Controller
             $sql .= " (pv.generated_id_no LIKE ? OR ? IS NULL ) ";
         }
 
-        // switch ($groupFilter) {
-        //     case "MEMBERS":
-        //         $sql .= "   AND pv.voter_group IN ('LGC','LOPP','LPPP','LPPP1','LPPP2','LPPP3') AND pv.has_photo = 1 AND pv.is_kalaban <> 1 ";
-        //         break;
-        //     case "NON_MEMBERS":
-        //         $sql .= " AND pv.voter_group NOT IN ('LGC','LOPP','LPPP','LPPP1','LPPP2','LPPP3') AND (pv.has_photo = 0 OR pv.has_photo IS NULL) ";
-        //         break;
-        //     case "BLOCKED":
-        //         $sql .= " AND pv.is_kalaban = 1 ";
-        //         break;
-        // }
 
 
         $sql .= "AND pv.elect_id = ? 
@@ -4100,7 +4089,7 @@ class MobileController extends Controller
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, '%' . $voterName . '%');
         $stmt->bindValue(2, empty($voterName) ? null : '%' . $voterName . '%');
-        $stmt->bindValue(3, self::ACTIVE_ELECTION);
+        $stmt->bindValue(3, 423);
         $stmt->bindValue(4, '%' . $municipalityName . '%');
         $stmt->bindValue(5, empty($municipalityName) ? null : '%' . $municipalityName . '%');
         $stmt->bindValue(6, '%' . $barangayName . '%');
@@ -4115,13 +4104,6 @@ class MobileController extends Controller
             $data[] = $row;
         }
 
-        // foreach($data as &$row){
-        //      $lgc = $this->getLGC($row['municipality_no'], $row['brgy_no']);
-        //      $row['lgc'] = [
-        //         'voter_name' => '- disabled -',//$lgc['voter_name'],
-        //         'cellphone' => '- disabled -'//$lgc['cellphone']
-        //     ];
-        // }
 
         return new JsonResponse($data);
     }

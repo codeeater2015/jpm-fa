@@ -1,0 +1,83 @@
+<?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * BcbpMember
+ *
+ * @ORM\Table(name="tbl_bcbp_member")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\BcbpMemberRepository")
+ * @UniqueEntity(fields={"name"},message="This name already exists.", errorPath="name")
+ */
+class BcbpMember
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="name", type="string", length=255)
+     */
+    private $name;
+
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="position", type="string", length=150)
+     */
+    private $position;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="unit_no", type="string", length=50)
+     */
+    private $unitNo;
+
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="ag_no", type="string", length=50)
+     */
+    private $agNo;
+    
+     /**
+     * @var int
+     *
+     * @ORM\Column(name="t_units", type="integer")
+     */
+    private $tUnits;
+
+    /**
+     * @var datetime
+     *
+     * @ORM\Column(name="created_at", type="datetime")
+     */
+    private $createdAt; 
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="remarks", type="string", length=255)
+     */
+    private $remarks;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", length=3)
+     */
+    private $status;
+}
+

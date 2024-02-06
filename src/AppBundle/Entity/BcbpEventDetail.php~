@@ -1,0 +1,66 @@
+<?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+
+/**
+ * BcbpEventDetail
+ *
+ * @ORM\Table(name="tbl_bcbp_event_detail")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\BcbpEventDetailRepository")
+ * @UniqueEntity(fields={"eventId","memberId"},message="This member already exists.", errorPath="memberId")
+ */
+class BcbpEventDetail
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="member_id", type="integer")
+     * @Assert\NotBlank()
+     */
+    private $memberId;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="event_id", type="integer")
+     * @Assert\NotBlank()
+     */
+    private $eventId;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="has_attended", type="integer")
+     */
+    private $hasAttended;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="remarks", type="string", length=255)
+     */
+    private $remarks;
+    
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", length=3)
+     */
+    private $status;
+
+}
+

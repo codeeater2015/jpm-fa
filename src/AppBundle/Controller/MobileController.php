@@ -1,10 +1,12 @@
 <?php
 namespace AppBundle\Controller;
 
+use AppBundle\Entity\BcbpMember;
 use AppBundle\Entity\PendingVoter;
 use AppBundle\Entity\ProjectEventDetail;
 use AppBundle\Entity\ProjectVoter;
 use AppBundle\Entity\Voter;
+use AppBundle\Entity\BcbpEventHeader;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -4872,4 +4874,224 @@ class MobileController extends Controller
          return new JsonResponse($serializer->normalize($proVoter));
      }
  
+     /**
+      * BCBP FUNCTIONS
+      */
+
+    /**
+     * @Route("/ajax_m_get_bcbp_events",
+     *       name="ajax_m_get_bcbp_events",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetBcbpEvents(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $sql = "SELECT h.* ,
+                (SELECT COALESCE(COUNT(*),0) FROM tbl_bcbp_event_detail d WHERE d.event_id = h.id AND d.has_attended = 1 ) as total_attended
+                FROM tbl_bcbp_event_header h
+                WHERE (h.event_description LIKE ? OR ? IS NULL) ORDER BY h.id DESC LIMIT 30";
+        $name = $request->get("name");
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, '%' . $name . '%');
+        $stmt->bindValue(2, empty($name) ? null : $name);
+        $stmt->execute();
+
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return new JsonResponse($data);
+    }
+
+    /**
+     * @Route("/ajax_m_post_bcbp_event",
+     *       name="ajax_m_post_bcbp_event",
+     *        options={ "expose" = true }
+     * )
+     * @Method("POST")
+     */
+
+     public function ajaxPostBcbpEvent(Request $request)
+     {
+        $em = $this->getDoctrine()->getManager();
+ 
+        $entity = new BcbpEventHeader();
+        $entity->setEventDescription($request->get('eventDescription'));        
+        $entity->setEventDate($request->get('eventDate'));
+        $entity->setEventType($request->get('eventType'));
+
+
+        $validator = $this->get('validator');
+        $violations = $validator->validate($entity);
+
+        $errors = [];
+
+        if (count($violations) > 0) {
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()] = $violation->getMessage();
+            }
+            return new JsonResponse($errors, 400);
+        }
+
+        $entity->setStatus('A');
+
+        $em->persist($entity);
+        $em->flush();
+
+        $sql = "SELECT * FROM tbl_bcbp_members";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+           $data[] = $row;
+        }
+
+        foreach($data as $row){
+            $sql = "INSERT INTO tbl_bcbp_event_detail(
+                member_id,
+                event_id,
+                has_attended,
+                status
+            )
+            VALUES(?,?,?,?)
+            ";
+            
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $row['id']);
+            $stmt->bindValue(2, $entity->getId());
+            $stmt->bindValue(3, 0);
+            $stmt->bindValue(4, 'A');
+            $stmt->execute();
+        }
+
+        $em->clear();
+
+        $serializer = $this->get('serializer');
+        $entity = $serializer->normalize($entity);
+ 
+         return new JsonResponse($entity);
+     }
+
+     /**
+     * @Route("/ajax_m_get_bcbp_event_attendees/{eventId}",
+     *       name="ajax_m_get_bcbp_event_attendees",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetBcbpEventAttendees($eventId, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $sql = "SELECT m.*, d.id as dtl_id , d.has_attended FROM tbl_bcbp_event_detail d INNER JOIN tbl_bcbp_members m
+        ON d.member_id = m.id 
+        WHERE d.event_id = ? 
+        ORDER BY m.name ASC";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, $eventId);
+        $stmt->execute();
+
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return new JsonResponse($data);
+    }
+ 
+    /**
+     * @Route("/ajax_patch_bcbp_event_has_attended/{dtlId}/{hasAttended}",
+     *     name="ajax_patch_bcbp_event_has_attended",
+     *    options={"expose" = true}
+     * )
+     * @Method("PATCH")
+     */
+
+     public function ajaxPatchBcbpEventHasAttendedAction($dtlId, $hasAttended, Request $request)
+     {
+         $em = $this->getDoctrine()->getManager();
+         $user = $this->get('security.token_storage')->getToken()->getUser();
+ 
+         $entity = $em->getRepository("AppBundle:BcbpEventDetail")->find($dtlId);
+ 
+         if (!$entity) {
+             return new JsonResponse([], 404);
+         }
+ 
+         $entity->setHasAttended($hasAttended);
+         
+         $validator = $this->get('validator');
+         $violations = $validator->validate($entity);
+ 
+         $errors = [];
+ 
+         if (count($violations) > 0) {
+             foreach ($violations as $violation) {
+                 $errors[$violation->getPropertyPath()] = $violation->getMessage();
+             }
+             return new JsonResponse($errors, 400);
+         }
+ 
+         $em->flush();
+         $serializer = $this->get('serializer');
+ 
+         return new JsonResponse($serializer->normalize($entity));
+     }
+ 
+     
+    /**
+     * @Route("/ajax_m_post_bcbp_member",
+     *       name="ajax_m_post_bcbp_member",
+     *        options={ "expose" = true }
+     * )
+     * @Method("POST")
+     */
+
+     public function ajaxPostBcbpMember(Request $request)
+     {
+        $em = $this->getDoctrine()->getManager();
+ 
+        $entity = new BcbpMember();
+        $entity->setName($request->get('memberName'));        
+        $entity->setPosition($request->get('memberPosition'));
+        $entity->setUnitNo($request->get('memberUnit'));
+        $entity->setAgNo($request->get('memberGroup'));
+        $entity->setTUnits($request->get('memberTights'));
+
+        $validator = $this->get('validator');
+        $violations = $validator->validate($entity);
+
+        $errors = [];
+
+        if (count($violations) > 0) {
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()] = $violation->getMessage();
+            }
+            return new JsonResponse($errors, 400);
+        }
+
+        $entity->setStatus('A');
+
+        $em->persist($entity);
+        $em->flush();
+
+        
+        $serializer = $this->get('serializer');
+        $entity = $serializer->normalize($entity);
+ 
+         return new JsonResponse($entity);
+     }
 }

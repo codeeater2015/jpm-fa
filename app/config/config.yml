@@ -92,6 +92,14 @@ doctrine:
                 user:     "%voter_2023_user%"
                 password: "%voter_2023_password%"
                 charset:  UTF8
+            electPrep2024:
+                driver:   pdo_mysql
+                host:     "%elect_prep_2024_host%"
+                port:     "%elect_prep_2024_port%"
+                dbname:   "%elect_prep_2024_name%"
+                user:     "%elect_prep_2024_user%"
+                password: "%elect_prep_2024_password%"
+                charset:  UTF8
             # election:
             #     driver:   pdo_mysql
             #     host:     "%elect_host%"
@@ -134,6 +142,10 @@ doctrine:
                     AppBundle:  ~
             voter2023:
                 connection: voter2023
+                mappings:
+                    AppBundle:  ~
+            electPrep2024:
+                connection: electPrep2024
                 mappings:
                     AppBundle:  ~
             # election:

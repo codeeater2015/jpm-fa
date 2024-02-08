@@ -21,6 +21,11 @@ parameters:
     voter_2023_name: voter_2023
     voter_2023_user: jpm_admin
     voter_2023_password: kmmsitdadmin
+    elect_prep_2024_host : localhost
+    elect_prep_2024_port : 3306
+    elect_prep_2024_name: election_prep_2024
+    elect_prep_2024_user: jpm_admin
+    elect_prep_2024_password: kmmsitdadmin
     # elect_host : localhost
     # elect_port : 3306
     # elect_name: election_result

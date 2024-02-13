@@ -1,0 +1,108 @@
+<?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * ApEventDetail
+ *
+ * @ORM\Table(name="tbl_ap_event_detail")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\ProjectEventDetailRepository")
+ * @UniqueEntity(fields={"proVoterId","eventId"},message="This attendee already added on this event.", errorPath="proVoterId")
+ */
+class ApEventDetail
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="event_detail_id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $eventDetailId;
+    
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="event_id", type="integer")
+     * @Assert\NotBlank()
+     */
+    private $eventId;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="pro_voter_id", type="integer")
+     * @Assert\NotBlank()
+     */
+    private $proVoterId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="pro_id_code", type="string", length=30)
+     * @Assert\NotBlank()
+     */
+    private $proIdCode;
+
+     /**
+     * @var int
+     *
+     * @ORM\Column(name="has_attended", type="integer")
+     */
+    private $hasAttended;
+
+     /**
+     * @var datetime
+     *
+     * @ORM\Column(name="created_at", type="datetime")
+     */
+    private $createdAt;
+
+    /**
+     * @var datetime
+     *
+     * @ORM\Column(name="attended_at", type="datetime")
+     */
+    private $attendedAt;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="created_by", type="string", length=150)
+     */
+    private $createdBy;
+
+    /**
+     * @var datetime
+     *
+     * @ORM\Column(name="updated_at", type="datetime")
+     */
+
+    private $updatedAt;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="updated_by", type="string", length=150)
+     */
+    private $updatedBy;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="remarks", type="string", length=256)
+     */
+    private $remarks;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", length=3)
+     * @Assert\NotBlank()
+     */
+    private $status;
+}

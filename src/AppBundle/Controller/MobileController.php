@@ -32,7 +32,7 @@ use Box\Spout\Writer\Style\StyleBuilder;
 
 class MobileController extends Controller
 {
-    const ACTIVE_ELECTION = 4;
+    const ACTIVE_ELECTION = 423;
     const ACTIVE_PROJECT = 3;
     const ACTIVE_STATUS = 'A';
 
@@ -5094,4 +5094,216 @@ class MobileController extends Controller
  
          return new JsonResponse($entity);
      }
+
+     
+    /**
+     * Ako Palawan Functions
+     */
+
+    /**
+     * @Route("/ajax_m_get_ap_active_event_attendees",
+     *       name="ajax_m_get_ap_active_event_attendees",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetApActiveEventAttendees(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $imgUrl = $this->getParameter('img_url');
+
+        $batchSize = 10;
+        $batchNo = $request->get("batchNo");
+        $searchText = $request->get("searchText");
+        $eventId = $request->get('eventId');
+        $barangayName = $request->get('barangayName');
+
+        $batchOffset = $batchNo * $batchSize;
+
+        $sql = "SELECT * FROM tbl_ap_card WHERE (qr_code_no LIKE ? OR card_no LIKE ?) OR ? IS NULL LIMIT 100 ";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, '%' . $searchText . '%');
+        $stmt->bindValue(2, '%' . $searchText . '%');
+        $stmt->bindValue(3, empty($searchText ) ? null : $searchText);
+        $stmt->execute();
+
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+        return new JsonResponse($data);
+    }
+
+    /**
+     * @Route("/ajax_m_get_ap_profile_by_qr_code/{qrCode}",
+     *       name="ajax_m_get_ap_profile_by_qr_code",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetApProfileByQrCode(Request $request, $qrCode)
+    {
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        $entity = $em->getRepository("AppBundle:ApCard")->findOneBy(["qrCodeNo" => $qrCode]);
+
+        if (!$entity) {
+            return new JsonResponse([], 404);
+        }
+
+        $serializer = $this->get('serializer');
+
+        return new JsonResponse($serializer->normalize($entity));
+    }
+
+    /**
+     * @Route("/ajax_ap_link_profile/{qrCodeNo}/{proVoterId}",
+     *     name="ajax_ap_link_profile",
+     *    options={"expose" = true}
+     * )
+     * @Method("POST")
+     */
+
+    public function ajaxApLinkProfileAction($qrCodeNo, $proVoterId, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        $proVoter = $em->getRepository("AppBundle:ProjectVoter")->find($proVoterId);
+        $apCard = $em->getRepository("AppBundle:ApCard")->findOneBy(['qrCodeNo' => $qrCodeNo]);
+
+        if (!$proVoter || !$apCard) {
+            return new JsonResponse([], 404);
+        }
+
+        $apCard->setProVoterId($proVoter->getProVoterId());
+        $apCard->setProIdCode($proVoter->getProVoterId());
+        $apCard->setGeneratedIdNo($proVoter->getGeneratedIdNo());
+        $apCard->setVoterName($proVoter->getVoterName());
+        $apCard->setBarangayName($proVoter->getBarangayName());
+        $apCard->setMunicipalityName($proVoter->getMunicipalityName());
+        $apCard->setDateActivated(date('Y-m-d'));
+
+        $validator = $this->get('validator');
+        $violations = $validator->validate($apCard);
+
+        $errors = [];
+
+        if (count($violations) > 0) {
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()] = $violation->getMessage();
+            }
+            return new JsonResponse($errors, 400);
+        }
+
+        $em->flush();
+        $serializer = $this->get('serializer');
+
+        return new JsonResponse($serializer->normalize($apCard));
+    }
+
+     /**
+     * @Route("/ajax_ap_update_profile/{qrCodeNo}",
+     *     name="ajax_ap_update_profile",
+     *    options={"expose" = true}
+     * )
+     * @Method("POST")
+     */
+
+     public function ajaxApUpdateProfileAction($qrCodeNo, Request $request)
+     {
+         $em = $this->getDoctrine()->getManager("electPrep2024");
+         $user = $this->get('security.token_storage')->getToken()->getUser();
+
+         $apCard = $em->getRepository("AppBundle:ApCard")->findOneBy(['qrCodeNo' => $qrCodeNo]);
+ 
+         if (!$apCard) {
+             return new JsonResponse([], 404);
+         }
+         
+         $apCard->setContactNo($request->get('contactNo'));
+         $apCard->setRemarks($request->get("remarks"));
+
+         $validator = $this->get('validator');
+         $violations = $validator->validate($apCard);
+ 
+         $errors = [];
+ 
+         if (count($violations) > 0) {
+             foreach ($violations as $violation) {
+                 $errors[$violation->getPropertyPath()] = $violation->getMessage();
+             }
+             return new JsonResponse($errors, 400);
+         }
+ 
+         $em->flush();
+         $serializer = $this->get('serializer');
+ 
+         return new JsonResponse($serializer->normalize($apCard));
+     }
+
+     /**
+     * @Route("/ajax_ap_upload_profile_photo/{qrCodeNo}",
+     *     name="ajax_ap_upload_profile_photo",
+     *     options={"expose" = true}
+     *     )
+     * @Method("POST")
+     */
+
+    public function ajaxUploadApProfilePhoto(Request $request, $qrCodeNo)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $entity = $em->getRepository("AppBundle:ApCard")
+            ->findOneBy(['qrCodeNo' => $qrCodeNo]);
+
+        if (!$entity) {
+            return new JsonResponse(['message' => 'not found'], 404);
+        }
+
+        $serializer = $this->get('serializer');
+
+        $images = $request->files->get('files');
+        $filename = $entity->getQrCodeNo() . '.jpg';
+        $imgRoot = __DIR__ . '/../../../web/uploads/ako-palawan/';
+        $imagePath = $imgRoot . $filename;
+
+        $data = json_decode($request->getContent(), true);
+        $this->compress(base64_decode($data['photo']), $imagePath, 30);
+
+        $em->flush();
+        $em->clear();
+
+        return new JsonResponse(null, 200);
+    }
+
+     /**
+     * @Route("/ap/photo/{qrCodeNo}",
+     *   name="ajax_get_ap_profile_photo",
+     *   options={"expose" = true}
+     * )
+     * @Method("GET")
+     */
+
+     public function ajaxGetApProfilePhotoAction($qrCodeNo)
+     {
+ 
+         $rootDir = __DIR__ . '/../../../web/uploads/ako-palawan/';
+         $imagePath = $rootDir . $qrCodeNo . '.jpg';
+ 
+         if (!file_exists($imagePath)) {
+             $imagePath = $rootDir . 'default.jpg';
+         }
+ 
+         $response = new BinaryFileResponse($imagePath);
+         $response->headers->set('Content-Type', 'image/jpeg');
+ 
+         return $response;
+     }
+ 
 }

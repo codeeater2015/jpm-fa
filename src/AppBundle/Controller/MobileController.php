@@ -5110,7 +5110,7 @@ class MobileController extends Controller
 
     public function ajaxGetApActiveEventAttendees(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $imgUrl = $this->getParameter('img_url');
 
         $batchSize = 10;
@@ -5257,7 +5257,7 @@ class MobileController extends Controller
 
     public function ajaxUploadApProfilePhoto(Request $request, $qrCodeNo)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $entity = $em->getRepository("AppBundle:ApCard")
             ->findOneBy(['qrCodeNo' => $qrCodeNo]);

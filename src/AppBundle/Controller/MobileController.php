@@ -5121,7 +5121,7 @@ class MobileController extends Controller
 
         $batchOffset = $batchNo * $batchSize;
 
-        $sql = "SELECT * FROM tbl_ap_card WHERE (qr_code_no LIKE ? OR card_no LIKE ?) OR ? IS NULL LIMIT 100 ";
+        $sql = "SELECT * FROM tbl_ap_card WHERE (qr_code_no LIKE ? OR card_no LIKE ?) OR ? IS NULL LIMIT 20 ";
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, '%' . $searchText . '%');

@@ -4644,52 +4644,6 @@ class MobileController extends Controller
         return $response;
     }
 
-    /**
-     * BCBP Functions
-     */
-
-
-    /**
-     * @Route("/ajax_m_get_bcbp_profiles",
-     *       name="ajax_m_get_bcbp_profiles",
-     *        options={ "expose" = true }
-     * )
-     * @Method("GET")
-     */
-
-    public function ajaxGetBcbpProfiles(Request $request)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $name = $request->get('name');
-
-        $batchSize = 10;
-        $batchNo = $request->get("batchNo");
-
-        $batchOffset = $batchNo * $batchSize;
-
-        $sql = "SELECT b.* FROM tbl_temp_bcbp_profile b WHERE 1 AND ";
-
-        if (!is_numeric($name)) {
-            $sql .= " (b.name LIKE ? OR ? IS NULL ) ";
-        }
-
-        $sql .= " ORDER BY b.name ASC LIMIT {$batchSize} OFFSET {$batchOffset}";
-
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1, '%' . $name . '%');
-        $stmt->bindValue(2, empty($name) ? null : '%' . $name . '%');
-        $stmt->execute();
-
-        $data = [];
-
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $data[] = $row;
-        }
-
-        return new JsonResponse($data);
-    }
-
 
      /**
      * @Route("/ajax_m_get_deactivated_profiles",
@@ -4878,6 +4832,49 @@ class MobileController extends Controller
       * BCBP FUNCTIONS
       */
 
+      
+
+    /**
+     * @Route("/ajax_m_get_bcbp_profiles",
+     *       name="ajax_m_get_bcbp_profiles",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetBcbpProfiles(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $name = $request->get('name');
+
+        $batchSize = 10;
+        $batchNo = $request->get("batchNo");
+
+        $batchOffset = $batchNo * $batchSize;
+
+        $sql = "SELECT b.* FROM tbl_temp_bcbp_profile b WHERE 1 AND ";
+
+        if (!is_numeric($name)) {
+            $sql .= " (b.name LIKE ? OR ? IS NULL ) ";
+        }
+
+        $sql .= " ORDER BY b.name ASC LIMIT {$batchSize} OFFSET {$batchOffset}";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, '%' . $name . '%');
+        $stmt->bindValue(2, empty($name) ? null : '%' . $name . '%');
+        $stmt->execute();
+
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return new JsonResponse($data);
+    }
+
     /**
      * @Route("/ajax_m_get_bcbp_events",
      *       name="ajax_m_get_bcbp_events",
@@ -4993,14 +4990,23 @@ class MobileController extends Controller
     public function ajaxGetBcbpEventAttendees($eventId, Request $request)
     {
         $em = $this->getDoctrine()->getManager();
+        $unitFilter = $request->get("unitFilter");
+        $attended = $request->get("attended") == "true" ? 1 : 0; 
+
 
         $sql = "SELECT m.*, d.id as dtl_id , d.has_attended FROM tbl_bcbp_event_detail d INNER JOIN tbl_bcbp_members m
         ON d.member_id = m.id 
         WHERE d.event_id = ? 
+        AND (d.has_attended = ? OR ? IS NULL)
+        AND (m.unit_no = ? OR ? IS NULL)
         ORDER BY m.name ASC";
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, $eventId);
+        $stmt->bindValue(2, $attended);
+        $stmt->bindValue(3, $attended == 0 ? null : $attended);
+        $stmt->bindValue(4, $unitFilter);
+        $stmt->bindValue(5, $unitFilter == "" ? null : $unitFilter);
         $stmt->execute();
 
         $data = [];
@@ -5095,7 +5101,34 @@ class MobileController extends Controller
          return new JsonResponse($entity);
      }
 
-     
+      /**
+     * @Route("/ajax_delete_bcbp_event/{eventId}",
+     *     name="ajax_delete_bcbp_event",
+     *    options={"expose" = true}
+     * )
+     * @Method("DELETE")
+     */
+
+     public function ajaxDeleteBcbpEventAction($eventId, Request $request)
+     {
+         $em = $this->getDoctrine()->getManager();
+         $header = $em->getRepository("AppBundle:BcbpEventHeader")->find($eventId);
+ 
+         if (!$header) {
+             return new JsonResponse(null, 404);
+         }
+         
+         $sql = "DELETE FROM tbl_bcbp_event_detail WHERE event_id = ? ";
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, $eventId);
+         $stmt->execute();
+
+         $em->remove($header);
+         $em->flush();
+
+         return new JsonResponse(null,200);
+     }
+
     /**
      * Ako Palawan Functions
      */
@@ -5116,12 +5149,25 @@ class MobileController extends Controller
         $batchSize = 10;
         $batchNo = $request->get("batchNo");
         $searchText = $request->get("searchText");
+        $showLinked = $request->get("showLinked");
         $eventId = $request->get('eventId');
         $barangayName = $request->get('barangayName');
 
+        $showLinked =  $showLinked == 'true' ? true : false;
+
         $batchOffset = $batchNo * $batchSize;
 
-        $sql = "SELECT * FROM tbl_ap_card WHERE (qr_code_no LIKE ? OR card_no LIKE ?) OR ? IS NULL LIMIT 20 ";
+        if($showLinked){
+            $sql = "SELECT ac.* FROM tbl_ap_card ac
+                    INNER JOIN tbl_project_voter pv 
+                    ON pv.pro_voter_id = ac.pro_voter_id
+                    WHERE ((ac.qr_code_no LIKE ? OR ac.card_no LIKE ?) OR ? IS NULL) 
+                    AND (ac.pro_voter_id IS NOT NULL AND ac.pro_voter_id <> '')  
+                    LIMIT 100 ";
+        }else{
+            $sql = "SELECT * FROM tbl_ap_card WHERE (qr_code_no LIKE ? OR card_no LIKE ?) OR ? IS NULL LIMIT 100 ";
+        }
+
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, '%' . $searchText . '%');
@@ -5175,7 +5221,7 @@ class MobileController extends Controller
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $proVoter = $em->getRepository("AppBundle:ProjectVoter")->find($proVoterId);
-        $apCard = $em->getRepository("AppBundle:ApCard")->findOneBy(['qrCodeNo' => $qrCodeNo]);
+        $apCard = $em->getRepository("AppBundle:ApCard")->findOneBy(['qrCodeNo' => $qrCodeNo, "cardNo" => $request->get('cardNo')]);
 
         if (!$proVoter || !$apCard) {
             return new JsonResponse([], 404);

@@ -4832,8 +4832,6 @@ class MobileController extends Controller
       * BCBP FUNCTIONS
       */
 
-      
-
     /**
      * @Route("/ajax_m_get_bcbp_profiles",
      *       name="ajax_m_get_bcbp_profiles",
@@ -4991,7 +4989,11 @@ class MobileController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
         $unitFilter = $request->get("unitFilter");
+        $agFilter = $request->get("agFilter");
         $attended = $request->get("attended") == "true" ? 1 : 0; 
+
+        $unitFilter = $unitFilter == 'ALL' ? "" : $unitFilter;
+        $agFilter = $agFilter == 'ALL' ? "" : $agFilter;
 
         $sql = "SELECT 
         (SELECT COUNT(*) FROM tbl_bcbp_event_detail dd WHERE dd.event_id = ? ) AS total_attendees,
@@ -5002,6 +5004,7 @@ class MobileController extends Controller
         WHERE d.event_id = ? 
         AND (d.has_attended = ? OR ? IS NULL)
         AND (m.unit_no = ? OR ? IS NULL)
+        AND (m.ag_no = ? OR ? IS NULL)
         ORDER BY m.name ASC";
 
         $stmt = $em->getConnection()->prepare($sql);
@@ -5012,6 +5015,8 @@ class MobileController extends Controller
         $stmt->bindValue(5, $attended == 0 ? null : $attended);
         $stmt->bindValue(6, $unitFilter);
         $stmt->bindValue(7, $unitFilter == "" ? null : $unitFilter);
+        $stmt->bindValue(8, $agFilter);
+        $stmt->bindValue(9, $agFilter == "" ? null : $agFilter);
         $stmt->execute();
 
         $data = [];

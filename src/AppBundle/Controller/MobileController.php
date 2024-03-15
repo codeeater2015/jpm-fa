@@ -4997,7 +4997,13 @@ class MobileController extends Controller
 
         $sql = "SELECT 
         (SELECT COUNT(*) FROM tbl_bcbp_event_detail dd WHERE dd.event_id = ? ) AS total_attendees,
-	    (SELECT COUNT(*) FROM tbl_bcbp_event_detail dd WHERE dd.event_id = ? AND dd.has_attended = 1 ) AS total_attended,
+	    (SELECT COUNT(*) FROM tbl_bcbp_event_detail dd 
+        INNER JOIN tbl_bcbp_members mm
+        ON dd.member_id = mm.id 
+        WHERE dd.event_id = ? AND dd.has_attended = 1 
+        AND (mm.unit_no = ? OR ? IS NULL)
+        AND (mm.ag_no = ? OR ? IS NULL) ) AS total_attended,
+       
         m.*, d.id as dtl_id , d.has_attended 
         FROM tbl_bcbp_event_detail d INNER JOIN tbl_bcbp_members m
         ON d.member_id = m.id 
@@ -5010,13 +5016,18 @@ class MobileController extends Controller
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, $eventId);
         $stmt->bindValue(2, $eventId);
-        $stmt->bindValue(3, $eventId);
-        $stmt->bindValue(4, $attended);
-        $stmt->bindValue(5, $attended == 0 ? null : $attended);
-        $stmt->bindValue(6, $unitFilter);
-        $stmt->bindValue(7, $unitFilter == "" ? null : $unitFilter);
-        $stmt->bindValue(8, $agFilter);
-        $stmt->bindValue(9, $agFilter == "" ? null : $agFilter);
+        $stmt->bindValue(3, $unitFilter);
+        $stmt->bindValue(4, $unitFilter == "" ? null : $unitFilter);
+        $stmt->bindValue(5, $agFilter);
+        $stmt->bindValue(6, $agFilter == "" ? null : $agFilter);
+
+        $stmt->bindValue(7, $eventId);
+        $stmt->bindValue(8, $attended);
+        $stmt->bindValue(9, $attended == 0 ? null : $attended);
+        $stmt->bindValue(10, $unitFilter);
+        $stmt->bindValue(11, $unitFilter == "" ? null : $unitFilter);
+        $stmt->bindValue(12, $agFilter);
+        $stmt->bindValue(13, $agFilter == "" ? null : $agFilter);
         $stmt->execute();
 
         $data = [];

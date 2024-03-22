@@ -5011,6 +5011,7 @@ class MobileController extends Controller
         AND (d.has_attended = ? OR ? IS NULL)
         AND (m.unit_no = ? OR ? IS NULL)
         AND (m.ag_no = ? OR ? IS NULL)
+        AND m.status = 'A'
         ORDER BY m.name ASC";
 
         $stmt = $em->getConnection()->prepare($sql);

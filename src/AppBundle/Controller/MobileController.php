@@ -356,7 +356,7 @@ class MobileController extends Controller
         $projectVoter = $em->getRepository("AppBundle:ProjectVoter")->findOneBy([
             'generatedIdNo' => $generatedIdNo,
             'proId' => $proId,
-            'electId' => self::ACTIVE_ELECTION,
+            'electId' => 4,
         ]);
 
         if (!$projectVoter) {

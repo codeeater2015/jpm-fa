@@ -4990,11 +4990,21 @@ class MobileController extends Controller
         $em = $this->getDoctrine()->getManager();
         $unitFilter = $request->get("unitFilter");
         $agFilter = $request->get("agFilter");
-        $attended = $request->get("attended") == "true" ? 1 : 0; 
+        $genderFilter = $request->get("genderFilter");
+        $attendedFilter = $request->get("attendedFilter");
 
         $unitFilter = $unitFilter == 'ALL' ? "" : $unitFilter;
         $agFilter = $agFilter == 'ALL' ? "" : $agFilter;
+        $genderFilter = $genderFilter == 'ALL' ? "" : $genderFilter;
 
+        if($attendedFilter == 'ATTENDED'){
+            $attended = 1;
+        }else if($attendedFilter == 'NOT_ATTENDED'){
+            $attended = 0;
+        }else{
+            $attended = -1;
+        }
+           
         $sql = "SELECT 
         (SELECT COUNT(*) FROM tbl_bcbp_event_detail dd WHERE dd.event_id = ? ) AS total_attendees,
 	    (SELECT COUNT(*) FROM tbl_bcbp_event_detail dd 
@@ -5011,6 +5021,7 @@ class MobileController extends Controller
         AND (d.has_attended = ? OR ? IS NULL)
         AND (m.unit_no = ? OR ? IS NULL)
         AND (m.ag_no = ? OR ? IS NULL)
+        AND (m.gender = ? OR ? IS NULL)
         AND m.status = 'A'
         ORDER BY m.name ASC";
 
@@ -5024,11 +5035,13 @@ class MobileController extends Controller
 
         $stmt->bindValue(7, $eventId);
         $stmt->bindValue(8, $attended);
-        $stmt->bindValue(9, $attended == 0 ? null : $attended);
+        $stmt->bindValue(9, $attended == -1 ? null : $attended);
         $stmt->bindValue(10, $unitFilter);
         $stmt->bindValue(11, $unitFilter == "" ? null : $unitFilter);
         $stmt->bindValue(12, $agFilter);
         $stmt->bindValue(13, $agFilter == "" ? null : $agFilter);
+        $stmt->bindValue(14, $genderFilter);
+        $stmt->bindValue(15, $genderFilter == "" ? null : $genderFilter);
         $stmt->execute();
 
         $data = [];

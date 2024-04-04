@@ -5012,7 +5012,9 @@ class MobileController extends Controller
         ON dd.member_id = mm.id 
         WHERE dd.event_id = ? AND dd.has_attended = 1 
         AND (mm.unit_no = ? OR ? IS NULL)
-        AND (mm.ag_no = ? OR ? IS NULL) ) AS total_attended,
+        AND (mm.ag_no = ? OR ? IS NULL) 
+        AND (mm.gender = ? OR ? IS NULL)
+        ) AS total_attended,
        
         m.*, d.id as dtl_id , d.has_attended 
         FROM tbl_bcbp_event_detail d INNER JOIN tbl_bcbp_members m
@@ -5032,16 +5034,18 @@ class MobileController extends Controller
         $stmt->bindValue(4, $unitFilter == "" ? null : $unitFilter);
         $stmt->bindValue(5, $agFilter);
         $stmt->bindValue(6, $agFilter == "" ? null : $agFilter);
+        $stmt->bindValue(7, $genderFilter);
+        $stmt->bindValue(8, $genderFilter == "" ? null : $genderFilter);
 
-        $stmt->bindValue(7, $eventId);
-        $stmt->bindValue(8, $attended);
-        $stmt->bindValue(9, $attended == -1 ? null : $attended);
-        $stmt->bindValue(10, $unitFilter);
-        $stmt->bindValue(11, $unitFilter == "" ? null : $unitFilter);
-        $stmt->bindValue(12, $agFilter);
-        $stmt->bindValue(13, $agFilter == "" ? null : $agFilter);
-        $stmt->bindValue(14, $genderFilter);
-        $stmt->bindValue(15, $genderFilter == "" ? null : $genderFilter);
+        $stmt->bindValue(9, $eventId);
+        $stmt->bindValue(10, $attended);
+        $stmt->bindValue(11, $attended == -1 ? null : $attended);
+        $stmt->bindValue(12, $unitFilter);
+        $stmt->bindValue(13, $unitFilter == "" ? null : $unitFilter);
+        $stmt->bindValue(14, $agFilter);
+        $stmt->bindValue(15, $agFilter == "" ? null : $agFilter);
+        $stmt->bindValue(16, $genderFilter);
+        $stmt->bindValue(17, $genderFilter == "" ? null : $genderFilter);
         $stmt->execute();
 
         $data = [];

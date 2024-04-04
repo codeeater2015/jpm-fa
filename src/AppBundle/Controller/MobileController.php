@@ -5052,6 +5052,38 @@ class MobileController extends Controller
 
         return new JsonResponse($data);
     }
+
+     /**
+     * @Route("/ajax_m_get_bcbp_members",
+     *       name="ajax_m_get_bcbp_members",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+     public function ajaxGetBcbpMembers(Request $request)
+     {
+         $em = $this->getDoctrine()->getManager();
+         $searchText = $request->get("searchText");
+
+         $sql = "SELECT * 
+                 FROM tbl_bcbp_members m 
+                 WHERE (m.name like ? OR ? IS NULL)
+                 ORDER BY name ASC";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, '%' . $searchText . '%');
+         $stmt->bindValue(2, $searchText == "" ? null : $searchText);
+         $stmt->execute();
+ 
+         $data = [];
+ 
+         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+             $data[] = $row;
+         }
+ 
+         return new JsonResponse($data);
+     }
  
     /**
      * @Route("/ajax_patch_bcbp_event_has_attended/{dtlId}/{hasAttended}",
@@ -5092,6 +5124,46 @@ class MobileController extends Controller
          return new JsonResponse($serializer->normalize($entity));
      }
  
+
+     
+    /**
+     * @Route("/ajax_patch_bcbp_status/{id}/{newStatus}",
+     *     name="ajax_patch_bcbp_status",
+     *    options={"expose" = true}
+     * )
+     * @Method("PATCH")
+     */
+
+     public function ajaxPatchBcbpStatus($id, $newStatus, Request $request)
+     {
+         $em = $this->getDoctrine()->getManager();
+         $user = $this->get('security.token_storage')->getToken()->getUser();
+ 
+         $entity = $em->getRepository("AppBundle:BcbpMember")->find($id);
+ 
+         if (!$entity) {
+             return new JsonResponse([], 404);
+         }
+ 
+         $entity->setStatus($newStatus);
+         
+         $validator = $this->get('validator');
+         $violations = $validator->validate($entity);
+ 
+         $errors = [];
+ 
+         if (count($violations) > 0) {
+             foreach ($violations as $violation) {
+                 $errors[$violation->getPropertyPath()] = $violation->getMessage();
+             }
+             return new JsonResponse($errors, 400);
+         }
+ 
+         $em->flush();
+         $serializer = $this->get('serializer');
+ 
+         return new JsonResponse($serializer->normalize($entity));
+     }
      
     /**
      * @Route("/ajax_m_post_bcbp_member",

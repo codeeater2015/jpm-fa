@@ -35,7 +35,7 @@ var Hierarchy = React.createClass({
 
         $('#tree1').tree({
             dragAndDrop: true,
-            autoOpen: true,
+            autoOpen:  false,
             onCreateLi: function (node, $li) {
                 // Append a link to the jqtree-element div.
                 // The link has an url '#node-[id]' and a data property 'node-id'.
@@ -58,7 +58,7 @@ var Hierarchy = React.createClass({
                         badgeColor = 'badge-light';
                         break;
                 }
-        
+
                 console.log("node name");
                 console.log(node.name);
 
@@ -77,9 +77,9 @@ var Hierarchy = React.createClass({
 
                 //customHtml += profileCounterHtml;
                 customHtml += '<a href="#node-' + node.id + '" class="btn btn-icon tree-delete" style="margin-top:0px;padding-top:0px;color:#e62044" data-node-id="' + node.id + '"><i data-node-id="' + node.id + '"class="fa fa-trash"></i></a>';
-                
-               
-                
+
+
+
                 $li.find('.jqtree-element').append(
                     customHtml
                 );
@@ -172,6 +172,8 @@ var Hierarchy = React.createClass({
                     // event.node is null
                     // a node was deselected
                     // e.previous_node contains the deselected node
+                    console.log("node deselected");
+                    self.setState({ selectedItem: null })
                 }
             }
         );
@@ -625,51 +627,59 @@ var Hierarchy = React.createClass({
         console.log('adding item');
         let self = this;
 
-        let parentId = 0;
-        let proceedAdd = true;
+        if (self.state.form.data.proVoterId != null) {
+            let parentId = 0;
+            let proceedAdd = true;
 
-        if (self.state.selectedItem != null) {
-            parentId = self.state.selectedItem.proVoterId;
-        } else {
-            proceedAdd = confirm("No parent node selected. Are you sure you want to add a root node?");
-        }
-
-        if (proceedAdd) {
-            parentId = parentId != null ? parentId : 0;
-            var voterGroup = $('#hierarchy_page #voter-group-select2').val();
-
-            parentId = voterGroup == 'TOP LEADER' ? 0 : parentId;
-
-            if (parentId == 0) {
-                if (!confirm("Are you sure you want to add a root node?")) {
-                    proceedAdd = false;
-                }
+            if (self.state.selectedItem != null) {
+                parentId = self.state.selectedItem.proVoterId;
+            } else {
+                proceedAdd = confirm("No parent node selected. Are you sure you want to add a root node?");
             }
+
+            console.log(parentId);
+
 
             if (proceedAdd) {
-                let data = {
-                    proVoterId: this.state.form.data.proVoterId,
-                    parentId: parentId,
-                    voterGroup: voterGroup,
-                    assignedMunNo: this.state.form.data.assignedMunNo,
-                    assignedBrgyNo: this.state.form.data.assignedBrgyNo,
-                    assignedPurok: this.state.form.data.assignedPurok
-                };
 
-                console.log(data);
+                parentId = parentId != null ? parentId : 0;
+                var voterGroup = $('#hierarchy_page #voter-group-select2').val();
 
-                self.requestPost = $.ajax({
-                    url: Routing.generate("ajax_hierarchy_post_item"),
-                    data: data,
-                    type: 'POST'
-                }).done(function (res) {
-                    console.log("request succeeded.")
-                    self.loadHierarchyData();
-                }).fail(function (err) {
-                    self.setErrors(err.responseJSON);
-                    console.log("ops! something went wrong");
-                });
+                parentId = voterGroup == 'TOP LEADER' ? 0 : parentId;
+
+                if (parentId == 0) {
+                    if (!confirm("Are you sure you want to add a root node?")) {
+                        proceedAdd = false;
+                    }
+                }
+
+                if (proceedAdd) {
+                    let data = {
+                        proVoterId: this.state.form.data.proVoterId,
+                        parentId: parentId,
+                        voterGroup: voterGroup,
+                        assignedMunNo: this.state.form.data.assignedMunNo,
+                        assignedBrgyNo: this.state.form.data.assignedBrgyNo,
+                        assignedPurok: this.state.form.data.assignedPurok
+                    };
+
+                    console.log(data);
+
+                    self.requestPost = $.ajax({
+                        url: Routing.generate("ajax_hierarchy_post_item"),
+                        data: data,
+                        type: 'POST'
+                    }).done(function (res) {
+                        console.log("request succeeded.")
+                        self.loadHierarchyData();
+                    }).fail(function (err) {
+                        self.setErrors(err.responseJSON);
+                        console.log("ops! something went wrong");
+                    });
+                }
             }
+        }else{
+            alert("Opps! Empty form!");
         }
     },
 
@@ -828,13 +838,10 @@ var Hierarchy = React.createClass({
                             </div>
                         </div>
                         <div className="col-md-2">
-                            <p className="text-center"><strong>OVERVIEW</strong></p>
+                            <p className="text-center"><strong>ACTIVE BRANCH OVERVIEW</strong></p>
                             {selectedItem != null ? (
                                 <div>
                                     <div >
-                                        <a onClick={this.openEditModal} href="#" className="btn btn-sm btn-danger m-btn m-btn--icon m-btn--icon-only">
-                                            TL
-                                        </a>
                                         <a onClick={this.openProfileModal} style={{ marginLeft: "5px" }} href="#" className="btn btn-sm btn-success m-btn m-btn--icon m-btn--icon-only">
                                             <i className="fa fa-home"></i>
                                         </a>
@@ -843,11 +850,11 @@ var Hierarchy = React.createClass({
                                         </a>
                                     </div>
                                     <br />
-                                    <div className="text-center" style={{ fontSize:"1.2em", marginBottom : "10px" , marginTop : "10px" }}><strong>{selectedItem.voterName} </strong></div>
+                                    <div className="text-center" style={{ fontSize: "1.2em", marginBottom: "10px", marginTop: "10px" }}><strong>{selectedItem.voterName} </strong></div>
                                     <div><strong><small> Registered Address : </small></strong> <br /> {selectedItem.municipalityName}, {selectedItem.barangayName}</div>
-                                    <div style={{ marginBottom : "10px" }}><strong> <small>is Voter :</small> </strong> {selectedItem.isNonVoter == 1 ? "NO" : "YES"}</div>
-                                    <div style={{ marginBottom : "10px" }}><strong><small>Assigned Address :</small></strong> <br /> {selectedItem.assignedMunicipality},  {selectedItem.assignedBarangay}, {selectedItem.assignedPurok}</div>
-                                    
+                                    <div style={{ marginBottom: "10px" }}><strong> <small>is Voter :</small> </strong> {selectedItem.isNonVoter == 1 ? "NO" : "YES"}</div>
+                                    <div style={{ marginBottom: "10px" }}><strong><small>Assigned Address :</small></strong> <br /> {selectedItem.assignedMunicipality},  {selectedItem.assignedBarangay}, {selectedItem.assignedPurok}</div>
+
                                     <div><strong>Contact # :</strong>  {selectedItem.contactNo} </div>
                                     <div><strong>Position :</strong> {selectedItem.voterGroup} </div>
                                 </div>

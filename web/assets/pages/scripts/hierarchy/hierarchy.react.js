@@ -635,6 +635,7 @@ var Hierarchy = React.createClass({
                 parentId = self.state.selectedItem.proVoterId;
             } else {
                 proceedAdd = confirm("No parent node selected. Are you sure you want to add a root node?");
+                parentId = 0;
             }
 
             console.log(parentId);

@@ -57,7 +57,7 @@ class HierarchyController extends Controller
         $municipalityNo = $request->get('municipalityNo');
         $barangayNo = $request->get('barangayNo');
 
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager();
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $sql = "SELECT h.*, 
@@ -106,7 +106,7 @@ class HierarchyController extends Controller
 
     private function getChildNodes($id)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager();
         $sql = "SELECT h.*,
                 (SELECT COALESCE(COUNT(ap.pro_voter_id),0) FROM tbl_attendance_detail a
                 LEFT JOIN tbl_attendance_profile ap 
@@ -151,7 +151,7 @@ class HierarchyController extends Controller
     public function ajaxHierarchyPostItem(Request $request)
     {
 
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager();
         $proVoterId = $request->get('proVoterId');
         $parentId = $request->get("parentId");
 
@@ -160,6 +160,16 @@ class HierarchyController extends Controller
 
         if (!$voter)
             return new JsonResponse(null, 404);
+
+            
+        if($parentId != null && $parentId != 0 ){
+            $parent = $em->getRepository("AppBundle:OrganizationHierarchy")->findOneBy([
+                'proVoterId' => $parentId
+            ]);
+
+            if (!$parent)
+                return new JsonResponse(['message' => "invalid parent id."], 404);
+        }
 
         $entity = new OrganizationHierarchy();
         $entity->setProVoterId($voter->getProVoterId());
@@ -180,6 +190,7 @@ class HierarchyController extends Controller
         $violations = $validator->validate($entity);
 
         $errors = [];
+
 
         if (count($violations) > 0) {
             foreach ($violations as $violation) {
@@ -208,7 +219,7 @@ class HierarchyController extends Controller
 
     private function getMunicipalityName($provinceCode, $municipalityNo)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager();
         $sql = "SELECT * from psw_municipality m
                 WHERE m.province_code = ? AND m.municipality_no = ? LIMIT 1 ";
 
@@ -224,7 +235,7 @@ class HierarchyController extends Controller
 
     private function getBarangayName($municipalityCode, $brgyNo)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager();
         $sql = "SELECT * from psw_barangay b
                 WHERE b.municipality_code = ? AND b.brgy_no = ? LIMIT 1 ";
 
@@ -248,7 +259,7 @@ class HierarchyController extends Controller
 
     public function ajaxPatchHierarchyItemAction(Request $request)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager();
         $user = $this->get('security.token_storage')->getToken()->getUser();
         $proVoterId = $request->get('proVoterId');
         $parentId = $request->get('parentId');
@@ -319,7 +330,7 @@ class HierarchyController extends Controller
 
     public function ajaxSelect2HierarchyProjectVoters(Request $request)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager();
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $electId = $request->get("electId");
@@ -378,7 +389,7 @@ class HierarchyController extends Controller
 
     public function ajaxDeleteHierarchyAction($proVoterId, Request $request)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager();
         $entity = $em->getRepository("AppBundle:OrganizationHierarchy")->findOneBy([
             'proVoterId' => $proVoterId
         ]);
@@ -401,7 +412,7 @@ class HierarchyController extends Controller
 
     private function removeChildren($parentId)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager();
 
         $entities = $em->getRepository("AppBundle:OrganizationHierarchy")->findBy([
             'parentNode' => $parentId
@@ -432,7 +443,7 @@ class HierarchyController extends Controller
 
     public function ajaxHierarchySelect2Purok(Request $request)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager();
         $municipalityNo = $request->get('municipalityNo');
         $brgyNo = $request->get('brgyNo');
 
@@ -475,7 +486,7 @@ class HierarchyController extends Controller
 
     public function ajaxGetHierarchyItem(Request $request, $proVoterId)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager();
 
         $entity = $em->getRepository("AppBundle:OrganizationHierarchy")->findOneBy([
             "proVoterId" => $proVoterId
@@ -509,7 +520,7 @@ class HierarchyController extends Controller
     public function ajaxHierarchyPatchItem($proVoterId, Request $request)
     {
 
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager();
 
         $entity = $em->getRepository("AppBundle:OrganizationHierarchy")->findOneBy([
             "proVoterId" => $proVoterId
@@ -562,7 +573,7 @@ class HierarchyController extends Controller
      public function ajaxHierarchyGetItemTopLeader($proVoterId, Request $request)
      {
  
-         $em = $this->getDoctrine()->getManager("electPrep2024");
+         $em = $this->getDoctrine()->getManager();
  
          $entity = $em->getRepository("AppBundle:OrganizationHierarchy")->findOneBy([
              "proVoterId" => $proVoterId
@@ -617,7 +628,7 @@ class HierarchyController extends Controller
 
     public function ajaxHierarchySelect2VoterGroup(Request $request)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager();
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
@@ -700,7 +711,7 @@ class HierarchyController extends Controller
             $length = intval($request->query->get('length'));
         }
 
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager();
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $sql = "SELECT COALESCE(count(h.id),0) 

@@ -367,16 +367,18 @@ var VoterDatatable = React.createClass({
                         d.birthdate = $('#voter_table input[name="birthdate"]').val();
                         d.cellphone = $('#voter_table input[name="cellphone"]').val();
                         d.voterGroup = $('#voter_table input[name="voter_group"]').val();
-                        d.brgyCluster = $('#voter_table input[name="brgy_cluster"]').val();
+                        d.recordSource = $('#voter_table input[name="record_source"]').val();
                         d.electId = $('#voter_component #election_select2').val();
                         d.proId = $('#voter_component #project_select2').val();
+
+                        d.hasAttended = $('#voter_table select[name="has_attended"]').val();
                     }
                 },
                 columnDefs: [
                     {
                         'className': 'text-center valign-middle',
                         'orderable': false,
-                        'targets': [0, 4, 5, 6, 7, 8]
+                        'targets': [0, 4, 5, 6, 7, 8, 9, 10]
                     }
                 ],
                 "order": [
@@ -394,7 +396,7 @@ var VoterDatatable = React.createClass({
                     {
                         "data": "voter_name",
                         "render": function (data, type, row) {
-                            return (row.voted_2017 == 1 ? "*" : "") + data;
+                            return  data;
                         }
                     },
                     {
@@ -407,7 +409,8 @@ var VoterDatatable = React.createClass({
                     },
                     {
                         "data": "municipality_name",
-                        "width": "150px"
+                        "width": "150px",
+                        "className" : "text-center"
                     },
                     {
                         "data": "barangay_name",
@@ -415,7 +418,7 @@ var VoterDatatable = React.createClass({
                         "width": "100px"
                     },
                     {
-                        "data": "brgy_cluster",
+                        "data": "record_source",
                         "className": "text-center",
                         "width": 20
                     },
@@ -435,43 +438,20 @@ var VoterDatatable = React.createClass({
                         "width": 50
                     },
                     {
-                        "width": 130,
+                        "data": "has_attended",
+                        "className": "text-center",
+                        "width": 30,
                         "render": function (data, type, row) {
-                            //var btnGroup = '<button class="btn btn-xs blue-madison  edit-btn"><i class="fa fa-edit"></i></button>';
-
-                            var viewBtn = '<button class="btn btn-xs default edit2-btn"><i class="fa fa-eye"></i></button>';
-                            var editBtn = '<button class="btn btn-xs green edit-btn"><i class="fa fa-edit"></i></button>';
-                            var assignBtn = '<button class="btn btn-xs blue assign-btn"><i class="fa fa-edit"></i>Assign</button>';
-                            var deleteBtn = '<button class="btn btn-xs red-sunglo delete-btn"><i class="fa fa-trash"></i></button>';
-
-                            // if (self.state.user.isAdmin == 1) {
-                            //     if (row.status == 'A' || row.status == '' || row.status == null) {
-                            //         btnGroup += '<button class="btn btn-xs red-sunglo block-btn">Block</button>';
-                            //         btnGroup += '<button class="btn btn-xs grey-gallery deactivate-btn">Detactivate</button>';
-                            //     } else if (row.status == 'B') {
-                            //         btnGroup += '<button class="btn btn-xs green-jungle unblock-btn">Unblock</button>';
-                            //     } else if (row.status == 'I') {
-                            //         btnGroup += '<button class="btn btn-xs red-sunglo block-btn">Block</button>';
-                            //         btnGroup += '<button class="btn btn-xs green-jungle activate-btn">Activate</button>';
-                            //     }
-
-                            //     if (row.has_photo == 1) {
-                            //         btnGroup += '<button class="btn btn-xs purple-sharp reset-image-btn">Reset Image</button>';
-                            //     }
-                            // }
-
-                            var btnGroup = '';
-                            btnGroup += viewBtn;
-                            btnGroup += editBtn;
-                            btnGroup += assignBtn;
-
-                            if (parseInt(row.is_non_voter) == 1) {
-                                btnGroup += deleteBtn;
-                            }
-
-                            return btnGroup;
-                        },
-                        "className": "text-center"
+                            return '<label class="mt-checkbox status-checkbox"><input type="checkbox" name="has_attended" ' + ((parseInt(data) == 1) ? ' checked="checked" ' : '') + ' value="' + row.pro_voter_id + '"></input><span></span></label>';
+                        }
+                    },
+                    {
+                        "data" : "is_non_voter",
+                        "className" : "text-center",
+                        "width" : 30,
+                        "render" : function (data, type, row){
+                            return data == "1" ?  "NO" : "YES";
+                        }
                     }
                 ]
             }
@@ -503,6 +483,18 @@ var VoterDatatable = React.createClass({
         voter_table.on('keypress', '.form-filter', function (e) {
             if (e.charCode == 13)
                 self.reload();
+        });
+
+        
+        voter_table.on('click', '.status-checkbox', function (e) {
+            var proVoterId = e.target.value;
+            var checked = e.target.checked;
+            var fieldName = e.target.name;
+            var newValue = checked ? 1 : 0;
+
+            if (proVoterId != null && checked != null) {
+                self.patchStatus(proVoterId, fieldName, newValue);
+            }
         });
 
         // voter_table.on('click', '.block-btn', function () {
@@ -541,6 +533,20 @@ var VoterDatatable = React.createClass({
         // });
 
         self.grid = grid;
+    },
+
+    patchStatus: function (proVoterId, fieldName, value) {
+        var self = this;
+        var data = {};
+
+        data[fieldName] = value;
+        self.requestToggleRequirement = $.ajax({
+            url: Routing.generate("ajax_patch_project_voter_tag_attended", { proVoterId: proVoterId, newValue : value }),
+            type: "PATCH",
+            data: (data)
+        }).done(function (res) {
+            self.reload();
+        });
     },
 
     openEntryModal: function () {
@@ -914,26 +920,7 @@ var VoterDatatable = React.createClass({
                 <div className="row" id="voter_component">
                     <div className="col-md-5">
 
-                        <button className="btn btn-primary btn-sm" style={{ marginBottom: "10px" }} onClick={this.openNewVoterCreateModal}><i className="fa fa-upload"></i> New Voter</button>
-                        <button className="btn btn-success btn-sm" style={{ marginBottom: "10px", marginLeft: "10px" }} onClick={this.openSmsModal}>Text Blast</button>
-                        {false &&
-                            (
-                                <div>
-                                    <button className="btn btn-primary btn-sm" style={{ marginBottom: "10px" }} onClick={this.openUploadModal}><i className="fa fa-upload"></i> Upload Record</button>
-                                    <button className="btn btn-danger btn-sm" style={{ marginBottom: "10px", marginLeft: "15px" }} onClick={this.openUploadVotingStatusModal}><i className="fa fa-upload"></i> Update Record</button>
-                                    <button className="btn btn-warning btn-sm" style={{ marginBottom: "10px", marginLeft: "10px" }} onClick={this.openUploadBdayModal}>Upload Birthday</button>
-                                    <button className="btn btn-success btn-sm" style={{ marginBottom: "10px", marginLeft: "10px" }} onClick={this.openSmsModal}>Text Blast</button>
-                                    <button className="btn btn-success btn-sm" style={{ marginBottom: "10px", marginLeft: "10px" }} onClick={this.openJpmModal}>Jpm List</button>
-                                </div>
-                            )
-                        }
 
-
-                        {
-
-                            // <button className="btn btn-success btn-sm" style={{ marginLeft: "10px" }} onClick={this.openDswdSmsModal}>Text Blast(DSWD)</button>
-                            // <button className="btn btn-success btn-sm" style={{ marginLeft: "10px" }} onClick={this.openCapitolSmsModal}>Text Blast(Capitol)</button>
-                        }
                     </div>
 
                     <div className="col-md-7">
@@ -965,10 +952,12 @@ var VoterDatatable = React.createClass({
                                 <th className="text-center">Birthdate</th>
                                 <th className="text-center">Municipality</th>
                                 <th className="text-center">Brgy</th>
-                                <th className="text-center">CL</th>
+                                <th className="text-center">Source</th>
                                 <th className="text-center">Prec No.</th>
                                 <th className="text-center">CP No.</th>
                                 <th className="text-center">POS</th>
+                                <th className="text-center">Attended</th>
+                                <th className="text-center">Voter</th>
                                 <th></th>
                             </tr>
                             <tr>
@@ -988,7 +977,7 @@ var VoterDatatable = React.createClass({
                                     </select>
                                 </td>
                                 <td style={{ padding: "10px 5px" }}>
-                                    <input type="text" className="form-control form-filter input-sm" name="brgy_cluster" onChange={this.handleFilterChange} />
+                                    <input type="text" className="form-control form-filter input-sm" name="record_source" onChange={this.handleFilterChange} />
                                 </td>
                                 <td style={{ padding: "10px 5px", "width": "10px" }}>
                                     <select id="precinct_select2" className="form-control form-filter input-sm" >
@@ -1000,6 +989,14 @@ var VoterDatatable = React.createClass({
                                 <td style={{ padding: "10px 5px" }}>
                                     <input type="text" className="form-control form-filter input-sm" name="voter_group" onChange={this.handleFilterChange} />
                                 </td>
+                                <td>
+                                    <select name="has_attended" onChange={this.handleFilterChange} className="input-sm" style={{ marginTop: "2px" }}>
+                                        <option value=''>All</option>
+                                        <option value='1'>Yes</option>
+                                        <option value='0'>No</option>
+                                    </select>
+                                </td>
+                                <td></td>
                                 <td className="text-center">
                                     <button style={{ marginTop: "5px", marginBottom: "5px" }} className="btn btn-xs green btn-outline filter-submit">
                                         <i className="fa fa-search" />Search

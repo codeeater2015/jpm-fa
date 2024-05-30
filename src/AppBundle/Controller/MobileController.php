@@ -5471,37 +5471,37 @@ class MobileController extends Controller
      * @Method("GET")
      */
 
-    public function ajaxGetHouseholdProfile(Request $request, $householdCode)
-    {
+     public function ajaxGetHouseholdProfile(Request $request, $householdCode)
+     {
+ 
+         $em = $this->getDoctrine()->getManager("electionPrep2024");
+ 
+         $sql = "SELECT hh.voter_name, hh.household_code,hh.household_no, hh.municipality_name, hh.barangay_name,hh.id , pv.is_non_voter,
+                (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd WHERE hh.id = hd.household_id) AS total_members,
+                (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND ppv.is_non_voter = 0 ) AS total_voter_members,
+                (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND ppv.is_non_voter = 1 ) AS total_non_voter_members
+                FROM tbl_household_hdr hh INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = hh.pro_voter_id WHERE household_code = ? ";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, $householdCode);
+         $stmt->execute();
 
-        $em = $this->getDoctrine()->getManager();
+         $hdr = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        $sql = "SELECT hh.voter_name, hh.household_code,hh.household_no, hh.municipality_name, hh.barangay_name,hh.id , pv.is_non_voter,
-                 (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd WHERE hh.id = hd.household_id) AS total_members,
-(SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND ppv.is_non_voter = 0 ) AS total_voter_members,
-(SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND ppv.is_non_voter = 1 ) AS total_non_voter_members
-                 FROM tbl_household_hdr hh INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = hh.pro_voter_id WHERE household_code = ? ";
-
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1, $householdCode);
-        $stmt->execute();
-
-        $hdr = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        if (!$hdr)
+         if(!$hdr)
             return new JsonResponse(['message' => 'not found'], 404);
 
         $sql = "SELECT pv.voter_name,pv.municipality_name,pv.barangay_name,pv.is_non_voter FROM tbl_household_dtl hd INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = hd.pro_voter_id  
                 WHERE hd.household_id = ? ORDER BY voter_name ASC ";
-
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1, $hdr['id']);
-        $stmt->execute();
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, $hdr['id']);
+         $stmt->execute();
 
         $dtls = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
+        
         $hdr['members'] = $dtls;
 
-        return new JsonResponse($hdr);
-    }
+         return new JsonResponse($hdr);
+     }
 }

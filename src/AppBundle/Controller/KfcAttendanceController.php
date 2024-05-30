@@ -99,7 +99,7 @@ class KfcAttendanceController extends Controller
             $length = intval($request->query->get('length'));
         }
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $sql = "SELECT COALESCE(count(h.id),0) FROM tbl_attendance h WHERE 1 ";
@@ -149,7 +149,7 @@ class KfcAttendanceController extends Controller
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
-        $em = $this->getDoctrine()->getManager();
+       $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $entity = new KfcAttendance();
 
@@ -219,7 +219,7 @@ class KfcAttendanceController extends Controller
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
-        $em = $this->getDoctrine()->getManager();
+       $em = $this->getDoctrine()->getManager("electPrep2024");
 
 
         $attendance = $em->getRepository("AppBundle:KfcAttendance")->find($id);
@@ -342,7 +342,7 @@ class KfcAttendanceController extends Controller
             $length = intval($request->query->get('length'));
         }
 
-        $em = $this->getDoctrine()->getManager();
+       $em = $this->getDoctrine()->getManager("electPrep2024");
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $sql = "SELECT COALESCE(count(h.id),0) FROM tbl_attendance_detail h WHERE 1 ";
@@ -391,7 +391,7 @@ class KfcAttendanceController extends Controller
 
     public function patchProjectVoterTagStatus($proVoterId, Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+       $em = $this->getDoctrine()->getManager("electPrep2024");
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $projectVoter = $em->getRepository("AppBundle:ProjectVoter")->find($proVoterId);
@@ -466,7 +466,7 @@ class KfcAttendanceController extends Controller
 
     public function ajaxDeleteKfcAttendanceDetailAction($id)
     {
-        $em = $this->getDoctrine()->getManager();
+       $em = $this->getDoctrine()->getManager("electPrep2024");
         $entity = $em->getRepository("AppBundle:KfcAttendanceDetail")->find($id);
 
         if (!$entity)
@@ -509,7 +509,7 @@ class KfcAttendanceController extends Controller
 
     public function ajaxDeleteKfcAttendanceAction($id)
     {
-        $em = $this->getDoctrine()->getManager();
+       $em = $this->getDoctrine()->getManager("electPrep2024");
         $entity = $em->getRepository("AppBundle:KfcAttendance")->find($id);
 
         if (!$entity)
@@ -646,7 +646,7 @@ class KfcAttendanceController extends Controller
             $length = intval($request->query->get('length'));
         }
 
-        $em = $this->getDoctrine()->getManager();
+       $em = $this->getDoctrine()->getManager("electPrep2024");
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $sql = "SELECT COALESCE(count(h.id),0) FROM tbl_attendance_assignment h WHERE 1 ";
@@ -693,7 +693,7 @@ class KfcAttendanceController extends Controller
      {
          $user = $this->get('security.token_storage')->getToken()->getUser();
  
-         $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
  
          $detail = $em->getRepository("AppBundle:KfcAttendanceDetail")->find($dtlId);
  
@@ -769,7 +769,7 @@ class KfcAttendanceController extends Controller
 
     public function ajaxDeleteKfcAttendanceDetailAssignmentAction($id)
     {
-        $em = $this->getDoctrine()->getManager();
+       $em = $this->getDoctrine()->getManager("electPrep2024");
         $entity = $em->getRepository("AppBundle:AttendanceAssignment")->find($id);
 
         if (!$entity)
@@ -791,7 +791,7 @@ class KfcAttendanceController extends Controller
 
      public function ajaxDeleteKfcAttendanceDetailProfileAction($id)
      {
-         $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
          $entity = $em->getRepository("AppBundle:AttendanceProfile")->find($id);
  
          if (!$entity)
@@ -867,7 +867,7 @@ class KfcAttendanceController extends Controller
             $length = intval($request->query->get('length'));
         }
 
-        $em = $this->getDoctrine()->getManager();
+       $em = $this->getDoctrine()->getManager("electPrep2024");
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $sql = "SELECT COALESCE(count(h.id),0) FROM tbl_attendance_profile h WHERE 1 ";
@@ -914,7 +914,7 @@ class KfcAttendanceController extends Controller
      {
          $user = $this->get('security.token_storage')->getToken()->getUser();
  
-         $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
  
  
          $detail = $em->getRepository("AppBundle:KfcAttendanceDetail")->find($dtlId);

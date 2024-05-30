@@ -370,7 +370,7 @@ class ProjectController extends Controller
     */
 
     public function ajaxSelect2ProjectVoters(Request $request){
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electionPrep2024");
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $electId = $request->get("electId");

@@ -18,7 +18,7 @@ var HouseholdDatatable = React.createClass({
     },
 
     componentDidMount: function () {
-        this.loadUser(window.userId);
+        //this.loadUser(window.userId);
         this.initSelect2();
     },
 

@@ -4645,7 +4645,7 @@ class MobileController extends Controller
     }
 
 
-     /**
+    /**
      * @Route("/ajax_m_get_deactivated_profiles",
      *       name="ajax_m_get_deactivated_profiles",
      *        options={ "expose" = true }
@@ -4653,44 +4653,44 @@ class MobileController extends Controller
      * @Method("GET")
      */
 
-     public function ajaxGetDeactivatedProfiles(Request $request)
-     {
-         $em = $this->getDoctrine()->getManager();
- 
-         $batchSize = 10;
-         $batchNo = $request->get("batchNo");
-         $voterName = $request->get("voterName");
-         $barangayName = $request->get('barangayName');
- 
-         $batchOffset = $batchNo * $batchSize;
- 
-         $sql = "SELECT pv.*
+    public function ajaxGetDeactivatedProfiles(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $batchSize = 10;
+        $batchNo = $request->get("batchNo");
+        $voterName = $request->get("voterName");
+        $barangayName = $request->get('barangayName');
+
+        $batchOffset = $batchNo * $batchSize;
+
+        $sql = "SELECT pv.*
          FROM tbl_project_voter pv
          WHERE (pv.voter_name LIKE ? OR ? IS NULL ) 
          AND (pv.barangay_name = ? OR ? IS NULL) 
          AND pv.is_on_hold = 1
          ORDER BY pv.voter_name ASC LIMIT {$batchSize} OFFSET {$batchOffset}";
- 
-         $stmt = $em->getConnection()->prepare($sql);
-         $stmt->bindValue(1, '%' . strtoupper(trim($voterName)) . '%');
-         $stmt->bindValue(2, empty($voterName) ? null : $voterName);
-         $stmt->bindValue(3, strtoupper(trim($barangayName)));
-         $stmt->bindValue(4, empty($barangayName) ? null : $barangayName);
-         $stmt->execute();
- 
-         $data = [];
- 
-         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-             $row['cellphone_no'] = $row['cellphone'];
-             $data[] = $row;
-         }
- 
-         return new JsonResponse([
-             "data" => $data
-         ]);
-     }
 
-     
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, '%' . strtoupper(trim($voterName)) . '%');
+        $stmt->bindValue(2, empty($voterName) ? null : $voterName);
+        $stmt->bindValue(3, strtoupper(trim($barangayName)));
+        $stmt->bindValue(4, empty($barangayName) ? null : $barangayName);
+        $stmt->execute();
+
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $row['cellphone_no'] = $row['cellphone'];
+            $data[] = $row;
+        }
+
+        return new JsonResponse([
+            "data" => $data
+        ]);
+    }
+
+
     /**
      * @Route("/ajax_m_deactivate_profile/{proVoterId}",
      *       name="ajax_m_deactivate_profile",
@@ -4735,58 +4735,58 @@ class MobileController extends Controller
      * @Method("GET")
      */
 
-     public function ajaxGetElectPrep2024ProjectVoters(Request $request)
-     {
-         $em = $this->getDoctrine()->getManager("electPrep2024");
- 
-         $provinceCode = $request->get('provinceCode');
-         $municipalityNo = $request->get('municipalityNo');
-         $municipalityName = $request->get('municipalityName');
-         $barangayName = $request->get('barangayName');
-         $voterGroup = $request->get('voterGroup');
- 
-         $brgyNo = $request->get("brgyNo");
-         $voterName = $request->get("voterName");
-         $imgUrl = $this->getParameter('img_url');
-         $batchSize = 10;
-         $batchNo = $request->get("batchNo");
- 
-         $batchOffset = $batchNo * $batchSize;
- 
-         $sql = "SELECT pv.* FROM tbl_project_voter pv WHERE 1 AND ";
- 
-         if (!is_numeric($voterName)) {
-             $sql .= " (pv.voter_name LIKE ? OR ? IS NULL ) ";
-         } else {
-             $sql .= " (pv.generated_id_no LIKE ? OR ? IS NULL ) ";
-         }
- 
-         $sql .= "AND pv.elect_id = ? 
+    public function ajaxGetElectPrep2024ProjectVoters(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+
+        $provinceCode = $request->get('provinceCode');
+        $municipalityNo = $request->get('municipalityNo');
+        $municipalityName = $request->get('municipalityName');
+        $barangayName = $request->get('barangayName');
+        $voterGroup = $request->get('voterGroup');
+
+        $brgyNo = $request->get("brgyNo");
+        $voterName = $request->get("voterName");
+        $imgUrl = $this->getParameter('img_url');
+        $batchSize = 10;
+        $batchNo = $request->get("batchNo");
+
+        $batchOffset = $batchNo * $batchSize;
+
+        $sql = "SELECT pv.* FROM tbl_project_voter pv WHERE 1 AND ";
+
+        if (!is_numeric($voterName)) {
+            $sql .= " (pv.voter_name LIKE ? OR ? IS NULL ) ";
+        } else {
+            $sql .= " (pv.generated_id_no LIKE ? OR ? IS NULL ) ";
+        }
+
+        $sql .= "AND pv.elect_id = ? 
          AND (pv.municipality_name LIKE ? OR ? IS NULL) 
          AND (pv.barangay_name LIKE ? OR ? IS NULL) 
          AND pv.precinct_no IS NOT NULL 
          ORDER BY pv.voter_name ASC LIMIT {$batchSize} OFFSET {$batchOffset}";
- 
-         $stmt = $em->getConnection()->prepare($sql);
-         $stmt->bindValue(1, '%' . $voterName . '%');
-         $stmt->bindValue(2, empty($voterName) ? null : '%' . $voterName . '%');
-         $stmt->bindValue(3, self::ACTIVE_ELECTION);
-         $stmt->bindValue(4, '%' . $municipalityName . '%');
-         $stmt->bindValue(5, empty($municipalityName) ? null : '%' . $municipalityName . '%');
-         $stmt->bindValue(6, '%' . $barangayName . '%');
-         $stmt->bindValue(7, empty($barangayName) ? null : '%' . $barangayName . '%');
-         $stmt->execute();
- 
-         $data = [];
- 
-         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-             $row['imgUrl'] = $imgUrl . '3_' . $row['generated_id_no'] . '?' . strtotime((new \DateTime())->format('Y-m-d H:i:s'));
-             $row['cellphone_no'] = $row['cellphone'];
-             $data[] = $row;
-         }
 
-         return new JsonResponse($data);
-     }
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, '%' . $voterName . '%');
+        $stmt->bindValue(2, empty($voterName) ? null : '%' . $voterName . '%');
+        $stmt->bindValue(3, self::ACTIVE_ELECTION);
+        $stmt->bindValue(4, '%' . $municipalityName . '%');
+        $stmt->bindValue(5, empty($municipalityName) ? null : '%' . $municipalityName . '%');
+        $stmt->bindValue(6, '%' . $barangayName . '%');
+        $stmt->bindValue(7, empty($barangayName) ? null : '%' . $barangayName . '%');
+        $stmt->execute();
+
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $row['imgUrl'] = $imgUrl . '3_' . $row['generated_id_no'] . '?' . strtotime((new \DateTime())->format('Y-m-d H:i:s'));
+            $row['cellphone_no'] = $row['cellphone'];
+            $data[] = $row;
+        }
+
+        return new JsonResponse($data);
+    }
 
     /**
      * @Route("/ajax_patch_elect_prep_2024_has_attended/{proVoterId}/{hasAttended}",
@@ -4796,41 +4796,41 @@ class MobileController extends Controller
      * @Method("PATCH")
      */
 
-     public function ajaxPatchElectPrep2024HasAttendedAction($proVoterId, $hasAttended, Request $request)
-     {
-         $em = $this->getDoctrine()->getManager("electPrep2024");
-         $user = $this->get('security.token_storage')->getToken()->getUser();
- 
-         $proVoter = $em->getRepository("AppBundle:ProjectVoter")->find($proVoterId);
- 
-         if (!$proVoter) {
-             return new JsonResponse([], 404);
-         }
- 
-         $proVoter->setHasAttended($hasAttended);
-         $proVoter->setDidChanged(1);
-         
-         $validator = $this->get('validator');
-         $violations = $validator->validate($proVoter);
- 
-         $errors = [];
- 
-         if (count($violations) > 0) {
-             foreach ($violations as $violation) {
-                 $errors[$violation->getPropertyPath()] = $violation->getMessage();
-             }
-             return new JsonResponse($errors, 400);
-         }
- 
-         $em->flush();
-         $serializer = $this->get('serializer');
- 
-         return new JsonResponse($serializer->normalize($proVoter));
-     }
- 
-     /**
-      * BCBP FUNCTIONS
-      */
+    public function ajaxPatchElectPrep2024HasAttendedAction($proVoterId, $hasAttended, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        $proVoter = $em->getRepository("AppBundle:ProjectVoter")->find($proVoterId);
+
+        if (!$proVoter) {
+            return new JsonResponse([], 404);
+        }
+
+        $proVoter->setHasAttended($hasAttended);
+        $proVoter->setDidChanged(1);
+
+        $validator = $this->get('validator');
+        $violations = $validator->validate($proVoter);
+
+        $errors = [];
+
+        if (count($violations) > 0) {
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()] = $violation->getMessage();
+            }
+            return new JsonResponse($errors, 400);
+        }
+
+        $em->flush();
+        $serializer = $this->get('serializer');
+
+        return new JsonResponse($serializer->normalize($proVoter));
+    }
+
+    /**
+     * BCBP FUNCTIONS
+     */
 
     /**
      * @Route("/ajax_m_get_bcbp_profiles",
@@ -4913,12 +4913,12 @@ class MobileController extends Controller
      * @Method("POST")
      */
 
-     public function ajaxPostBcbpEvent(Request $request)
-     {
+    public function ajaxPostBcbpEvent(Request $request)
+    {
         $em = $this->getDoctrine()->getManager();
- 
+
         $entity = new BcbpEventHeader();
-        $entity->setEventDescription($request->get('eventDescription'));        
+        $entity->setEventDescription($request->get('eventDescription'));
         $entity->setEventDate($request->get('eventDate'));
         $entity->setEventType($request->get('eventType'));
 
@@ -4948,10 +4948,10 @@ class MobileController extends Controller
         $data = [];
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-           $data[] = $row;
+            $data[] = $row;
         }
 
-        foreach($data as $row){
+        foreach ($data as $row) {
             $sql = "INSERT INTO tbl_bcbp_event_detail(
                 member_id,
                 event_id,
@@ -4960,7 +4960,7 @@ class MobileController extends Controller
             )
             VALUES(?,?,?,?)
             ";
-            
+
             $stmt = $em->getConnection()->prepare($sql);
             $stmt->bindValue(1, $row['id']);
             $stmt->bindValue(2, $entity->getId());
@@ -4973,11 +4973,11 @@ class MobileController extends Controller
 
         $serializer = $this->get('serializer');
         $entity = $serializer->normalize($entity);
- 
-         return new JsonResponse($entity);
-     }
 
-     /**
+        return new JsonResponse($entity);
+    }
+
+    /**
      * @Route("/ajax_m_get_bcbp_event_attendees/{eventId}",
      *       name="ajax_m_get_bcbp_event_attendees",
      *        options={ "expose" = true }
@@ -4997,14 +4997,14 @@ class MobileController extends Controller
         $agFilter = $agFilter == 'ALL' ? "" : $agFilter;
         $genderFilter = $genderFilter == 'ALL' ? "" : $genderFilter;
 
-        if($attendedFilter == 'ATTENDED'){
+        if ($attendedFilter == 'ATTENDED') {
             $attended = 1;
-        }else if($attendedFilter == 'NOT_ATTENDED'){
+        } else if ($attendedFilter == 'NOT_ATTENDED') {
             $attended = 0;
-        }else{
+        } else {
             $attended = -1;
         }
-           
+
         $sql = "SELECT 
         (SELECT COUNT(*) FROM tbl_bcbp_event_detail dd WHERE dd.event_id = ? ) AS total_attendees,
 	    (SELECT COUNT(*) FROM tbl_bcbp_event_detail dd 
@@ -5057,7 +5057,7 @@ class MobileController extends Controller
         return new JsonResponse($data);
     }
 
-     /**
+    /**
      * @Route("/ajax_m_get_bcbp_members",
      *       name="ajax_m_get_bcbp_members",
      *        options={ "expose" = true }
@@ -5065,30 +5065,30 @@ class MobileController extends Controller
      * @Method("GET")
      */
 
-     public function ajaxGetBcbpMembers(Request $request)
-     {
-         $em = $this->getDoctrine()->getManager();
-         $searchText = $request->get("searchText");
+    public function ajaxGetBcbpMembers(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $searchText = $request->get("searchText");
 
-         $sql = "SELECT * 
+        $sql = "SELECT * 
                  FROM tbl_bcbp_members m 
                  WHERE (m.name like ? OR ? IS NULL)
                  ORDER BY name ASC";
- 
-         $stmt = $em->getConnection()->prepare($sql);
-         $stmt->bindValue(1, '%' . $searchText . '%');
-         $stmt->bindValue(2, $searchText == "" ? null : $searchText);
-         $stmt->execute();
- 
-         $data = [];
- 
-         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-             $data[] = $row;
-         }
- 
-         return new JsonResponse($data);
-     }
- 
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, '%' . $searchText . '%');
+        $stmt->bindValue(2, $searchText == "" ? null : $searchText);
+        $stmt->execute();
+
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return new JsonResponse($data);
+    }
+
     /**
      * @Route("/ajax_patch_bcbp_event_has_attended/{dtlId}/{hasAttended}",
      *     name="ajax_patch_bcbp_event_has_attended",
@@ -5097,39 +5097,39 @@ class MobileController extends Controller
      * @Method("PATCH")
      */
 
-     public function ajaxPatchBcbpEventHasAttendedAction($dtlId, $hasAttended, Request $request)
-     {
-         $em = $this->getDoctrine()->getManager();
-         $user = $this->get('security.token_storage')->getToken()->getUser();
- 
-         $entity = $em->getRepository("AppBundle:BcbpEventDetail")->find($dtlId);
- 
-         if (!$entity) {
-             return new JsonResponse([], 404);
-         }
- 
-         $entity->setHasAttended($hasAttended);
-         
-         $validator = $this->get('validator');
-         $violations = $validator->validate($entity);
- 
-         $errors = [];
- 
-         if (count($violations) > 0) {
-             foreach ($violations as $violation) {
-                 $errors[$violation->getPropertyPath()] = $violation->getMessage();
-             }
-             return new JsonResponse($errors, 400);
-         }
- 
-         $em->flush();
-         $serializer = $this->get('serializer');
- 
-         return new JsonResponse($serializer->normalize($entity));
-     }
- 
+    public function ajaxPatchBcbpEventHasAttendedAction($dtlId, $hasAttended, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
-     
+        $entity = $em->getRepository("AppBundle:BcbpEventDetail")->find($dtlId);
+
+        if (!$entity) {
+            return new JsonResponse([], 404);
+        }
+
+        $entity->setHasAttended($hasAttended);
+
+        $validator = $this->get('validator');
+        $violations = $validator->validate($entity);
+
+        $errors = [];
+
+        if (count($violations) > 0) {
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()] = $violation->getMessage();
+            }
+            return new JsonResponse($errors, 400);
+        }
+
+        $em->flush();
+        $serializer = $this->get('serializer');
+
+        return new JsonResponse($serializer->normalize($entity));
+    }
+
+
+
     /**
      * @Route("/ajax_patch_bcbp_status/{id}/{newStatus}",
      *     name="ajax_patch_bcbp_status",
@@ -5138,37 +5138,37 @@ class MobileController extends Controller
      * @Method("PATCH")
      */
 
-     public function ajaxPatchBcbpStatus($id, $newStatus, Request $request)
-     {
-         $em = $this->getDoctrine()->getManager();
-         $user = $this->get('security.token_storage')->getToken()->getUser();
- 
-         $entity = $em->getRepository("AppBundle:BcbpMember")->find($id);
- 
-         if (!$entity) {
-             return new JsonResponse([], 404);
-         }
- 
-         $entity->setStatus($newStatus);
-         
-         $validator = $this->get('validator');
-         $violations = $validator->validate($entity);
- 
-         $errors = [];
- 
-         if (count($violations) > 0) {
-             foreach ($violations as $violation) {
-                 $errors[$violation->getPropertyPath()] = $violation->getMessage();
-             }
-             return new JsonResponse($errors, 400);
-         }
- 
-         $em->flush();
-         $serializer = $this->get('serializer');
- 
-         return new JsonResponse($serializer->normalize($entity));
-     }
-     
+    public function ajaxPatchBcbpStatus($id, $newStatus, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        $entity = $em->getRepository("AppBundle:BcbpMember")->find($id);
+
+        if (!$entity) {
+            return new JsonResponse([], 404);
+        }
+
+        $entity->setStatus($newStatus);
+
+        $validator = $this->get('validator');
+        $violations = $validator->validate($entity);
+
+        $errors = [];
+
+        if (count($violations) > 0) {
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()] = $violation->getMessage();
+            }
+            return new JsonResponse($errors, 400);
+        }
+
+        $em->flush();
+        $serializer = $this->get('serializer');
+
+        return new JsonResponse($serializer->normalize($entity));
+    }
+
     /**
      * @Route("/ajax_m_post_bcbp_member",
      *       name="ajax_m_post_bcbp_member",
@@ -5177,12 +5177,12 @@ class MobileController extends Controller
      * @Method("POST")
      */
 
-     public function ajaxPostBcbpMember(Request $request)
-     {
+    public function ajaxPostBcbpMember(Request $request)
+    {
         $em = $this->getDoctrine()->getManager();
- 
+
         $entity = new BcbpMember();
-        $entity->setName($request->get('memberName'));        
+        $entity->setName($request->get('memberName'));
         $entity->setPosition($request->get('memberPosition'));
         $entity->setUnitNo($request->get('memberUnit'));
         $entity->setAgNo($request->get('memberGroup'));
@@ -5205,14 +5205,14 @@ class MobileController extends Controller
         $em->persist($entity);
         $em->flush();
 
-        
+
         $serializer = $this->get('serializer');
         $entity = $serializer->normalize($entity);
- 
-         return new JsonResponse($entity);
-     }
 
-      /**
+        return new JsonResponse($entity);
+    }
+
+    /**
      * @Route("/ajax_delete_bcbp_event/{eventId}",
      *     name="ajax_delete_bcbp_event",
      *    options={"expose" = true}
@@ -5220,25 +5220,25 @@ class MobileController extends Controller
      * @Method("DELETE")
      */
 
-     public function ajaxDeleteBcbpEventAction($eventId, Request $request)
-     {
-         $em = $this->getDoctrine()->getManager();
-         $header = $em->getRepository("AppBundle:BcbpEventHeader")->find($eventId);
- 
-         if (!$header) {
-             return new JsonResponse(null, 404);
-         }
-         
-         $sql = "DELETE FROM tbl_bcbp_event_detail WHERE event_id = ? ";
-         $stmt = $em->getConnection()->prepare($sql);
-         $stmt->bindValue(1, $eventId);
-         $stmt->execute();
+    public function ajaxDeleteBcbpEventAction($eventId, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $header = $em->getRepository("AppBundle:BcbpEventHeader")->find($eventId);
 
-         $em->remove($header);
-         $em->flush();
+        if (!$header) {
+            return new JsonResponse(null, 404);
+        }
 
-         return new JsonResponse(null,200);
-     }
+        $sql = "DELETE FROM tbl_bcbp_event_detail WHERE event_id = ? ";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, $eventId);
+        $stmt->execute();
+
+        $em->remove($header);
+        $em->flush();
+
+        return new JsonResponse(null, 200);
+    }
 
     /**
      * Ako Palawan Functions
@@ -5264,18 +5264,18 @@ class MobileController extends Controller
         $eventId = $request->get('eventId');
         $barangayName = $request->get('barangayName');
 
-        $showLinked =  $showLinked == 'true' ? true : false;
+        $showLinked = $showLinked == 'true' ? true : false;
 
         $batchOffset = $batchNo * $batchSize;
 
-        if($showLinked){
+        if ($showLinked) {
             $sql = "SELECT ac.* FROM tbl_ap_card ac
                     INNER JOIN tbl_project_voter pv 
                     ON pv.pro_voter_id = ac.pro_voter_id
                     WHERE ((ac.qr_code_no LIKE ? OR ac.card_no LIKE ?) OR ? IS NULL) 
                     AND (ac.pro_voter_id IS NOT NULL AND ac.pro_voter_id <> '')  
                     LIMIT 100 ";
-        }else{
+        } else {
             $sql = "SELECT * FROM tbl_ap_card WHERE (qr_code_no LIKE ? OR card_no LIKE ?) OR ? IS NULL LIMIT 100 ";
         }
 
@@ -5283,7 +5283,7 @@ class MobileController extends Controller
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, '%' . $searchText . '%');
         $stmt->bindValue(2, '%' . $searchText . '%');
-        $stmt->bindValue(3, empty($searchText ) ? null : $searchText);
+        $stmt->bindValue(3, empty($searchText) ? null : $searchText);
         $stmt->execute();
 
         $data = [];
@@ -5364,7 +5364,7 @@ class MobileController extends Controller
         return new JsonResponse($serializer->normalize($apCard));
     }
 
-     /**
+    /**
      * @Route("/ajax_ap_update_profile/{qrCodeNo}",
      *     name="ajax_ap_update_profile",
      *    options={"expose" = true}
@@ -5372,39 +5372,39 @@ class MobileController extends Controller
      * @Method("POST")
      */
 
-     public function ajaxApUpdateProfileAction($qrCodeNo, Request $request)
-     {
-         $em = $this->getDoctrine()->getManager("electPrep2024");
-         $user = $this->get('security.token_storage')->getToken()->getUser();
+    public function ajaxApUpdateProfileAction($qrCodeNo, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $user = $this->get('security.token_storage')->getToken()->getUser();
 
-         $apCard = $em->getRepository("AppBundle:ApCard")->findOneBy(['qrCodeNo' => $qrCodeNo]);
- 
-         if (!$apCard) {
-             return new JsonResponse([], 404);
-         }
-         
-         $apCard->setContactNo($request->get('contactNo'));
-         $apCard->setRemarks($request->get("remarks"));
+        $apCard = $em->getRepository("AppBundle:ApCard")->findOneBy(['qrCodeNo' => $qrCodeNo]);
 
-         $validator = $this->get('validator');
-         $violations = $validator->validate($apCard);
- 
-         $errors = [];
- 
-         if (count($violations) > 0) {
-             foreach ($violations as $violation) {
-                 $errors[$violation->getPropertyPath()] = $violation->getMessage();
-             }
-             return new JsonResponse($errors, 400);
-         }
- 
-         $em->flush();
-         $serializer = $this->get('serializer');
- 
-         return new JsonResponse($serializer->normalize($apCard));
-     }
+        if (!$apCard) {
+            return new JsonResponse([], 404);
+        }
 
-     /**
+        $apCard->setContactNo($request->get('contactNo'));
+        $apCard->setRemarks($request->get("remarks"));
+
+        $validator = $this->get('validator');
+        $violations = $validator->validate($apCard);
+
+        $errors = [];
+
+        if (count($violations) > 0) {
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()] = $violation->getMessage();
+            }
+            return new JsonResponse($errors, 400);
+        }
+
+        $em->flush();
+        $serializer = $this->get('serializer');
+
+        return new JsonResponse($serializer->normalize($apCard));
+    }
+
+    /**
      * @Route("/ajax_ap_upload_profile_photo/{qrCodeNo}",
      *     name="ajax_ap_upload_profile_photo",
      *     options={"expose" = true}
@@ -5439,7 +5439,7 @@ class MobileController extends Controller
         return new JsonResponse(null, 200);
     }
 
-     /**
+    /**
      * @Route("/ap/photo/{qrCodeNo}",
      *   name="ajax_get_ap_profile_photo",
      *   options={"expose" = true}
@@ -5447,20 +5447,61 @@ class MobileController extends Controller
      * @Method("GET")
      */
 
-     public function ajaxGetApProfilePhotoAction($qrCodeNo)
-     {
- 
-         $rootDir = __DIR__ . '/../../../web/uploads/ako-palawan/';
-         $imagePath = $rootDir . $qrCodeNo . '.jpg';
- 
-         if (!file_exists($imagePath)) {
-             $imagePath = $rootDir . 'default.jpg';
-         }
- 
-         $response = new BinaryFileResponse($imagePath);
-         $response->headers->set('Content-Type', 'image/jpeg');
- 
-         return $response;
-     }
- 
+    public function ajaxGetApProfilePhotoAction($qrCodeNo)
+    {
+
+        $rootDir = __DIR__ . '/../../../web/uploads/ako-palawan/';
+        $imagePath = $rootDir . $qrCodeNo . '.jpg';
+
+        if (!file_exists($imagePath)) {
+            $imagePath = $rootDir . 'default.jpg';
+        }
+
+        $response = new BinaryFileResponse($imagePath);
+        $response->headers->set('Content-Type', 'image/jpeg');
+
+        return $response;
+    }
+
+    /**
+     * @Route("/ajax_m_get_household_profile/{householdCode}",
+     *       name="ajax_m_get_household_profile",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetHouseholdProfile(Request $request, $householdCode)
+    {
+
+        $em = $this->getDoctrine()->getManager();
+
+        $sql = "SELECT hh.voter_name, hh.household_code,hh.household_no, hh.municipality_name, hh.barangay_name,hh.id , pv.is_non_voter,
+                 (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd WHERE hh.id = hd.household_id) AS total_members,
+(SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND ppv.is_non_voter = 0 ) AS total_voter_members,
+(SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND ppv.is_non_voter = 1 ) AS total_non_voter_members
+                 FROM tbl_household_hdr hh INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = hh.pro_voter_id WHERE household_code = ? ";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, $householdCode);
+        $stmt->execute();
+
+        $hdr = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        if (!$hdr)
+            return new JsonResponse(['message' => 'not found'], 404);
+
+        $sql = "SELECT pv.voter_name,pv.municipality_name,pv.barangay_name,pv.is_non_voter FROM tbl_household_dtl hd INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = hd.pro_voter_id  
+                WHERE hd.household_id = ? ORDER BY voter_name ASC ";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, $hdr['id']);
+        $stmt->execute();
+
+        $dtls = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $hdr['members'] = $dtls;
+
+        return new JsonResponse($hdr);
+    }
 }

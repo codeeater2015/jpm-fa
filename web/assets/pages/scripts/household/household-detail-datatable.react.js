@@ -42,7 +42,7 @@ var HouseholdDetailDatatable = React.createClass({
                 },
                 "columnDefs": [{
                     'orderable': false,
-                    'targets': [0, 2, 3, 4, 5, 6]
+                    'targets': [0, 2, 3, 4, 5]
                 }, {
                     'className': 'align-center',
                     'targets': [0, 3]
@@ -61,18 +61,17 @@ var HouseholdDetailDatatable = React.createClass({
                     },
                     {
                         "data": "voter_name",
-                        "className": "text-left"
+                        "className": "text-left",
+                        "render" : function(data,type,row){
+                            return  row.is_non_voter == 1 ? '--- ' + data :  data;
+                        }
                     },
                     {
                         "data": "birthdate",
                         "className": "text-center",
                         "width": 100
                     },
-                    {
-                        "data": "relationship",
-                        "className": "text-center",
-                        "width": 50
-                    },
+                 
                     {
                         "data": "barangay_name",
                         "className": "text-center",
@@ -189,7 +188,6 @@ var HouseholdDetailDatatable = React.createClass({
                                 <th>No</th>
                                 <th>Name</th>
                                 <th>Birthdate</th>
-                                <th>Relationship</th>
                                 <th>Barangay</th>
                                 <th>Cellphone #</th>
                                 <th>Actions</th>
@@ -201,9 +199,6 @@ var HouseholdDetailDatatable = React.createClass({
                                 </td>
                                 <td>
                                     <input type="text" className="form-control form-filter input-sm" name="birthdate" onChange={this.handleFilterChange} />
-                                </td>
-                                <td>
-                                    <input type="text" className="form-control form-filter input-sm" name="relationship" onChange={this.handleFilterChange} />
                                 </td>
                                 <td>
                                     <input type="text" className="form-control form-filter input-sm" name="barangayName" onChange={this.handleFilterChange} />

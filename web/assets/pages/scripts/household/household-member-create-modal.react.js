@@ -145,7 +145,7 @@ var HouseholdMemberCreateModal = React.createClass({
             }
         });
 
-        
+
         $("#other_position_select2").select2({
             casesentitive: false,
             placeholder: "Select...",
@@ -193,7 +193,7 @@ var HouseholdMemberCreateModal = React.createClass({
             self.setFieldValue("relationship", $(this).val());
         });
 
-        $("#other_position_select2").on("change", function(){
+        $("#other_position_select2").on("change", function () {
             self.setFieldValue("position", $(this).val());
         });
 
@@ -247,10 +247,10 @@ var HouseholdMemberCreateModal = React.createClass({
             form.data.position = res.position;
 
             $("#other_position_select2").empty()
-            .append($("<option/>")
-                .val(res.position)
-                .text(res.position))
-            .trigger("change");
+                .append($("<option/>")
+                    .val(res.position)
+                    .text(res.position))
+                .trigger("change");
 
             self.setState({ form: form });
         });
@@ -301,14 +301,14 @@ var HouseholdMemberCreateModal = React.createClass({
         this.setState({ form: form });
     },
 
-    setNewProfile: function(data){
+    setNewProfile: function (data) {
         var self = this;
-        
+
         $("#form-voter-select2").empty()
-        .append($("<option/>")
-            .val(data.proVoterId)
-            .text(data.voterName))
-        .trigger("change")
+            .append($("<option/>")
+                .val(data.proVoterId)
+                .text(data.voterName))
+            .trigger("change")
     },
 
     setErrors: function (errors) {
@@ -428,7 +428,7 @@ var HouseholdMemberCreateModal = React.createClass({
                         </div>
 
                         <div className="row">
-                            <div className="col-md-7">
+                            <div className="col-md-8">
                                 <FormGroup controlId="formProVoterId" validationState={this.getValidationState('voterName')}>
                                     <ControlLabel > Voter Name : </ControlLabel>
                                     <select id="form-voter-select2" className="form-control input-sm">
@@ -437,70 +437,13 @@ var HouseholdMemberCreateModal = React.createClass({
                                 </FormGroup>
                             </div>
 
-                            <div className="col-md-3">
+                            <div className="col-md-2">
                                 <button style={{ marginTop: "25px" }} onClick={this.openNewVoterCreateModal} className="btn btn-primary btn-sm" type="button"> New Voter </button>
                             </div>
                         </div>
 
-                        <div className="row">
-
-                            <div className="col-md-3" >
-                                <FormGroup controlId="formLastname" validationState={this.getValidationState('lastname')}>
-                                    <ControlLabel > Apelyido : </ControlLabel>
-                                    <input type="text" value={this.state.form.data.lastname} className="input-sm form-control" onChange={this.setFormProp} name="lastname" />
-                                    <HelpBlock>{this.getError('lastname')}</HelpBlock>
-                                </FormGroup>
-                            </div>
-
-                            <div className="col-md-3" >
-                                <FormGroup controlId="formFirstname" validationState={this.getValidationState('firstname')}>
-                                    <ControlLabel > Pangalan : </ControlLabel>
-                                    <input type="text" value={this.state.form.data.firstname} className="input-sm form-control" onChange={this.setFormProp} name="firstname" />
-                                    <HelpBlock>{this.getError('firstname')}</HelpBlock>
-                                </FormGroup>
-                            </div>
-
-                            <div className="col-md-3" >
-                                <FormGroup controlId="formMiddlename" validationState={this.getValidationState('middlename')}>
-                                    <ControlLabel > Gitnang Pangalan : </ControlLabel>
-                                    <input type="text" value={this.state.form.data.middlename} className="input-sm form-control" onChange={this.setFormProp} name="middlename" />
-                                    <HelpBlock>{this.getError('middlename')}</HelpBlock>
-                                </FormGroup>
-                            </div>
-
-                            <div className="col-md-1" >
-                                <FormGroup controlId="formExtName" validationState={this.getValidationState('extName')}>
-                                    <ControlLabel > Ext : </ControlLabel>
-                                    <input type="text" value={this.state.form.data.extName} className="input-sm form-control" onChange={this.setFormProp} name="extName" />
-                                    <HelpBlock>{this.getError('extName')}</HelpBlock>
-                                </FormGroup>
-                            </div>
-                        </div>
 
                         <div className="row">
-
-                            <div className="col-md-3" >
-                                <FormGroup controlId="formBirthdate" validationState={this.getValidationState('birthdate')}>
-                                    <ControlLabel > Birthdate : </ControlLabel>
-                                    <input type="date" value={this.state.form.data.birthdate} className="input-sm form-control" onChange={this.setFormProp} name="birthdate" />
-                                    <HelpBlock>{this.getError('birthdate')}</HelpBlock>
-                                </FormGroup>
-                            </div>
-
-                            <div className="col-md-2">
-                                <FormGroup controlId="formGender" validationState={this.getValidationState('gender')}>
-                                    <ControlLabel > Gender : </ControlLabel>
-                                    <select className="input-sm form-control" onChange={this.setFormProp} value={data.gender} name="gender">
-                                        <option value="">- Select -</option>
-                                        <option value="M">Male</option>
-                                        <option value="F">Female</option>
-                                    </select>
-                                    <HelpBlock>{this.getError('gender')}</HelpBlock>
-                                </FormGroup>
-                            </div>
-                        </div>
-                        <div className="row">
-
                             <div className="col-md-3" >
                                 <FormGroup controlId="formCellphone" validationState={this.getValidationState('cellphone')}>
                                     <ControlLabel > Cellphone No : </ControlLabel>
@@ -509,20 +452,11 @@ var HouseholdMemberCreateModal = React.createClass({
                                 </FormGroup>
                             </div>
 
-                            <div className="col-md-3">
-                                <div className="form-group">
-                                    <label className="control-label">Barangay Position</label>
-                                    <select id="other_position_select2" className="form-control form-filter input-sm" name="position">
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="col-md-3">
-                                <FormGroup controlId="formRelationship" validationState={this.getValidationState('relationship')}>
-                                    <ControlLabel > Relationship : </ControlLabel>
-                                    <select id="relationship_select2" className="form-control form-filter input-sm" name="relationship">
-                                    </select>
-                                    <HelpBlock>{this.getError('relationship')}</HelpBlock>
+                            <div className="col-md-3" >
+                                <FormGroup controlId="formBirthdate" validationState={this.getValidationState('birthdate')}>
+                                    <ControlLabel > Birthdate : </ControlLabel>
+                                    <input type="date" value={this.state.form.data.birthdate} className="input-sm form-control" onChange={this.setFormProp} name="birthdate" />
+                                    <HelpBlock>{this.getError('birthdate')}</HelpBlock>
                                 </FormGroup>
                             </div>
                         </div>

@@ -18,7 +18,7 @@ var HouseholdDatatable = React.createClass({
     },
 
     componentDidMount: function () {
-        //this.loadUser(window.userId);
+        this.loadUser(window.userId);
         this.initSelect2();
     },
 
@@ -108,6 +108,58 @@ var HouseholdDatatable = React.createClass({
             }
         });
 
+        
+        $("#household_table #municipality_select2").select2({
+            casesentitive: false,
+            placeholder: "Enter Name...",
+            allowClear: true,
+            delay: 1500,
+            width: '100%',
+            containerCssClass: ':all:',
+            ajax: {
+                url: Routing.generate('ajax_select2_municipality'),
+                data: function (params) {
+                    return {
+                        searchText: params.term,
+                        provinceCode: 53
+                    };
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data.map(function (item) {
+                            return { id: item.municipality_no, text: item.name };
+                        })
+                    };
+                },
+            }
+        });
+
+        $("#household_table #barangay_select2").select2({
+            casesentitive: false,
+            placeholder: "Enter name...",
+            allowClear: true,
+            delay: 1500,
+            width: '100%',
+            containerCssClass: ':all:',
+            ajax: {
+                url: Routing.generate('ajax_select2_barangay'),
+                data: function (params) {
+                    return {
+                        searchText: params.term,
+                        provinceCode: 53,
+                        municipalityNo: $("#household_table #municipality_select2").val()
+                    };
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data.map(function (item) {
+                            return { id: item.brgy_no, text: item.name };
+                        })
+                    };
+                },
+            }
+        });
+
         $("#handler_component #election_select2").on("change", function () {
             var filters = self.state.filters;
             filters.electId = $(this).val();
@@ -125,6 +177,14 @@ var HouseholdDatatable = React.createClass({
             var filters = self.state.filters;
             filters.provinceCode = $(this).val();
             self.setState({ filters: filters }, self.reload);
+        });
+        
+        $("#household_table #municipality_select2").on("change", function () {
+            self.handleFilterChange();
+        });
+
+        $("#household_table #barangay_select2").on("change", function () {
+            self.handleFilterChange();
         });
 
     },
@@ -190,6 +250,7 @@ var HouseholdDatatable = React.createClass({
             src: household_table,
             loadingMessage: 'Loading...',
             "dataTable": {
+                "pageLength": 100,
                 "bState": true,
                 "autoWidth": true,
                 "deferRender": true,
@@ -198,14 +259,15 @@ var HouseholdDatatable = React.createClass({
                     "type": 'GET',
                     "data": function (d) {
                         d.voterName = $('#household_table input[name="voter_name"]').val();
-                        d.municipalityName = $('#household_table input[name="municipality_name"]').val();
-                        d.barangayName = $('#household_table input[name="barangay_name"]').val();
+                        d.municipalityNo = $('#household_table #municipality_select2').val();
+                        d.barangayNo = $('#household_table #barangay_select2').val();
+                        d.householdCode = $('#household_table input[name="household_code"]').val();
                         d.electId = self.state.filters.electId;
                     }
                 },
                 "columnDefs": [{
                     'orderable': false,
-                    'targets': [0, 2, 3, 4, 5]
+                    'targets': [0,2, 6, 7, 8, 9, 10]
                 }, {
                     'className': 'align-center',
                     'targets': [2, 3]
@@ -222,22 +284,44 @@ var HouseholdDatatable = React.createClass({
                             return meta.settings._iDisplayStart + meta.row + 1;
                         }
                     },
-                    { "data": "voter_name" },
-                    { "data": "municipality_name", "className": "text-center", width: 150 },
-                    { "data": "barangay_name", width: 220 },
+                    {
+                        "data": "voter_name",
+                        "render": function (data, type, row) {
+                            return row.is_non_voter == 1 ? '--- ' + data : data;
+                        }
+                    },
+                    { "data": "voter_group", "className": "text-center", width: 50 },
+                    { "data": "municipality_name", "className": "text-center", width: 200 },
+                    { "data": "barangay_name", width: 150 },
+                    { "data": "household_code", width: 80, className: "text-center" },
+                    {
+                        "data": "total_voters",
+                        "className": "text-center",
+                        "width": 50
+                    },
+                    {
+                        "data": "total_non_voters",
+                        "className": "text-center",
+                        "width": 50
+                    },
                     {
                         "data": "total_members",
                         "className": "text-center",
                         "width": 50
                     },
                     {
-                        "width": 90,
+                        "data": "contact_no",
+                        "className": "text-center",
+                        "width": 120
+                    },
+                    {
+                        "width": 80,
                         "className": "text-center",
                         "render": function (data, type, row) {
                             var recruitBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-green recruits-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-calendar'></i></a>";
                             var editBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-primary edit-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-edit'></i></a>";
                             var deleteBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-red-sunglo delete-button' data-toggle='tooltip' data-title='Delete'><i class='fa fa-trash' ></i></a>";
-                            return editBtn + recruitBtn + deleteBtn;
+                            return  recruitBtn + deleteBtn;
                         }
                     }
                 ],
@@ -389,24 +473,41 @@ var HouseholdDatatable = React.createClass({
                     <table id="household_table" className="table table-striped table-bordered" width="100%">
                         <thead>
                             <tr>
-                                <th>No</th>
-                                <th>Household Leader</th>
-                                <th className="text-center">Municipality</th>
-                                <th className="text-center">Barangay</th>
-                                <th className="text-center">Total Members</th>
-                                <th width="60px" className="text-center"></th>
+                                <th rowSpan="2">No</th>
+                                <th rowSpan="2">Name</th>
+                                <th rowSpan="2">Position</th>
+                                <th rowSpan="2" className="text-center">Municipality</th>
+                                <th rowSpan="2" className="text-center">Barangay</th>
+                                <th rowSpan="2" className="text-center">House No.</th>
+                                <th className="text-center" colSpan="3">Household</th>
+                                <th rowSpan="2" className="text-center">Contact #</th>
+                                <th rowSpan="2" width="60px" className="text-center"></th>
+                            </tr>
+                            <tr>
+                                <th className="text-center">Voter</th>
+                                <th className="text-center">Non-Voter</th>
+                                <th className="text-center">Total</th>
                             </tr>
                             <tr>
                                 <td></td>
                                 <td style={{ padding: "10px 5px" }}>
                                     <input type="text" className="form-control form-filter input-sm" name="voter_name" onChange={this.handleFilterChange} />
                                 </td>
-                                <td>
-                                    <input type="text" className="form-control form-filter input-sm" name="municipality_name" onChange={this.handleFilterChange} />
+                                <td></td>
+                                <td style={{ padding: "10px 5px" }}>
+                                    <select id="municipality_select2" className="form-control form-filter input-sm" >
+                                    </select>
+                                </td>
+                                <td style={{ padding: "10px 5px" }}>
+                                    <select id="barangay_select2" className="form-control form-filter input-sm">
+                                    </select>
                                 </td>
                                 <td>
-                                    <input type="text" className="form-control form-filter input-sm" name="barangay_name" onChange={this.handleFilterChange} />
+                                    <input type="text" className="form-control form-filter input-sm" name="household_code" onChange={this.handleFilterChange} />
                                 </td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
                                 <td></td>
                                 <td></td>
                             </tr>

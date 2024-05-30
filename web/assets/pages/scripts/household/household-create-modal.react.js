@@ -32,7 +32,7 @@ var HouseholdCreateModal = React.createClass({
         var data = this.state.form.data;
 
         return (
-            <Modal style={{ marginTop: "10px" }} keyboard={false} dialogClassName="modal-custom-85" enforceFocus={false} backdrop="static" show={this.props.show} onHide={this.props.onHide}>
+            <Modal style={{ marginTop: "10px" }} keyboard={false} bsSize="lg" enforceFocus={false} backdrop="static" show={this.props.show} onHide={this.props.onHide}>
                 <Modal.Header className="modal-header bg-blue-dark font-white" closeButton>
                     <Modal.Title>Household Form</Modal.Title>
                 </Modal.Header>
@@ -52,7 +52,7 @@ var HouseholdCreateModal = React.createClass({
 
                     <form id="household-create-form" onSubmit={this.submit}>
                         <div className="row">
-                            <div className="col-md-2">
+                            <div className="col-md-3">
                                 <div className="form-group">
                                     <label className="control-label">City/Municipality</label>
                                     <select id="municipality_select2" className="form-control form-filter input-sm" name="municipalityNo">
@@ -61,7 +61,7 @@ var HouseholdCreateModal = React.createClass({
                                 </div>
                             </div>
 
-                            <div className="col-md-2">
+                            <div className="col-md-3">
                                 <FormGroup controlId="formBarangay" validationState={this.getValidationState('barangayNo')}>
                                     <label className="control-label">Barangay</label>
                                     <select id="barangay_select2" className="form-control form-filter input-sm" name="brgyNo">
@@ -72,7 +72,7 @@ var HouseholdCreateModal = React.createClass({
                         </div>
 
                         <div className="row">
-                            <div className="col-md-6">
+                            <div className="col-md-8">
                                 <FormGroup controlId="formVoterName" validationState={this.getValidationState('voterName')}>
                                     <ControlLabel > Household Leader : </ControlLabel>
                                     <select id="voter-recruit-select2" className="form-control input-sm">
@@ -81,48 +81,13 @@ var HouseholdCreateModal = React.createClass({
                                 </FormGroup>
                             </div>
 
-                            <div className="col-md-3">
-                                <button style={{ marginTop: "25px" }} onClick={this.openNewVoterCreateModal} className="btn btn-primary btn-sm" type="button"> New Voter </button>
+                            <div className="col-md-2">
+                                <button style={{ marginTop: "26px" }} onClick={this.openNewVoterCreateModal} className="btn btn-primary btn-sm" type="button"> New Voter </button>
                             </div>
                         </div>
 
                         <div className="row">
-
-                            <div className="col-md-2" >
-                                <FormGroup controlId="formLastname" validationState={this.getValidationState('lastname')}>
-                                    <ControlLabel > Apelyido : </ControlLabel>
-                                    <input type="text" value={this.state.form.data.lastname} className="input-sm form-control" onChange={this.setFormProp} name="lastname" />
-                                    <HelpBlock>{this.getError('lastname')}</HelpBlock>
-                                </FormGroup>
-                            </div>
-
-                            <div className="col-md-2" >
-                                <FormGroup controlId="formFirstname" validationState={this.getValidationState('firstname')}>
-                                    <ControlLabel > Pangalan : </ControlLabel>
-                                    <input type="text" value={this.state.form.data.firstname} className="input-sm form-control" onChange={this.setFormProp} name="firstname" />
-                                    <HelpBlock>{this.getError('firstname')}</HelpBlock>
-                                </FormGroup>
-                            </div>
-
-                            <div className="col-md-2" >
-                                <FormGroup controlId="formMiddlename" validationState={this.getValidationState('middlename')}>
-                                    <ControlLabel > Gitnang Pangalan : </ControlLabel>
-                                    <input type="text" value={this.state.form.data.middlename} className="input-sm form-control" onChange={this.setFormProp} name="middlename" />
-                                    <HelpBlock>{this.getError('middlename')}</HelpBlock>
-                                </FormGroup>
-                            </div>
-
-                            <div className="col-md-1" >
-                                <FormGroup controlId="formExtName" validationState={this.getValidationState('extName')}>
-                                    <ControlLabel > Ext : </ControlLabel>
-                                    <input type="text" value={this.state.form.data.extName} className="input-sm form-control" onChange={this.setFormProp} name="extName" />
-                                    <HelpBlock>{this.getError('extName')}</HelpBlock>
-                                </FormGroup>
-                            </div>
-                        </div>
-
-                        <div className="row">
-                            <div className="col-md-2" >
+                            <div className="col-md-3" >
                                 <FormGroup controlId="formCellphoneNo" validationState={this.getValidationState('cellphone')}>
                                     <ControlLabel > Cellphone No : </ControlLabel>
                                     <input type="text" placeholder="Example : 09283182013" value={this.state.form.data.cellphoneNo} className="input-sm form-control" onChange={this.setFormProp} name="cellphoneNo" />
@@ -130,146 +95,11 @@ var HouseholdCreateModal = React.createClass({
                                 </FormGroup>
                             </div>
 
-                            <div className="col-md-2" >
+                            <div className="col-md-3" >
                                 <FormGroup controlId="formBirthdate" validationState={this.getValidationState('birthdate')}>
                                     <ControlLabel > Birthdate : </ControlLabel>
                                     <input type="date" value={this.state.form.data.birthdate} className="input-sm form-control" onChange={this.setFormProp} name="birthdate" />
                                     <HelpBlock>{this.getError('birthdate')}</HelpBlock>
-                                </FormGroup>
-                            </div>
-
-                            <div className="col-md-2">
-                                <FormGroup controlId="formGender" validationState={this.getValidationState('gender')}>
-                                    <ControlLabel > Kasarian : </ControlLabel>
-                                    <select className="input-sm form-control" onChange={this.setFormProp} value={data.gender} name="gender">
-                                        <option value="">- Select -</option>
-                                        <option value="M">Male</option>
-                                        <option value="F">Female</option>
-                                    </select>
-                                    <HelpBlock>{this.getError('gender')}</HelpBlock>
-                                </FormGroup>
-                            </div>
-                        </div>
-
-                        <div className="row">
-                            <div className="col-md-2">
-                                <div className="form-group">
-                                    <label className="control-label">Civil Status</label>
-                                    <select id="civil_status_select2" className="form-control form-filter input-sm" name="civilStatus">
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="col-md-1">
-                                <div className="form-group">
-                                    <label className="control-label">Blood</label>
-                                    <select id="bloodtype_select2" className="form-control form-filter input-sm" name="bloodtype">
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="col-md-2">
-                                <div className="form-group">
-                                    <label className="control-label">Occupation</label>
-                                    <select id="occupation_select2" className="form-control form-filter input-sm" name="occupation">
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="col-md-2">
-                                <div className="form-group">
-                                    <label className="control-label">Ip Group</label>
-                                    <select id="ip_group_select2" className="form-control form-filter input-sm" name="ipGroup">
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="col-md-2">
-                                <div className="form-group">
-                                    <label className="control-label">JPM Position</label>
-                                    <select id="voter_group_select2" className="form-control form-filter input-sm" name="voterGroup">
-                                    </select>
-                                </div>
-                            </div>
-
-                            <div className="col-md-2">
-                                <div className="form-group">
-                                    <label className="control-label">Barangay Position</label>
-                                    <select id="other_position_select2" className="form-control form-filter input-sm" name="position">
-                                    </select>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div className="row">
-                            <div className="col-md-2">
-                                <label className="mt-checkbox">
-                                    <input type="checkbox" name="isTagalog" checked={data.isTagalog == 1} onChange={this.setFormCheckProp} />
-                                    Is Tagalog
-                                    <span></span>
-                                </label>
-                                <br />
-                                <label className="mt-checkbox">
-                                    <input type="checkbox" name="isCuyonon" checked={data.isCuyonon == 1} onChange={this.setFormCheckProp} />
-                                         Is Cuyonon
-                                    <span></span>
-                                </label>
-                            </div>
-
-                            <div className="col-md-2">
-                                <label className="mt-checkbox">
-                                    <input type="checkbox" name="isIlonggo" checked={data.isIlonggo == 1} onChange={this.setFormCheckProp} />
-                                        Is Ilonggo
-                                    <span></span>
-                                </label>
-                                <br />
-                                <label className="mt-checkbox">
-                                    <input type="checkbox" name="isBisaya" checked={data.isBisaya == 1} onChange={this.setFormCheckProp} />
-                                        Is Bisaya
-                                    <span></span>
-                                </label>
-                            </div>
-                            
-                            <div className="col-md-2">
-                                <FormGroup controlId="formDialect" validationState={this.getValidationState('dialect')}>
-                                    <ControlLabel > Other Dialect : </ControlLabel>
-                                    <select id="dialect_select2" className="form-control form-filter input-sm" name="dialect">
-                                    </select>
-                                    <HelpBlock>{this.getError('dialect')}</HelpBlock>
-                                </FormGroup>
-                            </div>
-                        </div>
-
-
-                        <div className="row" style={{ marginTop : "15px"}}>
-                            <div className="col-md-2">
-                                <label className="mt-checkbox">
-                                    <input type="checkbox" name="isCatholic" checked={data.isCatholic == 1} onChange={this.setFormCheckProp} />
-                                    Is Catholic
-                                    <span></span>
-                                </label>
-                                <br />
-                                <label className="mt-checkbox">
-                                    <input type="checkbox" name="isInc" checked={data.isInc == 1} onChange={this.setFormCheckProp} />
-                                    Is INC
-                                    <span></span>
-                                </label>
-                            </div>
-
-                            <div className="col-md-2">
-                                <label className="mt-checkbox">
-                                    <input type="checkbox" name="isIslam" checked={data.isIslam == 1} onChange={this.setFormCheckProp} />
-                                    Is Islam
-                                    <span></span>
-                                </label>
-                            </div>
-
-                            <div className="col-md-2">
-                                <FormGroup controlId="formReligion" validationState={this.getValidationState('religion')}>
-                                    <ControlLabel > Other Religion : </ControlLabel>
-                                    <select id="religion_select2" className="form-control form-filter input-sm" name="religion">
-                                    </select>
-                                    <HelpBlock>{this.getError('religion')}</HelpBlock>
                                 </FormGroup>
                             </div>
                         </div>
@@ -502,6 +332,37 @@ var HouseholdCreateModal = React.createClass({
             }
         });
 
+        $("#household-create-form #religion_select2").select2({
+            casesentitive: false,
+            placeholder: "Select...",
+            allowClear: true,
+            width: '100%',
+            containerCssClass: ':all:',
+            tags: true,
+            createTag: function (params) {
+                return {
+                    id: params.term,
+                    text: params.term,
+                    newOption: true
+                }
+            },
+            ajax: {
+                url: Routing.generate('ajax_select2_religion'),
+                data: function (params) {
+                    return {
+                        searchText: params.term
+                    };
+                },
+                processResults: function (data, params) {
+                    return {
+                        results: data.map(function (item) {
+                            return { id: item.religion, text: item.religion };
+                        })
+                    };
+                },
+            }
+        });
+
         $("#household-create-form #dialect_select2").select2({
             casesentitive: false,
             placeholder: "Select...",
@@ -527,100 +388,6 @@ var HouseholdCreateModal = React.createClass({
                     return {
                         results: data.map(function (item) {
                             return { id: item.dialect, text: item.dialect };
-                        })
-                    };
-                },
-            }
-        });
-
-
-        $("#household-create-form #ip_group_select2").select2({
-            casesentitive: false,
-            placeholder: "Select...",
-            allowClear: true,
-            width: '100%',
-            containerCssClass: ':all:',
-            tags: true,
-            createTag: function (params) {
-                return {
-                    id: params.term,
-                    text: params.term,
-                    newOption: true
-                }
-            },
-            ajax: {
-                url: Routing.generate('ajax_select2_ip_group'),
-                data: function (params) {
-                    return {
-                        searchText: params.term
-                    };
-                },
-                processResults: function (data, params) {
-                    return {
-                        results: data.map(function (item) {
-                            return { id: item.ip_group, text: item.ip_group };
-                        })
-                    };
-                },
-            }
-        });
-
-        $("#household-create-form #voter_group_select2").select2({
-            casesentitive: false,
-            placeholder: "Select...",
-            allowClear: true,
-            width: '100%',
-            containerCssClass: ':all:',
-            tags: true,
-            createTag: function (params) {
-                return {
-                    id: params.term,
-                    text: params.term,
-                    newOption: true
-                }
-            },
-            ajax: {
-                url: Routing.generate('ajax_select2_voter_group'),
-                data: function (params) {
-                    return {
-                        searchText: params.term
-                    };
-                },
-                processResults: function (data, params) {
-                    return {
-                        results: data.map(function (item) {
-                            return { id: item.voter_group, text: item.voter_group };
-                        })
-                    };
-                },
-            }
-        });
-
-        $("#household-create-form #other_position_select2").select2({
-            casesentitive: false,
-            placeholder: "Select...",
-            allowClear: true,
-            width: '100%',
-            containerCssClass: ':all:',
-            tags: true,
-            createTag: function (params) {
-                return {
-                    id: params.term,
-                    text: params.term,
-                    newOption: true
-                }
-            },
-            ajax: {
-                url: Routing.generate('ajax_select2_voter_position'),
-                data: function (params) {
-                    return {
-                        searchText: params.term
-                    };
-                },
-                processResults: function (data, params) {
-                    return {
-                        results: data.map(function (item) {
-                            return { id: item.position, text: item.position };
                         })
                     };
                 },

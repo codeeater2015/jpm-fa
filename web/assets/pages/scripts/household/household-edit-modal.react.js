@@ -132,7 +132,7 @@ var HouseholdEditModal = React.createClass({
                             </div>
                         </div>
 
-                        <div className="row">
+                        {/* <div className="row">
                             <div className="col-md-2">
                                 <div className="form-group">
                                     <label className="control-label">Civil Status</label>
@@ -253,7 +253,7 @@ var HouseholdEditModal = React.createClass({
                                     <HelpBlock>{this.getError('religion')}</HelpBlock>
                                 </FormGroup>
                             </div>
-                        </div>
+                        </div> */}
 
                         <div className="row">
                             <div className="col-md-12 text-right">

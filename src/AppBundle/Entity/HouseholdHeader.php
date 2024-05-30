@@ -46,7 +46,6 @@ class HouseholdHeader
      * @var string
      *
      * @ORM\Column(name="pro_id_code", type="string", length=30)
-     * @Assert\NotBlank()
      */
     private $proIdCode;
 
@@ -126,7 +125,6 @@ class HouseholdHeader
     /**
      * @var string
      *
-     * @Assert\NotBlank()
      */
     private $gender;
 
@@ -179,6 +177,12 @@ class HouseholdHeader
      */
     private $cellphone;
 
+     /**
+     * @var int
+     *
+     * @ORM\Column(name="contact_no", type="string")
+     */
+    private $contactNo;
     
     /**
      * @var string
@@ -1203,5 +1207,29 @@ class HouseholdHeader
     public function getPosition()
     {
         return $this->position;
+    }
+
+    /**
+     * Set contactNo
+     *
+     * @param string $contactNo
+     *
+     * @return HouseholdHeader
+     */
+    public function setContactNo($contactNo)
+    {
+        $this->contactNo = $contactNo;
+
+        return $this;
+    }
+
+    /**
+     * Get contactNo
+     *
+     * @return string
+     */
+    public function getContactNo()
+    {
+        return $this->contactNo;
     }
 }

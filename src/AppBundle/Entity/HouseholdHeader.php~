@@ -12,7 +12,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  * @ORM\Table(name="tbl_household_hdr")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\HouseholdHeaderRepository")
  * @UniqueEntity(fields={"householdCode"},message="This household id already exists.", errorPath="householdCode")
- * @UniqueEntity(fields={"householdCode","voterName"},message="This leader name already exists.", errorPath="voterName")
+ * @UniqueEntity(fields={"voterName"},message="This leader name already exists.", errorPath="voterName")
  */
 class HouseholdHeader
 {
@@ -41,6 +41,13 @@ class HouseholdHeader
      * @Assert\NotBlank()
      */
     private $proVoterId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="pro_id_code", type="string", length=30)
+     */
+    private $proIdCode;
 
     /**
      * @var int
@@ -91,7 +98,6 @@ class HouseholdHeader
     /**
      * @var string
      *
-     * @ORM\Column(name="firstname", type="string", length=150)
      * @Assert\NotBlank()
      */
     private $firstname;
@@ -99,7 +105,6 @@ class HouseholdHeader
      /**
      * @var string
      *
-     * @ORM\Column(name="middlename", type="string", length=150)
      * @Assert\NotBlank()
      */
     private $middlename;
@@ -107,7 +112,6 @@ class HouseholdHeader
      /**
      * @var string
      *
-     * @ORM\Column(name="lastname", type="string", length=150)
      * @Assert\NotBlank()
      */
     private $lastname;
@@ -115,83 +119,124 @@ class HouseholdHeader
      /**
      * @var string
      *
-     * @ORM\Column(name="ext_name", type="string", length=150)
      */
     private $extname;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="gender", type="string", length=15)
-     * @Assert\NotBlank()
      */
     private $gender;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="civil_status", type="string", length=50)
      */
     private $civilStatus;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="bloodtype", type="string", length=15)
      */
     private $bloodtype;
-
     
     /**
      * @var string
      *
-     * @ORM\Column(name="occupation", type="string", length=150)
      */
     private $occupation;
      
     /**
      * @var string
      *
-     * @ORM\Column(name="ip_group", type="string", length=150)
      */
     private $ipGroup;
 
     /**
      * @var string
      *
-     * @ORM\Column(name="dialect", type="string", length=150)
      */
     private $dialect;
 
       /**
      * @var string
      *
-     * @ORM\Column(name="religion", type="string", length=150)
      */
     private $religion;
+
+     /**
+     * @var string
+     *
+     */
+    private $position;
     
       /**
      * @var string
      *
      * @Assert\Regex("/^(09)\d{9}$/")
-     * @ORM\Column(name="cellphone", type="string", length=30)
      */
     private $cellphone;
 
+     /**
+     * @var int
+     *
+     * @ORM\Column(name="contact_no", type="string")
+     */
+    private $contactNo;
     
     /**
      * @var string
      *
-     * @ORM\Column(name="voter_group", type="string", length=30)
      */
     private $voterGroup;
 
      /**
      * @var string
      *
-     * @ORM\Column(name="birthdate", type="string", length=30)
      */
     private $birthdate;
+
+    /**
+     * @var int
+     *
+     */
+    private $isBisaya;
+
+     /**
+     * @var int
+     *
+     */
+    private $isCuyonon;
+
+    /**
+     * @var int
+     *
+     */
+    private $isTagalog;
+
+     /**
+     * @var int
+     *
+     */
+    private $isIlonggo;
+
+    /**
+     * @var int
+     *
+     */
+    private $isCatholic;
+
+    /**
+     * @var int
+     *
+     */
+    private $isInc;
+
+    /**
+     * @var int
+     *
+     */
+    private $isIslam;
 
     /**
      * @var string
@@ -922,5 +967,245 @@ class HouseholdHeader
     public function getBirthdate()
     {
         return $this->birthdate;
+    }
+
+    /**
+     * Set gender
+     *
+     * @param string $gender
+     *
+     * @return HouseholdHeader
+     */
+    public function setGender($gender)
+    {
+        $this->gender = $gender;
+
+        return $this;
+    }
+
+    /**
+     * Get gender
+     *
+     * @return string
+     */
+    public function getGender()
+    {
+        return $this->gender;
+    }
+
+    /**
+     * Set proIdCode
+     *
+     * @param string $proIdCode
+     *
+     * @return ProjectVoter
+     */
+    public function setProIdCode($proIdCode)
+    {
+        $this->proIdCode = $proIdCode;
+
+        return $this;
+    }
+
+    /**
+     * Get proIdCode
+     *
+     * @return string
+     */
+    public function getProIdCode()
+    {
+        return $this->proIdCode;
+    }
+
+    /**
+     * Set isBisaya
+     *
+     * @param integer $isBisaya
+     *
+     * @return ProjectVoter
+     */
+    public function setIsBisaya($isBisaya)
+    {
+        $this->isBisaya = $isBisaya;
+
+        return $this;
+    }
+
+    /**
+     * Get isBisaya
+     *
+     * @return integer
+     */
+    public function getIsBisaya()
+    {
+        return $this->isBisaya;
+    }
+
+    /**
+     * Set isCuyonon
+     *
+     * @param integer $isCuyonon
+     *
+     * @return ProjectVoter
+     */
+    public function setIsCuyonon($isCuyonon)
+    {
+        $this->isCuyonon = $isCuyonon;
+
+        return $this;
+    }
+
+    /**
+     * Get isCuyonon
+     *
+     * @return integer
+     */
+    public function getIsCuyonon()
+    {
+        return $this->isCuyonon;
+    }
+
+    /**
+     * Set isTagalog
+     *
+     * @param integer $isTagalog
+     *
+     * @return ProjectVoter
+     */
+    public function setIsTagalog($isTagalog)
+    {
+        $this->isTagalog = $isTagalog;
+
+        return $this;
+    }
+
+    /**
+     * Get isTagalog
+     *
+     * @return integer
+     */
+    public function getIsTagalog()
+    {
+        return $this->isTagalog;
+    }
+
+    /**
+     * Set isIlonggo
+     *
+     * @param integer $isIlonggo
+     *
+     * @return ProjectVoter
+     */
+    public function setIsIlonggo($isIlonggo)
+    {
+        $this->isIlonggo = $isIlonggo;
+
+        return $this;
+    }
+
+    /**
+     * Get isIlonggo
+     *
+     * @return integer
+     */
+    public function getIsIlonggo()
+    {
+        return $this->isIlonggo;
+    }
+
+    /**
+     * Set isCatholic
+     *
+     * @param integer $isCatholic
+     *
+     * @return ProjectVoter
+     */
+    public function setIsCatholic($isCatholic)
+    {
+        $this->isCatholic = $isCatholic;
+
+        return $this;
+    }
+
+    /**
+     * Get isCatholic
+     *
+     * @return integer
+     */
+    public function getIsCatholic()
+    {
+        return $this->isCatholic;
+    }
+
+    /**
+     * Set isInc
+     *
+     * @param integer $isInc
+     *
+     * @return ProjectVoter
+     */
+    public function setIsInc($isInc)
+    {
+        $this->isInc = $isInc;
+
+        return $this;
+    }
+
+    /**
+     * Get isInc
+     *
+     * @return integer
+     */
+    public function getIsInc()
+    {
+        return $this->isInc;
+    }
+
+    /**
+     * Set isIslam
+     *
+     * @param integer $isIslam
+     *
+     * @return ProjectVoter
+     */
+    public function setIsIslam($isIslam)
+    {
+        $this->isIslam = $isIslam;
+
+        return $this;
+    }
+
+    /**
+     * Get isIslam
+     *
+     * @return integer
+     */
+    public function getIsIslam()
+    {
+        return $this->isIslam;
+    }
+
+    /**
+     * Set position
+     *
+     * @param string $position
+     *
+     * @return ProjectVoter
+     */
+    public function setPosition($position)
+    {
+        $this->position = $position;
+
+        return $this;
+    }
+
+    /**
+     * Get position
+     *
+     * @return string
+     */
+    public function getPosition()
+    {
+        return $this->position;
     }
 }

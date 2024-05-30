@@ -38,20 +38,21 @@ class HouseholdController extends Controller
     }
 
     /**
-    * @Route("/ajax_post_household_header", 
-    * 	name="ajax_post_household_header",
-    *	options={"expose" = true}
-    * )
-    * @Method("POST")
-    */
+     * @Route("/ajax_post_household_header", 
+     * 	name="ajax_post_household_header",
+     *	options={"expose" = true}
+     * )
+     * @Method("POST")
+     */
 
-    public function ajaxPostHouseholdHeaderAction(Request $request){
+    public function ajaxPostHouseholdHeaderAction(Request $request)
+    {
         $user = $this->get("security.token_storage")->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
 
         $entity = new HouseholdHeader();
         $entity->setElectId($request->get('electId'));
-    	$entity->setProVoterId($request->get('proVoterId'));
+        $entity->setProVoterId($request->get('proVoterId'));
         $entity->setHouseholdNo($this->getNewHouseholdNo());
         $entity->setHouseholdCode(sprintf("%06d", $entity->getHouseholdNo()));
         $entity->setMunicipalityNo($request->get('municipalityNo'));
@@ -62,67 +63,67 @@ class HouseholdController extends Controller
         $entity->setMiddlename($request->get('middlename'));
         $entity->setExtName($request->get('extName'));
         $entity->setGender($request->get('gender'));
-        
-        $entity->setIsTagalog($request->get('isTagalog'));
-        $entity->setIsCuyonon($request->get('isCuyonon'));
-        $entity->setIsBisaya($request->get('isBisaya'));
-        $entity->setIsIlonggo($request->get('isIlonggo'));
 
-        $entity->setIsCatholic($request->get('isCatholic'));
-        $entity->setIsInc($request->get('isInc'));
-        $entity->setIsIslam($request->get('isIslam'));
-        $entity->setCellphone($request->get('cellphoneNo'));
-        $entity->setPosition($request->get('position'));
+        // $entity->setIsTagalog($request->get('isTagalog'));
+        // $entity->setIsCuyonon($request->get('isCuyonon'));
+        // $entity->setIsBisaya($request->get('isBisaya'));
+        // $entity->setIsIlonggo($request->get('isIlonggo'));
+
+        // $entity->setIsCatholic($request->get('isCatholic'));
+        // $entity->setIsInc($request->get('isInc'));
+        // $entity->setIsIslam($request->get('isIslam'));
+        // $entity->setCellphone($request->get('cellphoneNo'));
+        // $entity->setPosition($request->get('position'));
 
         $entity->setCreatedAt(new \DateTime());
         $entity->setCreatedBy($user->getUsername());
         $entity->setRemarks($request->get('remarks'));
-    	$entity->setStatus(self::STATUS_ACTIVE);
+        $entity->setStatus(self::STATUS_ACTIVE);
 
         $proVoter = $em->getRepository("AppBundle:ProjectVoter")->findOneBy(['proVoterId' => intval($request->get('proVoterId'))]);
 
-        if($proVoter){
-            if(!empty($request->get('cellphoneNo')))
+        if ($proVoter) {
+            if (!empty($request->get('cellphoneNo')))
                 $proVoter->setCellphone($request->get('cellphoneNo'));
-            
+
             $proVoter->setFirstname($entity->getFirstname());
             $proVoter->setMiddlename($entity->getMiddlename());
             $proVoter->setLastname($entity->getLastname());
             $proVoter->setExtname($entity->getExtName());
             $proVoter->setGender($entity->getGender());
             $proVoter->setBirthdate(trim($request->get('birthdate')));
-            $proVoter->setCivilStatus(trim(strtoupper($request->get('civilStatus'))));
-            $proVoter->setBloodtype(trim(strtoupper($request->get('bloodtype'))));
-            $proVoter->setOccupation(trim(strtoupper($request->get('occupation'))));
-            $proVoter->setReligion(trim(strtoupper($request->get('religion'))));
-            $proVoter->setDialect(trim(strtoupper($request->get('dialect'))));
-            $proVoter->setIpGroup(trim(strtoupper($request->get('ipGroup'))));
+            // $proVoter->setCivilStatus(trim(strtoupper($request->get('civilStatus'))));
+            // $proVoter->setBloodtype(trim(strtoupper($request->get('bloodtype'))));
+            // $proVoter->setOccupation(trim(strtoupper($request->get('occupation'))));
+            // $proVoter->setReligion(trim(strtoupper($request->get('religion'))));
+            // $proVoter->setDialect(trim(strtoupper($request->get('dialect'))));
+            // $proVoter->setIpGroup(trim(strtoupper($request->get('ipGroup'))));
             $proVoter->setVoterGroup(trim(strtoupper($request->get('voterGroup'))));
-            
-            $proVoter->setIsTagalog($entity->getIsTagalog());
-            $proVoter->setIsCuyonon($entity->getIsCuyonon());
-            $proVoter->setIsBisaya($entity->getIsBisaya());
-            $proVoter->setIsIlonggo($entity->getIsIlonggo());
 
-            $proVoter->setIsCatholic($entity->getIsCatholic());
-            $proVoter->setIsInc($entity->getIsInc());
-            $proVoter->setIsIslam($entity->getIsIslam());
-            $proVoter->setPosition($entity->getPosition());
+            // $proVoter->setIsTagalog($entity->getIsTagalog());
+            // $proVoter->setIsCuyonon($entity->getIsCuyonon());
+            // $proVoter->setIsBisaya($entity->getIsBisaya());
+            // $proVoter->setIsIlonggo($entity->getIsIlonggo());
+
+            // $proVoter->setIsCatholic($entity->getIsCatholic());
+            // $proVoter->setIsInc($entity->getIsInc());
+            // $proVoter->setIsIslam($entity->getIsIslam());
+            // $proVoter->setPosition($entity->getPosition());
 
             $entity->setVoterName($proVoter->getVoterName());
             $entity->setProIdCode($proVoter->getProIdCode());
         }
 
-    	$validator = $this->get('validator');
+        $validator = $this->get('validator');
         $violations = $validator->validate($entity);
 
         $errors = [];
 
-        if(count($violations) > 0){
-            foreach( $violations as $violation ){
-                $errors[$violation->getPropertyPath()] =  $violation->getMessage();
+        if (count($violations) > 0) {
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()] = $violation->getMessage();
             }
-            return new JsonResponse($errors,400);
+            return new JsonResponse($errors, 400);
         }
 
         $sql = "SELECT * FROM psw_municipality 
@@ -131,38 +132,39 @@ class HouseholdController extends Controller
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, 53);
-        $stmt->bindValue(2,$entity->getMunicipalityNo());
+        $stmt->bindValue(2, $entity->getMunicipalityNo());
         $stmt->execute();
 
         $municipality = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        if($municipality != null)
+        if ($municipality != null)
             $entity->setMunicipalityName($municipality['name']);
 
         $sql = "SELECT * FROM psw_barangay 
         WHERE brgy_code = ? ";
 
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1,53 . $entity->getMunicipalityNo() . $entity->getBarangayNo());
+        $stmt->bindValue(1, 53 . $entity->getMunicipalityNo() . $entity->getBarangayNo());
         $stmt->execute();
 
         $barangay = $stmt->fetch(\PDO::FETCH_ASSOC);
-        
-        if($barangay != null)
+
+        if ($barangay != null)
             $entity->setBarangayName($barangay['name']);
 
         $em->persist($entity);
         $em->flush();
-    	$em->clear();
+        $em->clear();
 
-    	$serializer = $this->get('serializer');
+        $serializer = $this->get('serializer');
 
-    	return new JsonResponse($serializer->normalize($entity));
+        return new JsonResponse($serializer->normalize($entity));
     }
 
-    private function getNewHouseholdNo(){
+    private function getNewHouseholdNo()
+    {
         $householdNo = 1;
-       
+
         $em = $this->getDoctrine()->getManager();
 
         $sql = "SELECT household_no FROM tbl_household_hdr ORDER BY household_no DESC LIMIT 1 ";
@@ -171,7 +173,7 @@ class HouseholdController extends Controller
 
         $request = $stmt->fetch();
 
-        if($request){
+        if ($request) {
             $householdNo = intval($request['household_no']) + 1;
         }
 
@@ -179,24 +181,25 @@ class HouseholdController extends Controller
     }
 
     /**
-    * @Route("/ajax_patch_household_header/{householdId}", 
-    * 	name="ajax_patch_household_header",
-    *	options={"expose" = true}
-    * )
-    * @Method("PATCH")
-    */
+     * @Route("/ajax_patch_household_header/{householdId}", 
+     * 	name="ajax_patch_household_header",
+     *	options={"expose" = true}
+     * )
+     * @Method("PATCH")
+     */
 
-    public function ajaxPatchHouseholdHeaderAction(Request $request,$householdId){
+    public function ajaxPatchHouseholdHeaderAction(Request $request, $householdId)
+    {
         $user = $this->get("security.token_storage")->getToken()->getUser();
         $em = $this->getDoctrine()->getManager();
 
         $entity = $em->getRepository("AppBundle:HouseholdHeader")
-                    ->find($householdId);
-        
-        if(!$entity)
-            return new JsonResponse([],404);
-        
-    	$entity->setProVoterId($request->get('proVoterId'));
+            ->find($householdId);
+
+        if (!$entity)
+            return new JsonResponse([], 404);
+
+        $entity->setProVoterId($request->get('proVoterId'));
         $entity->setMunicipalityNo($request->get('municipalityNo'));
         $entity->setBarangayNo($request->get('barangayNo'));
 
@@ -217,16 +220,16 @@ class HouseholdController extends Controller
         $entity->setIsIslam($request->get('isIslam'));
         $entity->setCellphone($request->get('cellphoneNo'));
 
-    	$validator = $this->get('validator');
+        $validator = $this->get('validator');
         $violations = $validator->validate($entity);
 
         $errors = [];
 
-        if(count($violations) > 0){
-            foreach( $violations as $violation ){
-                $errors[$violation->getPropertyPath()] =  $violation->getMessage();
+        if (count($violations) > 0) {
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()] = $violation->getMessage();
             }
-            return new JsonResponse($errors,400);
+            return new JsonResponse($errors, 400);
         }
 
         $sql = "SELECT * FROM psw_municipality 
@@ -235,33 +238,33 @@ class HouseholdController extends Controller
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, 53);
-        $stmt->bindValue(2,$entity->getMunicipalityNo());
+        $stmt->bindValue(2, $entity->getMunicipalityNo());
         $stmt->execute();
 
         $municipality = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        if($municipality != null)
+        if ($municipality != null)
             $entity->setMunicipalityName($municipality['name']);
 
         $sql = "SELECT * FROM psw_barangay 
         WHERE brgy_code = ? ";
 
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1,53 . $entity->getMunicipalityNo() . $entity->getBarangayNo());
+        $stmt->bindValue(1, 53 . $entity->getMunicipalityNo() . $entity->getBarangayNo());
         $stmt->execute();
 
         $barangay = $stmt->fetch(\PDO::FETCH_ASSOC);
-        
-        if($barangay != null)
+
+        if ($barangay != null)
             $entity->setBarangayName($barangay['name']);
 
 
         $proVoter = $em->getRepository("AppBundle:ProjectVoter")->findOneBy(['proVoterId' => intval($request->get('proVoterId'))]);
 
-        if($proVoter){
-            if(!empty($request->get('cellphoneNo')))
+        if ($proVoter) {
+            if (!empty($request->get('cellphoneNo')))
                 $proVoter->setCellphone($request->get('cellphoneNo'));
-            
+
             $proVoter->setFirstname($entity->getFirstname());
             $proVoter->setMiddlename($entity->getMiddlename());
             $proVoter->setLastname($entity->getLastname());
@@ -277,7 +280,7 @@ class HouseholdController extends Controller
             $proVoter->setVoterGroup(trim(strtoupper($request->get('voterGroup'))));
             $proVoter->setPosition(trim(strtoupper($request->get('position'))));
 
-                        
+
             $proVoter->setIsTagalog($entity->getIsTagalog());
             $proVoter->setIsCuyonon($entity->getIsCuyonon());
             $proVoter->setIsBisaya($entity->getIsBisaya());
@@ -286,44 +289,47 @@ class HouseholdController extends Controller
             $proVoter->setIsCatholic($entity->getIsCatholic());
             $proVoter->setIsInc($entity->getIsInc());
             $proVoter->setIsIslam($entity->getIsIslam());
-            
+
             $entity->setVoterName($proVoter->getVoterName());
             $entity->setProIdCode($proVoter->getProIdCode());
         }
 
         $em->flush();
-    	$em->clear();
+        $em->clear();
 
-    	$serializer = $this->get('serializer');
+        $serializer = $this->get('serializer');
 
-    	return new JsonResponse($serializer->normalize($entity));
+        return new JsonResponse($serializer->normalize($entity));
     }
 
-    
+
     /**
      * @Route("/ajax_get_datatable_household_header", name="ajax_get_datatable_household_header", options={"expose"=true})
      * @Method("GET")
      * @param Request $request
      * @return JsonResponse
      */
-    
-	public function ajaxGetDatatableHouseholdHeaderAction(Request $request)
-	{	
+
+    public function ajaxGetDatatableHouseholdHeaderAction(Request $request)
+    {
         $columns = array(
             0 => "h.household_code",
             1 => "h.voter_name",
-            2 => "h.municipality_name",
-            3 => "h.barangay_name"
+            2 => "h.voter_name",
+            3 => "h.municipality_name",
+            4 => "h.barangay_name",
+            5 => "h.household_code",
         );
 
         $sWhere = "";
-    
+
         $select['h.voter_name'] = $request->get("voterName");
         $select['h.municipality_name'] = $request->get("municipalityName");
         $select['h.barangay_name'] = $request->get("barangayName");
         $select['h.elect_id'] = $request->get("electId");
         $select['h.municipality_no'] = $request->get("municipalityNo");
-        $select['h.brgy_no'] = $request->get("barangayNo");
+        $select['h.barangay_no'] = $request->get("barangayNo");
+        $select['h.household_code'] = $request->get("householdCode");
 
         foreach ($select as $key => $value) {
             $searchValue = $select[$key];
@@ -338,21 +344,18 @@ class HouseholdController extends Controller
 
         $sOrder = "";
 
-        if(null !== $request->query->get('order')){
+        if (null !== $request->query->get('order')) {
             $sOrder = "ORDER BY  ";
-            for ( $i=0 ; $i<intval(count($request->query->get('order'))); $i++ )
-            {
-                if ( $request->query->get('columns')[$request->query->get('order')[$i]['column']]['orderable'] )
-                {
+            for ($i = 0; $i < intval(count($request->query->get('order'))); $i++) {
+                if ($request->query->get('columns')[$request->query->get('order')[$i]['column']]['orderable']) {
                     $selected_column = $columns[$request->query->get('order')[$i]['column']];
-                    $sOrder .= " ".$selected_column." ".
-                        ($request->query->get('order')[$i]['dir']==='asc' ? 'ASC' : 'DESC') .", ";
+                    $sOrder .= " " . $selected_column . " " .
+                        ($request->query->get('order')[$i]['dir'] === 'asc' ? 'ASC' : 'DESC') . ", ";
                 }
             }
 
-            $sOrder = substr_replace( $sOrder, "", -2 );
-            if ( $sOrder == "ORDER BY" )
-            {
+            $sOrder = substr_replace($sOrder, "", -2);
+            if ($sOrder == "ORDER BY") {
                 $sOrder = "";
             }
         }
@@ -360,7 +363,7 @@ class HouseholdController extends Controller
         $start = 1;
         $length = 1;
 
-        if(null !== $request->query->get('start') && null !== $request->query->get('length')){
+        if (null !== $request->query->get('start') && null !== $request->query->get('length')) {
             $start = intval($request->query->get('start'));
             $length = intval($request->query->get('length'));
         }
@@ -378,47 +381,58 @@ class HouseholdController extends Controller
         $stmt = $em->getConnection()->query($sql);
         $recordsFiltered = $stmt->fetchColumn();
 
-        $sql = "SELECT h.* FROM tbl_household_hdr h 
+        $sql = "SELECT h.*,pv.is_non_voter, pv.voter_group FROM tbl_household_hdr h 
+            INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = h.pro_voter_id 
             WHERE 1 " . $sWhere . ' ' . $sOrder . " LIMIT {$length} OFFSET {$start} ";
 
         $stmt = $em->getConnection()->query($sql);
         $data = [];
 
-        while($row = $stmt->fetch(\PDO::FETCH_ASSOC)){
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $data[] = $row;
         }
 
-        foreach($data as &$row){
-            $sql = "SELECT COUNT(*) FROM tbl_household_dtl WHERE household_id = ? ";
+        foreach ($data as &$row) {
+            $sql = "SELECT COUNT(pv.pro_voter_id)  as total_members,
+                    COALESCE(COUNT(CASE WHEN pv.is_non_voter = 0 then 1 end),0) as total_voters,
+                    COALESCE(COUNT(CASE WHEN pv.is_non_voter = 1 then 1 end),0) as total_non_voters
+
+                    FROM tbl_household_dtl hd 
+                    INNER JOIN tbl_project_voter pv 
+                    ON pv.pro_voter_id = hd.pro_voter_id 
+                    WHERE hd.household_id = ? ";
             $stmt = $em->getConnection()->prepare($sql);
             $stmt->bindValue(1, $row['id']);
             $stmt->execute();
 
-            $totalMembers = intval($stmt->fetchColumn());
+            $summary = $stmt->fetch(\PDO::FETCH_ASSOC);
+            
 
-            $row['total_members'] = $totalMembers;
+            $row['total_members'] =  $summary['total_members'] + 1 ;
+            $row['total_voters'] = $row['is_non_voter'] != 1 ? $summary['total_voters'] + 1 :  $summary['total_voters'];
+            $row['total_non_voters'] = $row['is_non_voter'] == 1 ? $summary['total_non_voters'] + 1 : $summary['total_non_voters'];
         }
 
         $draw = (null !== $request->query->get('draw')) ? $request->query->get('draw') : 0;
-		$res['data'] =  $data;
-	    $res['recordsTotal'] = $recordsTotal;
-	    $res['recordsFiltered'] = $recordsFiltered;
+        $res['data'] = $data;
+        $res['recordsTotal'] = $recordsTotal;
+        $res['recordsFiltered'] = $recordsFiltered;
         $res['draw'] = $draw;
 
-	    return new JsonResponse($res);
+        return new JsonResponse($res);
     }
 
 
-    
+
     /**
      * @Route("/ajax_get_datatable_household_header_no_recruitment", name="ajax_get_datatable_household_header_no_recruitment", options={"expose"=true})
      * @Method("GET")
      * @param Request $request
      * @return JsonResponse
      */
-    
-	public function ajaxGetDatatableHouseholdHeaderNoRecruitmentAction(Request $request)
-	{	
+
+    public function ajaxGetDatatableHouseholdHeaderNoRecruitmentAction(Request $request)
+    {
         $columns = array(
             0 => "h.household_code",
             1 => "h.voter_name",
@@ -427,14 +441,14 @@ class HouseholdController extends Controller
         );
 
         $sWhere = "";
-    
+
         $select['h.voter_name'] = $request->get("voterName");
         $select['h.municipality_name'] = $request->get("municipalityName");
         $select['h.barangay_name'] = $request->get("barangayName");
         $select['h.elect_id'] = $request->get("electId");
         $select['h.municipality_no'] = $request->get("municipalityNo");
         $select['h.barangay_no'] = $request->get("barangayNo");
-        
+
         foreach ($select as $key => $value) {
             $searchValue = $select[$key];
             if ($searchValue != null || !empty($searchValue)) {
@@ -448,21 +462,18 @@ class HouseholdController extends Controller
 
         $sOrder = "";
 
-        if(null !== $request->query->get('order')){
+        if (null !== $request->query->get('order')) {
             $sOrder = "ORDER BY  ";
-            for ( $i=0 ; $i<intval(count($request->query->get('order'))); $i++ )
-            {
-                if ( $request->query->get('columns')[$request->query->get('order')[$i]['column']]['orderable'] )
-                {
+            for ($i = 0; $i < intval(count($request->query->get('order'))); $i++) {
+                if ($request->query->get('columns')[$request->query->get('order')[$i]['column']]['orderable']) {
                     $selected_column = $columns[$request->query->get('order')[$i]['column']];
-                    $sOrder .= " ".$selected_column." ".
-                        ($request->query->get('order')[$i]['dir']==='asc' ? 'ASC' : 'DESC') .", ";
+                    $sOrder .= " " . $selected_column . " " .
+                        ($request->query->get('order')[$i]['dir'] === 'asc' ? 'ASC' : 'DESC') . ", ";
                 }
             }
 
-            $sOrder = substr_replace( $sOrder, "", -2 );
-            if ( $sOrder == "ORDER BY" )
-            {
+            $sOrder = substr_replace($sOrder, "", -2);
+            if ($sOrder == "ORDER BY") {
                 $sOrder = "";
             }
         }
@@ -470,7 +481,7 @@ class HouseholdController extends Controller
         $start = 1;
         $length = 1;
 
-        if(null !== $request->query->get('start') && null !== $request->query->get('length')){
+        if (null !== $request->query->get('start') && null !== $request->query->get('length')) {
             $start = intval($request->query->get('start'));
             $length = intval($request->query->get('length'));
         }
@@ -494,46 +505,47 @@ class HouseholdController extends Controller
         $stmt = $em->getConnection()->query($sql);
         $data = [];
 
-        while($row = $stmt->fetch(\PDO::FETCH_ASSOC)){
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $data[] = $row;
         }
 
         $draw = (null !== $request->query->get('draw')) ? $request->query->get('draw') : 0;
-		$res['data'] =  $data;
-	    $res['recordsTotal'] = $recordsTotal;
-	    $res['recordsFiltered'] = $recordsFiltered;
+        $res['data'] = $data;
+        $res['recordsTotal'] = $recordsTotal;
+        $res['recordsFiltered'] = $recordsFiltered;
         $res['draw'] = $draw;
 
-	    return new JsonResponse($res);
+        return new JsonResponse($res);
     }
-  
-    /**
-    * @Route("/ajax_delete_household_header/{householdId}", 
-    * 	name="ajax_delete_household_header",
-    *	options={"expose" = true}
-    * )
-    * @Method("DELETE")
-    */
 
-    public function ajaxDeleteHouseholdHeaderAction($householdId){
+    /**
+     * @Route("/ajax_delete_household_header/{householdId}", 
+     * 	name="ajax_delete_household_header",
+     *	options={"expose" = true}
+     * )
+     * @Method("DELETE")
+     */
+
+    public function ajaxDeleteHouseholdHeaderAction($householdId)
+    {
         $em = $this->getDoctrine()->getManager();
         $entity = $em->getRepository("AppBundle:HouseholdHeader")->find($householdId);
 
-        if(!$entity)
-            return new JsonResponse(null,404);
+        if (!$entity)
+            return new JsonResponse(null, 404);
 
         $entities = $em->getRepository('AppBundle:HouseholdDetail')->findBy([
             'householdId' => $entity->getId()
         ]);
 
-        foreach($entities as $detail){
+        foreach ($entities as $detail) {
             $em->remove($detail);
         }
 
         $em->remove($entity);
         $em->flush();
 
-        return new JsonResponse(null,200);
+        return new JsonResponse(null, 200);
     }
 
     /**
@@ -550,7 +562,7 @@ class HouseholdController extends Controller
         $entity = $em->getRepository("AppBundle:HouseholdHeader")
             ->find($id);
 
-        if(!$entity){
+        if (!$entity) {
             return new JsonResponse(['message' => 'not found']);
         }
 
@@ -559,22 +571,23 @@ class HouseholdController extends Controller
 
         $proVoter = $em->getRepository("AppBundle:ProjectVoter")->find($entity['proVoterId']);
 
-        if($proVoter != null){
+        if ($proVoter != null) {
             $entity['cellphone'] = $proVoter->getCellphone();
             $entity['lgc'] = $this->getLGC($proVoter->getMunicipalityNo(), $proVoter->getBrgyNo());
-        }else{
+        } else {
             $entity['cellphone'] = "VOTER MISSING";
             $entity['lgc'] = [
                 "voter_name" => "VOTER MISSING",
                 "cellphone" => "VOTER MISSING"
             ];
         }
-        
+
         return new JsonResponse($entity);
     }
 
-    
-    private function getLGC($municipalityNo, $barangayNo){
+
+    private function getLGC($municipalityNo, $barangayNo)
+    {
         $em = $this->getDoctrine()->getManager();
         $sql = "SELECT pv.voter_name, pv.cellphone, la.municipality_name, la.barangay_name FROM tbl_location_assignment la INNER JOIN tbl_project_voter pv 
                 ON pv.pro_voter_id = la.pro_voter_id  
@@ -591,7 +604,7 @@ class HouseholdController extends Controller
     }
 
 
-     /**
+    /**
      * @Route("/ajax_get_household_header_full/{id}",
      *       name="ajax_get_household_header_full",
      *        options={ "expose" = true }
@@ -602,7 +615,7 @@ class HouseholdController extends Controller
     public function ajaxGetHouseholdFullHeader($id)
     {
         $em = $this->getDoctrine()->getManager();
-        
+
         $sql = "SELECT h.*, pv.cellphone, pv.pro_voter_id, pv.birthdate, pv.gender,
                 pv.firstname, pv.middlename, pv.lastname, pv.ext_name, pv.civil_status, pv.bloodtype,
                 pv.occupation, pv.religion, pv.dialect, pv.ip_group
@@ -611,7 +624,7 @@ class HouseholdController extends Controller
                 WHERE h.id = ? ";
 
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1,$id);
+        $stmt->bindValue(1, $id);
         $stmt->execute();
 
         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
@@ -620,20 +633,21 @@ class HouseholdController extends Controller
     }
 
     /**
-    * @Route("/ajax_post_household_detail", 
-    * 	name="ajax_post_household_detail",
-    *	options={"expose" = true}
-    * )
-    * @Method("POST")
-    */
+     * @Route("/ajax_post_household_detail", 
+     * 	name="ajax_post_household_detail",
+     *	options={"expose" = true}
+     * )
+     * @Method("POST")
+     */
 
-    public function ajaxPostHouseholdDetailAction(Request $request){
+    public function ajaxPostHouseholdDetailAction(Request $request)
+    {
         $em = $this->getDoctrine()->getManager();
         $user = $this->get("security.token_storage")->getToken()->getUser();
 
         $entity = new HouseholdDetail();
         $entity->setHouseholdId($request->get('householdId'));
-    	$entity->setProVoterId($request->get('proVoterId'));
+        $entity->setProVoterId($request->get('proVoterId'));
         $entity->setRelationship(trim(strtoupper($request->get('relationship'))));
         $entity->setGender($request->get('gender'));
         $entity->setBirthDate($request->get('birthdate'));
@@ -648,7 +662,7 @@ class HouseholdController extends Controller
 
         $proVoter = $em->getRepository("AppBundle:ProjectVoter")->findOneBy(['proVoterId' => intval($request->get('proVoterId'))]);
 
-        if($proVoter) {
+        if ($proVoter) {
             $entity->setVoterName($proVoter->getVoterName());
             $entity->setProIdCode($proVoter->getProIdCode());
         }
@@ -656,24 +670,24 @@ class HouseholdController extends Controller
         $entity->setCreatedAt(new \DateTime());
         $entity->setCreatedBy($user->getUsername());
         $entity->setRemarks($request->get('remarks'));
-    	$entity->setStatus(self::STATUS_ACTIVE);
+        $entity->setStatus(self::STATUS_ACTIVE);
 
-    	$validator = $this->get('validator');
+        $validator = $this->get('validator');
         $violations = $validator->validate($entity);
 
         $errors = [];
 
-        if(count($violations) > 0){
-            foreach( $violations as $violation ){
-                $errors[$violation->getPropertyPath()] =  $violation->getMessage();
+        if (count($violations) > 0) {
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()] = $violation->getMessage();
             }
-            return new JsonResponse($errors,400);
+            return new JsonResponse($errors, 400);
         }
 
-        if($proVoter){
-            if(!empty($entity->getCellphone()))
+        if ($proVoter) {
+            if (!empty($entity->getCellphone()))
                 $proVoter->setCellphone($entity->getCellphone());
-            
+
             $proVoter->setFirstname($entity->getFirstname());
             $proVoter->setMiddlename($entity->getMiddlename());
             $proVoter->setLastname($entity->getLastname());
@@ -689,33 +703,33 @@ class HouseholdController extends Controller
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, 53);
-        $stmt->bindValue(2,$entity->getMunicipalityNo());
+        $stmt->bindValue(2, $entity->getMunicipalityNo());
         $stmt->execute();
 
         $municipality = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        if($municipality != null)
+        if ($municipality != null)
             $entity->setMunicipalityName($municipality['name']);
 
         $sql = "SELECT * FROM psw_barangay 
         WHERE brgy_code = ? ";
 
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1,53 . $entity->getMunicipalityNo() . $entity->getBarangayNo());
+        $stmt->bindValue(1, 53 . $entity->getMunicipalityNo() . $entity->getBarangayNo());
         $stmt->execute();
 
         $barangay = $stmt->fetch(\PDO::FETCH_ASSOC);
-        
-        if($barangay != null)
+
+        if ($barangay != null)
             $entity->setBarangayName($barangay['name']);
 
         $em->persist($entity);
         $em->flush();
-    	$em->clear();
+        $em->clear();
 
-    	$serializer = $this->get('serializer');
+        $serializer = $this->get('serializer');
 
-    	return new JsonResponse($serializer->normalize($entity));
+        return new JsonResponse($serializer->normalize($entity));
     }
 
     /**
@@ -755,9 +769,9 @@ class HouseholdController extends Controller
      * @param Request $request
      * @return JsonResponse
      */
-    
-	public function ajaxGetDatatableHouseholdDetailAction(Request $request)
-	{	
+
+    public function ajaxGetDatatableHouseholdDetailAction(Request $request)
+    {
         $columns = array(
             0 => "h.household_id",
             1 => "h.voter_name",
@@ -767,38 +781,35 @@ class HouseholdController extends Controller
         );
 
         $sWhere = "";
-    
+
         $select['h.household_id'] = $request->get('householdCode');
         $select['h.voter_name'] = $request->get("voterName");
         $householdId = $request->get('householdId');
-        
-        foreach($select as $key => $value){
+
+        foreach ($select as $key => $value) {
             $searchValue = $select[$key];
-            if($searchValue != null || !empty($searchValue)) {
+            if ($searchValue != null || !empty($searchValue)) {
                 $sWhere .= " AND " . $key . " LIKE '%" . $searchValue . "%'";
             }
         }
-        
-        
+
+
         $sWhere .= " AND h.household_id = ${householdId} ";
 
         $sOrder = "";
 
-        if(null !== $request->query->get('order')){
+        if (null !== $request->query->get('order')) {
             $sOrder = "ORDER BY  ";
-            for ( $i=0 ; $i<intval(count($request->query->get('order'))); $i++ )
-            {
-                if ( $request->query->get('columns')[$request->query->get('order')[$i]['column']]['orderable'] )
-                {
+            for ($i = 0; $i < intval(count($request->query->get('order'))); $i++) {
+                if ($request->query->get('columns')[$request->query->get('order')[$i]['column']]['orderable']) {
                     $selected_column = $columns[$request->query->get('order')[$i]['column']];
-                    $sOrder .= " ".$selected_column." ".
-                        ($request->query->get('order')[$i]['dir']==='asc' ? 'ASC' : 'DESC') .", ";
+                    $sOrder .= " " . $selected_column . " " .
+                        ($request->query->get('order')[$i]['dir'] === 'asc' ? 'ASC' : 'DESC') . ", ";
                 }
             }
 
-            $sOrder = substr_replace( $sOrder, "", -2 );
-            if ( $sOrder == "ORDER BY" )
-            {
+            $sOrder = substr_replace($sOrder, "", -2);
+            if ($sOrder == "ORDER BY") {
                 $sOrder = "";
             }
         }
@@ -806,7 +817,7 @@ class HouseholdController extends Controller
         $start = 1;
         $length = 1;
 
-        if(null !== $request->query->get('start') && null !== $request->query->get('length')){
+        if (null !== $request->query->get('start') && null !== $request->query->get('length')) {
             $start = intval($request->query->get('start'));
             $length = intval($request->query->get('length'));
         }
@@ -824,56 +835,58 @@ class HouseholdController extends Controller
         $stmt = $em->getConnection()->query($sql);
         $recordsFiltered = $stmt->fetchColumn();
 
-        $sql = "SELECT h.*, v.birthdate , v.cellphone FROM tbl_household_dtl h INNER JOIN tbl_project_voter v ON v.pro_voter_id = h.pro_voter_id 
+        $sql = "SELECT h.*, v.birthdate , v.cellphone,v.is_non_voter FROM tbl_household_dtl h INNER JOIN tbl_project_voter v ON v.pro_voter_id = h.pro_voter_id 
             WHERE 1 " . $sWhere . ' ' . $sOrder . " LIMIT {$length} OFFSET {$start} ";
 
         $stmt = $em->getConnection()->query($sql);
         $data = [];
 
-        while($row = $stmt->fetch(\PDO::FETCH_ASSOC)){
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $row['total_members'] = 0;
             $data[] = $row;
         }
 
         $draw = (null !== $request->query->get('draw')) ? $request->query->get('draw') : 0;
-		$res['data'] =  $data;
-	    $res['recordsTotal'] = $recordsTotal;
-	    $res['recordsFiltered'] = $recordsFiltered;
+        $res['data'] = $data;
+        $res['recordsTotal'] = $recordsTotal;
+        $res['recordsFiltered'] = $recordsFiltered;
         $res['draw'] = $draw;
 
-	    return new JsonResponse($res);
+        return new JsonResponse($res);
     }
 
     /**
-    * @Route("/ajax_delete_household_detail/{householdDetailId}", 
-    * 	name="ajax_delete_household_detail",
-    *	options={"expose" = true}
-    * )
-    * @Method("DELETE")
-    */
+     * @Route("/ajax_delete_household_detail/{householdDetailId}", 
+     * 	name="ajax_delete_household_detail",
+     *	options={"expose" = true}
+     * )
+     * @Method("DELETE")
+     */
 
-    public function ajaxDeleteHouseholdDetailAction($householdDetailId){
+    public function ajaxDeleteHouseholdDetailAction($householdDetailId)
+    {
         $em = $this->getDoctrine()->getManager();
         $entity = $em->getRepository("AppBundle:HouseholdDetail")->find($householdDetailId);
 
-        if(!$entity)
-            return new JsonResponse(null,404);
+        if (!$entity)
+            return new JsonResponse(null, 404);
 
         $em->remove($entity);
         $em->flush();
 
-        return new JsonResponse(null,200);
+        return new JsonResponse(null, 200);
     }
 
-      /**
-    * @Route("/ajax_fill_household_summary", 
-    * 	name="ajax_fill_household_summary",
-    *	options={"expose" = true}
-    * )
-    * @Method("GET")
-    */
+    /**
+     * @Route("/ajax_fill_household_summary", 
+     * 	name="ajax_fill_household_summary",
+     *	options={"expose" = true}
+     * )
+     * @Method("GET")
+     */
 
-    public function ajaxFillHouseholdSummaryAction(Request $request){
+    public function ajaxFillHouseholdSummaryAction(Request $request)
+    {
         $user = $this->get("security.token_storage")->getToken()->getUser();
 
         $em = $this->getDoctrine()->getManager();
@@ -889,13 +902,13 @@ class HouseholdController extends Controller
         $municipalities = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         $data = [];
 
-        foreach($municipalities as $municipality){        
+        foreach ($municipalities as $municipality) {
 
             $sql = "DELETE FROM tbl_household_summary WHERE municipality_no = ? ";
             $stmt = $em->getConnection()->prepare($sql);
             $stmt->bindValue(1, $municipality['municipality_no']);
             $stmt->execute();
-            
+
             $sql = "SELECT * FROM psw_barangay 
                     WHERE municipality_code = ? ORDER BY name ASC";
             $stmt = $em->getConnection()->prepare($sql);
@@ -907,13 +920,13 @@ class HouseholdController extends Controller
             $electId = 3;
             $proId = 3;
 
-            foreach($barangays as $barangay){
+            foreach ($barangays as $barangay) {
                 $totalHousehold = 0;
                 $totalMembers = 0;
                 $totalDuplicates = 0;
                 $totalVoter = 0;
                 $totalNonVoter = 0;
-                
+
                 $sql = "SELECT COALESCE(COUNT(hh.id),0) as total_household 
                         FROM tbl_household_hdr hh 
                         WHERE hh.elect_id = ? 
@@ -927,7 +940,7 @@ class HouseholdController extends Controller
                 $stmt->execute();
 
                 $totalHousehold = $stmt->fetch(\PDO::FETCH_ASSOC)['total_household'];
-                
+
 
                 $sql = "SELECT COALESCE(COUNT(DISTINCT hd.pro_voter_id),0) AS total_member 
                         FROM tbl_household_dtl hd 
@@ -970,7 +983,7 @@ class HouseholdController extends Controller
                 $stmt->execute();
 
                 $maxDuplicate = $stmt->fetch(\PDO::FETCH_ASSOC)['exists_count'];
-                
+
                 $sql = "SELECT COALESCE(count(DISTINCT pv.pro_voter_id),0) AS total_count
                         FROM tbl_household_dtl hd 
                         INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = hd.pro_voter_id
@@ -1010,7 +1023,7 @@ class HouseholdController extends Controller
 
                 $totalLeaderNonVoter = intval($stmt->fetch(\PDO::FETCH_ASSOC)['total_count']);
 
-                
+
                 $sql = "SELECT COALESCE(count(DISTINCT pv.pro_voter_id),0) AS total_count
                 FROM tbl_household_hdr hh 
                 INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = hh.pro_voter_id
@@ -1023,7 +1036,7 @@ class HouseholdController extends Controller
                 $stmt->execute();
 
                 $totalLeaderVoter = intval($stmt->fetch(\PDO::FETCH_ASSOC)['total_count']);
-                
+
                 $sql = "INSERT INTO tbl_household_summary(
                     elect_id,pro_id,municipality_no,municipality_name,
                     barangay_no, barangay_name, total_household, total_members,
@@ -1048,7 +1061,7 @@ class HouseholdController extends Controller
                 $stmt->bindValue(12, $totalMemberNonVoter);
                 $stmt->bindValue(13, $totalLeaderVoter);
                 $stmt->bindValue(14, $totalLeaderNonVoter);
-                $stmt->execute();   
+                $stmt->execute();
 
                 // $stmt->bindValue(8, $totalMembers);
                 // $stmt->bindValue(9, $totalDuplicates);
@@ -1074,6 +1087,157 @@ class HouseholdController extends Controller
             }
         }
 
-    	return new JsonResponse($data);
+        return new JsonResponse($data);
+    }
+
+    /**
+     * @Route("/ajax_household_get_transfer_profiles",
+     *       name="ajax_household_get_transfer_profiles",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxTransferProfiles(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+
+        $sql = "SELECT 
+                 a.municipality_name, a.barangay_name,  a.municipality_no, a.barangay_no , 
+                 ad.id AS detail_id, ad.pro_voter_id, ad.pro_id_code, ad.contact_no, ad.voter_name,
+                 COUNT(*) AS total_profile_members 
+                 FROM tbl_attendance_detail ad 
+                 INNER JOIN tbl_attendance_profile p 
+                 ON ad.id = p.hdr_id 
+                 INNER JOIN tbl_attendance a 
+                 ON a.id = ad.hdr_id 
+                 GROUP BY ad.pro_voter_id ";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+
+        $hdrs = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $hdrs[] = $row;
+        }
+
+        foreach ($hdrs as $hdr) {
+
+            $leader = new HouseholdHeader();
+            $leader->setMunicipalityName($hdr['municipality_name']);
+            $leader->setMunicipalityNo($hdr['municipality_no']);
+            $leader->setBarangayName($hdr['barangay_name']);
+            $leader->setBarangayNo($hdr['barangay_no']);
+            $leader->setProVoterId($hdr['pro_voter_id']);
+            $leader->setVoterName($hdr['voter_name']);
+            $leader->setContactNo($hdr['contact_no']);
+            $leader->setElectId(423);
+
+
+            $sql = "SELECT * FROM tbl_attendance_profile p WHERE hdr_id = ?";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $hdr['detail_id']);
+            $stmt->execute();
+
+            $em->persist($leader);
+            $em->flush();
+
+            $details = [];
+            $details = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+            foreach ($details as $detail) {
+                $member = new HouseholdDetail();
+                $member->setHouseholdId($leader->getId());
+                $member->setProVoterId($detail['pro_voter_id']);
+                $member->setVoterName($detail['voter_name']);
+                $member->setMunicipalityName($leader->getMunicipalityName());
+                $member->setMunicipalityNo($leader->getMunicipalityNo());
+                $member->setBarangayName($leader->getBarangayName());
+                $member->setBarangayNo($leader->getBarangayNo());
+
+                $em->persist($member);
+                $em->flush();
+            }
+        }
+
+        return new JsonResponse($hdrs, 200);
+    }
+
+
+
+    /**
+     * @Route("/ajax_household_generate_household_no",
+     *       name="ajax_household_generate_household_no",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGenerateHouseholdNo(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+
+        $sql = "SELECT * FROM tbl_household_hdr ORDER BY municipality_name, barangay_name ";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+
+        $hdrs = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $hdrs[] = $row;
+        }
+
+        $barangay = '';
+
+
+        foreach ($hdrs as $hdr) {
+            $householdNo = $this->getNewHouseholdNoByBarangay($hdr['municipality_no'], $hdr['barangay_no']);
+
+            $sql = "SELECT * FROM psw_barangay WHERE municipality_code = ? AND brgy_no = ?";
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, 53 . $hdr['municipality_no']);
+            $stmt->bindValue(2, $hdr['barangay_no']);
+            $stmt->execute();
+
+            $barangay = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+
+            $sql = "UPDATE tbl_household_hdr SET household_no = ? , household_code = ? WHERE id = ? ";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $householdNo);
+            $stmt->bindValue(2, $barangay['short_name'] . $householdNo);
+            $stmt->bindValue(3, $hdr['id']);
+
+            $stmt->execute();
+        }
+
+        return new JsonResponse($hdrs);
+    }
+
+    private function getNewHouseholdNoByBarangay($municipalityNo, $barangayNo)
+    {
+        $householdNo = 1;
+
+        $em = $this->getDoctrine()->getManager();
+
+        $sql = "SELECT household_no FROM tbl_household_hdr where municipality_no = ? AND barangay_no = ? 
+               ORDER BY household_no DESC LIMIT 1 ";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, $municipalityNo);
+        $stmt->bindValue(2, $barangayNo);
+        $stmt->execute();
+
+        $request = $stmt->fetch();
+
+        if ($request) {
+            $householdNo = intval($request['household_no']) + 1;
+        }
+
+        return $householdNo;
     }
 }

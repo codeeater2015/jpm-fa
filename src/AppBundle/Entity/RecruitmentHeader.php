@@ -11,7 +11,7 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
  *
  * @ORM\Table(name="tbl_recruitment_hdr")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\RecruitmentHeaderRepository")
- * @UniqueEntity(fields={"voterName"},message="This leader name already exists.", errorPath="voterName")
+ * @UniqueEntity(fields={"voterName", "voterGroup"},message="This leader name already exists.", errorPath="voterName")
  */
 
 class RecruitmentHeader
@@ -45,7 +45,6 @@ class RecruitmentHeader
      * @var string
      *
      * @ORM\Column(name="pro_id_code", type="string", length=30)
-     * @Assert\NotBlank()
      */
 
     private $proIdCode;

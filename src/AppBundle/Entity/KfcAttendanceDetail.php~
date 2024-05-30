@@ -1,0 +1,139 @@
+<?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+/**
+ * KfcAttendanceDetail
+ *
+ * @ORM\Table(name="kfc_attendance_detail")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\KfcAttendanceDetailRepository")
+ * @UniqueEntity(fields={"hdrId","proVoterId"},message="Attendee already exists.", errorPath="proVoterId")
+ */
+class KfcAttendanceDetail
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="hdr_id", type="integer")
+     * @Assert\NotBlank()
+     */
+    private $hdrId;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="municipality_name", type="string", length=150)
+     * @Assert\NotBlank()
+     */
+    private $municipalityName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="barangay_name", type="string", length=150)
+     * @Assert\NotBlank()
+     */
+    private $barangayName;
+
+     /**
+     * @var int
+     *
+     * @ORM\Column(name="voter_name", type="string", length=255)
+     * @Assert\NotBlank()
+     */
+    private $voterName;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="is_non_voter", type="integer", scale=1)
+     */
+    private $isNonVoter;
+    
+     /**
+     * @var int
+     *
+     * @ORM\Column(name="contact_no", type="string", length=15)
+     */
+    private $contactNo;
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="has_profile", type="integer", scale=1)
+     */
+    private $hasProfile;
+
+
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="has_assignment", type="integer", scale=1)
+     */
+    private $hasAssignment;
+
+     /**
+     * @var int
+     *
+     * @ORM\Column(name="pro_voter_id", type="integer")
+     * @Assert\NotBlank()
+     */
+    private $proVoterId;
+
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="pro_id_code", type="string", length=30)
+     */
+    private $proIdCode;
+
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="generated_id_no", type="string", length=150)
+     */
+    private $generatedIdNo;
+
+     /**
+     * @var datetime
+     *
+     * @ORM\Column(name="created_at", type="datetime")
+     */
+    private $createdAt;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="created_by", type="string", length=150)
+     */
+    private $createdBy;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="remarks", type="string", length=256)
+     */
+    private $remarks;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", length=3)
+     * @Assert\NotBlank()
+     */
+    private $status;
+}
+

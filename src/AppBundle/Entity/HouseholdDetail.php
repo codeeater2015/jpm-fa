@@ -44,7 +44,6 @@ class HouseholdDetail
      * @var string
      *
      * @ORM\Column(name="pro_id_code", type="string", length=30)
-     * @Assert\NotBlank()
      */
     private $proIdCode;
     
@@ -60,7 +59,6 @@ class HouseholdDetail
      * @var string
      *
      * @ORM\Column(name="relationship", type="string", length=30)
-     * @Assert\NotBlank()
      */
     private $relationship;
 
@@ -96,7 +94,6 @@ class HouseholdDetail
 
     /**
      * @var string
-     * @Assert\NotBlank()
      */
     private $gender;
     

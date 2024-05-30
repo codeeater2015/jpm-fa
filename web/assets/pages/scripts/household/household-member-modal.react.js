@@ -29,7 +29,7 @@ var HouseholdMemberModal = React.createClass({
         return (
             <Modal style={{ marginTop: "10px" }} keyboard={false} dialogClassName="modal-custom-85" enforceFocus={false} backdrop="static" show={this.props.show} onHide={this.props.onHide}>
                 <Modal.Header className="modal-header bg-blue-dark font-white" closeButton>
-                    <Modal.Title>Household Information : {data.voterName} | LGC : {data.lgc.voter_name} | { data.lgc.cellphone == "" ? "NO CP" : data.lgc.cellphone} </Modal.Title>
+                    <Modal.Title>Household Information : {data.voterName} | { data.lgc.cellphone == "" ? "NO CP" : data.lgc.cellphone} </Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsClass="modal-body overflow-auto">
 

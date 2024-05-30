@@ -72,7 +72,7 @@ class VoterController extends Controller
 
     public function ajaxSelect2Province(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $searchText = trim(strtoupper($request->get('searchText')));
@@ -112,7 +112,7 @@ class VoterController extends Controller
         $searchText = '%' . strtoupper($searchText) . '%';
         $provinceCode = empty($request->get("provinceCode")) ? 53 : $request->get("provinceCode");
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
 
 
@@ -149,7 +149,7 @@ class VoterController extends Controller
         $searchText = '%' . strtoupper($searchText) . '%';
         $entities = [];
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $sql = "Select * from tbl_election where (elect_name LIKE ? OR ? IS NULL) ORDER BY elect_name DESC";
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, $searchText);
@@ -181,7 +181,7 @@ class VoterController extends Controller
         $searchText = '%' . strtoupper($searchText) . '%';
         $entities = [];
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $sql = "Select * from tbl_project where (pro_name LIKE ? OR ? IS NULL) ORDER BY pro_name DESC";
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, $searchText);
@@ -209,7 +209,7 @@ class VoterController extends Controller
 
     public function getActiveElection()
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $entity = $em->getRepository("AppBundle:Election")->findOneBy([
             "status" => self::STATUS_ACTIVE,
         ]);
@@ -239,7 +239,7 @@ class VoterController extends Controller
         $provinceCode = empty($request->get("provinceCode")) ? 53 : $request->get("provinceCode");
         $municipalityNo = $request->get("municipalityNo");
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
 
         
@@ -280,7 +280,7 @@ class VoterController extends Controller
         $provinceCode = empty($request->get("provinceCode")) ? 53 : $request->get("provinceCode");
         $municipalityName = $request->get("municipalityName");
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sql = "SELECT b.* FROM psw_barangay b
                 INNER JOIN psw_municipality m ON m.municipality_code = b.municipality_code AND m.province_code = ?
@@ -316,7 +316,7 @@ class VoterController extends Controller
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sql = "SELECT DISTINCT v.precinct_no FROM tbl_voter v
                 WHERE  (v.precinct_no LIKE ? OR ? IS NULL) ORDER BY v.precinct_no ASC LIMIT 30 ";
@@ -350,7 +350,7 @@ class VoterController extends Controller
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sql = "SELECT DISTINCT v.civil_status FROM tbl_project_voter v
                 WHERE  (v.civil_status LIKE ? OR ? IS NULL) ORDER BY v.civil_status ASC LIMIT 30 ";
@@ -384,7 +384,7 @@ class VoterController extends Controller
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sql = "SELECT DISTINCT v.bloodtype FROM tbl_project_voter v
                 WHERE  (v.bloodtype LIKE ? OR ? IS NULL) ORDER BY v.bloodtype ASC LIMIT 30 ";
@@ -418,7 +418,7 @@ class VoterController extends Controller
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sql = "SELECT DISTINCT v.occupation FROM tbl_project_voter v
                 WHERE  (v.occupation LIKE ? OR ? IS NULL) ORDER BY v.occupation ASC LIMIT 30 ";
@@ -452,7 +452,7 @@ class VoterController extends Controller
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sql = "SELECT DISTINCT v.religion FROM tbl_project_voter v
                 WHERE  (v.religion LIKE ? OR ? IS NULL) ORDER BY v.religion ASC LIMIT 30 ";
@@ -486,7 +486,7 @@ class VoterController extends Controller
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sql = "SELECT DISTINCT v.dialect FROM tbl_project_voter v
                 WHERE  (v.dialect LIKE ? OR ? IS NULL) ORDER BY v.dialect ASC LIMIT 30 ";
@@ -520,7 +520,7 @@ class VoterController extends Controller
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sql = "SELECT DISTINCT v.ip_group FROM tbl_project_voter v
                 WHERE  (v.ip_group LIKE ? OR ? IS NULL) ORDER BY v.ip_group ASC LIMIT 30 ";
@@ -559,7 +559,7 @@ class VoterController extends Controller
         $municipalityNo = $request->get('municipalityNo');
         $brgyNo = $request->get('brgyNo');
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sql = "SELECT DISTINCT pv.voting_center FROM tbl_project_voter pv
                 WHERE pv.elect_id = ? AND pv.province_code = ? AND pv.municipality_no = ? AND pv.brgy_no = ?
@@ -596,7 +596,7 @@ class VoterController extends Controller
     public function ajaxUploadVoters(Request $request)
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         if (!$user->getIsAdmin()) {
             return new JsonResponse(null, 401);
@@ -739,7 +739,7 @@ class VoterController extends Controller
     public function ajaxUploadVotersVotingStatus(Request $request)
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         if (!$user->getIsAdmin()) {
             return new JsonResponse(null, 401);
@@ -855,7 +855,7 @@ class VoterController extends Controller
     {
 
         $user = $this->get('security.token_storage')->getToken()->getUser();
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         if (!$user->getIsAdmin()) {
             return new JsonResponse(null, 401);
@@ -1041,7 +1041,7 @@ class VoterController extends Controller
             $length = intval($request->query->get('length'));
         }
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $sql = "SELECT COALESCE(count(v.pro_voter_id),0) FROM tbl_project_voter v";
@@ -1081,7 +1081,7 @@ class VoterController extends Controller
 
     private function getProjectVoter($proId, $voterId)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $entity = $em->getRepository("AppBundle:ProjectVoter")->findOneBy(
             [
                 "voterId" => $voterId,
@@ -1094,7 +1094,7 @@ class VoterController extends Controller
 
     private function getNetworkNode($voterId)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $entity = $em->getRepository("AppBundle:VoterNetwork")->findOneBy(['voterId' => $voterId]);
 
         $node = [
@@ -1121,7 +1121,7 @@ class VoterController extends Controller
 
     private function getParentNode($nodeId)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $entity = $em->getRepository("AppBundle:VoterNetwork")->find($nodeId);
 
         if ($entity) {
@@ -1143,7 +1143,7 @@ class VoterController extends Controller
         $name = '';
         $code = '';
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $sql = "SELECT * FROM psw_municipality WHERE province_code = ?";
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, $provinceCode);
@@ -1158,7 +1158,7 @@ class VoterController extends Controller
     {
         $name = '';
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $sql = "SELECT * FROM psw_barangay WHERE brgy_code LIKE ? ";
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, $provinceCode . '%');
@@ -1190,7 +1190,7 @@ class VoterController extends Controller
 
     public function datatableVoterHistoryAction($voterId, Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $user = $this->get('security.token_storage')->getToken()->getUser();
@@ -1329,7 +1329,7 @@ class VoterController extends Controller
 
     private function getMunicipalityAccessFilter($userId)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $currentDate = date('Y-m-d H:i:s');
         $sql = "SELECT DISTINCT u.municipality_no , u.province_code FROM tbl_user_access u WHERE u.user_id = ? AND u.valid_until > ?";
         $stmt = $em->getConnection()->prepare($sql);
@@ -1365,7 +1365,7 @@ class VoterController extends Controller
     private function getRecordAccessFilter($userId)
     {
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $currentDate = date('Y-m-d H:i:s');
         $sql = "SELECT u.municipality_no, u.brgy_no, u.province_code FROM tbl_user_access u WHERE u.user_id = ? AND u.valid_until > ?";
         $stmt = $em->getConnection()->prepare($sql);
@@ -1401,7 +1401,7 @@ class VoterController extends Controller
 
     private function isAllowed($provinceCode, $municipalityNo, $brgyNo)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $user = $this->get("security.token_storage")->getToken()->getUser();
 
         if ($user->getIsAdmin()) {
@@ -1437,7 +1437,7 @@ class VoterController extends Controller
 
     public function ajaxGetVoter($voterId)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $sql = "Select v.*, b.name AS barangay_name, m.name AS municipality_name FROM tbl_voter v
                 INNER JOIN psw_municipality m ON m.municipality_no = v.municipality_no AND m.province_code = v.province_code
                 INNER JOIN psw_barangay b ON b.brgy_no = v.brgy_no AND b.municipality_code = m.municipality_code
@@ -1505,7 +1505,7 @@ class VoterController extends Controller
 
     public function ajaxGetProjectVoter($proId, $proVoterId)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $proVoter = $em->getRepository("AppBundle:ProjectVoter")
             ->findOneBy([
                 'proId' => $proId,
@@ -1530,7 +1530,7 @@ class VoterController extends Controller
 
     private function getLGC($municipalityNo, $barangayNo)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $sql = "SELECT pv.* FROM tbl_location_assignment l INNER JOIN tbl_project_voter pv ON pv.pro_id_code = l.pro_id_code 
         WHERE l.municipality_no = ? AND l.barangay_no = ? ";
 
@@ -1546,7 +1546,7 @@ class VoterController extends Controller
 
     private function getLastEvent($proIdCode)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $sql = "SELECT * FROM tbl_project_event_detail ed
         INNER JOIN tbl_project_event_header hd ON hd.event_id = ed.event_id
         INNER JOIN tbl_project_voter pv ON ed.pro_voter_id = pv.pro_voter_id
@@ -1571,7 +1571,7 @@ class VoterController extends Controller
 
     public function ajaxGetProjectVoterAlt($proId, $proIdCode)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $project = $em->getRepository("AppBundle:Project")->find($proId);
         $sql = "SELECT * FROM tbl_project_voter WHERE pro_id_code = ? AND pro_id = ? AND elect_id = ?";
@@ -1601,7 +1601,7 @@ class VoterController extends Controller
     public function applyCodeAction($accessCode)
     {
         $user = $this->get('security.token_storage')->getToken()->getUser();
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         if ($user->getAccessCode() == $accessCode) {
             $permissions = $em->getRepository("AppBundle:UserAccess")->findBy(['userId' => $user->getId()]);
@@ -1628,7 +1628,7 @@ class VoterController extends Controller
 
     public function applyActivateAccessCodeAction($id)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $user = $em->getRepository("AppBundle:User")->find($id);
 
         $permissions = $em->getRepository("AppBundle:UserAccess")->findBy(['userId' => $user->getId()]);
@@ -1654,7 +1654,7 @@ class VoterController extends Controller
 
     public function clearAccessAction($id)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $user = $em->getRepository("AppBundle:User")->find($id);
 
         $permissions = $em->getRepository("AppBundle:UserAccess")->findBy(['userId' => $user->getId()]);
@@ -1679,7 +1679,7 @@ class VoterController extends Controller
 
     public function ajaxGetVoterStatus()
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $entities = $em->getRepository("AppBundle:VoterStatus")->findAll();
 
         if (!$entities) {
@@ -1701,7 +1701,7 @@ class VoterController extends Controller
 
     public function ajaxPatchProjectVoterAction($proId, $proVoterId, Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $proVoter = $em->getRepository("AppBundle:ProjectVoter")->find($proVoterId);
@@ -1747,7 +1747,7 @@ class VoterController extends Controller
 
     public function ajaxUpdateVoterSummaryByMunicipality($electId, $provinceCode, $municipalityNo)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sql = "SELECT * FROM psw_barangay WHERE municipality_code = ? ";
         $stmt = $em->getConnection()->prepare($sql);
@@ -1780,7 +1780,7 @@ class VoterController extends Controller
 
     private function updateVoterSummary($electId, $provinceCode, $municipalityNo, $brgyNo)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sql = "SELECT * FROM tbl_project";
         $stmt = $em->getConnection()->query($sql);
@@ -1886,7 +1886,7 @@ class VoterController extends Controller
 
     public function ajaxUpdateVoterAssistanceSummaries($provinceCode, $municipalityNo)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $sql = "SELECT DISTINCT province_code,municipality_no,brgy_no FROM tbl_assistance WHERE province_code = ? AND municipality_no = ? ";
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, $provinceCode);
@@ -1925,7 +1925,7 @@ class VoterController extends Controller
     {
 
         $user = $this->get("security.token_storage")->getToken()->getUser();
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sql = "DELETE FROM tbl_assistance_summary WHERE province_code = ? AND municipality_no = ? AND brgy_no = ?";
         $stmt = $em->getConnection()->prepare($sql);
@@ -2030,7 +2030,7 @@ class VoterController extends Controller
             $length = intval($request->query->get('length'));
         }
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $sql = "SELECT COALESCE(count(v.ast_id),0) FROM tbl_assistance v";
@@ -2075,7 +2075,7 @@ class VoterController extends Controller
 
     public function ajaxPostVoterAssistanceAction($voterId, Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $voter = $em->getRepository("AppBundle:Voter")->find($voterId);
         $issuedAt = empty($request->get("issuedAt")) ? new \DateTime() : new \DateTime($request->get("issuedAt"));
 
@@ -2133,7 +2133,7 @@ class VoterController extends Controller
 
     public function ajaxDeleteVoterAssistanceAction($astId, Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $assistance = $em->getRepository("AppBundle:VoterAssistance")->find($astId);
         $user = $this->get("security.token_storage")->getToken()->getUser();
 
@@ -2162,7 +2162,7 @@ class VoterController extends Controller
     public function ajaxSmsMultiselectVotersAction(Request $request)
     {
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $provinceCode = empty($request->get('provinceCode')) ? null : $request->get('provinceCode');
         $municipalityNo = empty($request->get('municipalityNo')) ? null : $request->get('municipalityNo');
@@ -2254,7 +2254,7 @@ class VoterController extends Controller
     {
         $self = $this;
         $user = $this->get("security.token_storage")->getToken()->getUser();
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $currentRow = 0;
         $totalRows = 0;
@@ -2373,7 +2373,7 @@ class VoterController extends Controller
     {
         $self = $this;
         $user = $this->get("security.token_storage")->getToken()->getUser();
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $rescue = $this->getDoctrine()->getManager("rescue");
 
         $sql = "SELECT pd.* ,ph.municipality_no, ph.brgy_no FROM psw_profile_hdr ph LEFT JOIN psw_profile_dtl pd ON pd.profile_no = ph.profile_no
@@ -2459,7 +2459,7 @@ class VoterController extends Controller
 
     public function ajaxPostMessageSingle(Request $request, $voterId)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $isSpecial = empty($request->get("isSpecial")) ? false : (bool) $request->get("isSpecial");
         $sql = "SELECT v.*,b.name AS barangay_name, m.name AS municipality_name FROM tbl_voter v
@@ -2508,7 +2508,7 @@ class VoterController extends Controller
 
     private function textMembers($voterId, $messageBody)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $em = $this->getDoctrine()->getManager('sms');
 
         $sql = "SELECT v.*,n.node_id,b.name AS barangay_name, m.name AS municipality_name FROM tbl_voter v
@@ -2569,7 +2569,7 @@ class VoterController extends Controller
 
     public function ajaxSelect2VoterCategory(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
@@ -2599,7 +2599,7 @@ class VoterController extends Controller
 
     public function ajaxSelect2VoterGroup(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
@@ -2629,7 +2629,7 @@ class VoterController extends Controller
 
     public function ajaxSelect2VoterOrganization(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
@@ -2659,7 +2659,7 @@ class VoterController extends Controller
 
     public function ajaxSelect2VoterPosition(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
@@ -2689,7 +2689,7 @@ class VoterController extends Controller
 
     public function ajaxSelect2AssistanceCategory(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
@@ -2746,7 +2746,7 @@ class VoterController extends Controller
 
         $user = $this->get("security.token_storage")->getToken()->getUser();
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $projectVoter = $em->getRepository("AppBundle:ProjectVoter")
             ->findOneBy(['proId' => $proId, 'proVoterId' => $proVoterId]);
 
@@ -2810,7 +2810,7 @@ class VoterController extends Controller
 
     public function pretifyVoterName()
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $response = new StreamedResponse();
         $response->headers->set("Cache-Control", "no-cache, must-revalidate");
@@ -2895,7 +2895,7 @@ class VoterController extends Controller
 
     public function updateBirthdate($municipalityNo)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $emLive = $this->getDoctrine()->getManager("voter_live");
 
         $response = new StreamedResponse();
@@ -2978,7 +2978,7 @@ class VoterController extends Controller
 
     public function fillOrganization($proId, $municipalityNo)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $response = new StreamedResponse();
         $response->headers->set("Cache-Control", "no-cache, must-revalidate");
@@ -3101,7 +3101,7 @@ class VoterController extends Controller
     {
         $proIdCode = '000001';
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sql = "SELECT CAST(RIGHT(pro_id_code ,6) AS UNSIGNED ) AS order_num FROM tbl_project_voter
         WHERE pro_id = ? AND municipality_no = ? ORDER BY order_num DESC LIMIT 1 ";
@@ -3139,7 +3139,7 @@ class VoterController extends Controller
 
     public function ajaxGenerateIdNo($electId, $proId, $municipalityNo)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $response = new StreamedResponse();
         $response->headers->set("Cache-Control", "no-cache, must-revalidate");
@@ -3209,7 +3209,7 @@ class VoterController extends Controller
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sql = "SELECT DISTINCT municipality_name FROM tbl_jpm WHERE municipality_name LIKE ? ORDER BY municipality_name ASC LIMIT 30 ";
 
@@ -3242,7 +3242,7 @@ class VoterController extends Controller
         $searchText = '%' . strtoupper($searchText) . '%';
         $municipalityName = $request->get('municipalityName');
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sql = "SELECT DISTINCT barangay_name FROM tbl_jpm WHERE municipality_name = ? AND barangay_name LIKE ? ORDER BY municipality_name ASC LIMIT 30 ";
 
@@ -3272,7 +3272,7 @@ class VoterController extends Controller
 
     public function transferToNewVoterslist()
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $response = new StreamedResponse();
         $response->headers->set("Cache-Control", "no-cache, must-revalidate");
@@ -3365,7 +3365,7 @@ class VoterController extends Controller
 
     public function transferToNewVoter()
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sourceName = "ZULUETA, JULIE SAMILLINO";
         $targetName = "ZULUETA, JULIE SAMILLANO";
@@ -3448,7 +3448,7 @@ class VoterController extends Controller
 
     public function ajaxImportJpm($electId, $proId, $provinceCode, $municipalityNo)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $emProvince = $this->getDoctrine()->getManager('province');
 
         $response = new StreamedResponse();
@@ -3535,7 +3535,7 @@ class VoterController extends Controller
 
     public function ajaxProjectVoterBlock(Request $request, $voterId)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $user = $this->get("security.token_storage")->getToken()->getUser();
 
         $projectVoter = $em->getRepository("AppBundle:ProjectVoter")
@@ -3577,7 +3577,7 @@ class VoterController extends Controller
 
     public function ajaxProjectVoterUnblock(Request $request, $voterId)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $user = $this->get("security.token_storage")->getToken()->getUser();
 
         $projectVoter = $em->getRepository("AppBundle:ProjectVoter")
@@ -3611,7 +3611,7 @@ class VoterController extends Controller
 
     public function ajaxProjectVoterActivate(Request $request, $voterId)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $user = $this->get("security.token_storage")->getToken()->getUser();
 
         $projectVoter = $em->getRepository("AppBundle:ProjectVoter")
@@ -3645,7 +3645,7 @@ class VoterController extends Controller
 
     public function ajaxProjectVoterDeactivate(Request $request, $voterId)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $user = $this->get("security.token_storage")->getToken()->getUser();
 
         $projectVoter = $em->getRepository("AppBundle:ProjectVoter")
@@ -3679,7 +3679,7 @@ class VoterController extends Controller
 
     public function ajaxProjectVoterResetImage(Request $request, $voterId)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $user = $this->get("security.token_storage")->getToken()->getUser();
 
         $projectVoter = $em->getRepository("AppBundle:ProjectVoter")
@@ -3723,7 +3723,7 @@ class VoterController extends Controller
 
     public function ajaxSelect2DswdAddress(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
@@ -3753,7 +3753,7 @@ class VoterController extends Controller
 
     public function ajaxSelect2SexAddress(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
@@ -3783,7 +3783,7 @@ class VoterController extends Controller
 
     public function ajaxSelect2RemarksAddress(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
@@ -3814,7 +3814,7 @@ class VoterController extends Controller
     public function ajaxSmsMultiselectDswdMemberAction(Request $request)
     {
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $address = empty($request->get('address')) ? null : $request->get('address');
         $sex = empty($request->get('sex')) ? null : $request->get('sex');
@@ -3858,7 +3858,7 @@ class VoterController extends Controller
     {
         $self = $this;
         $user = $this->get("security.token_storage")->getToken()->getUser();
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $currentRow = 0;
         $totalRows = 0;
@@ -3980,7 +3980,7 @@ class VoterController extends Controller
 
     public function ajaxSelect2CapitolMunicipality(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
@@ -4010,7 +4010,7 @@ class VoterController extends Controller
 
     public function ajaxSelect2CapitolBarangay(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
@@ -4042,7 +4042,7 @@ class VoterController extends Controller
 
     public function ajaxPostNewVoterAction($voterId, Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $voter = $em->getRepository("AppBundle:Voter")->find($voterId);
         $issuedAt = empty($request->get("issuedAt")) ? new \DateTime() : new \DateTime($request->get("issuedAt"));
 
@@ -4100,7 +4100,7 @@ class VoterController extends Controller
 
     public function ajaxPostProjectTemporaryVoterAction(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $entity = new ProjectVoter();
@@ -4117,18 +4117,18 @@ class VoterController extends Controller
         $entity->setCivilStatus(trim(strtoupper($request->get('civilStatus'))));
         $entity->setBloodtype(trim(strtoupper($request->get('bloodtype'))));
         $entity->setOccupation(trim(strtoupper($request->get('occupation'))));
-        $entity->setReligion(trim(strtoupper($request->get('religion'))));
-        $entity->setDialect(trim(strtoupper($request->get('dialect'))));
-        $entity->setIpGroup(trim(strtoupper($request->get('ipGroup'))));
+        //$entity->setReligion(trim(strtoupper($request->get('religion'))));
+        //$entity->setDialect(trim(strtoupper($request->get('dialect'))));
+        //$entity->setIpGroup(trim(strtoupper($request->get('ipGroup'))));
         $entity->setVoterGroup(trim(strtoupper($request->get('voterGroup'))));
-        $entity->setPosition(trim(strtoupper($request->get('position'))));
+        //$entity->setPosition(trim(strtoupper($request->get('position'))));
 
         $entity->setBirthdate(trim($request->get('birthdate')));
         $entity->setIsNonVoter(1);
         $entity->setHasId(0);
         $entity->setHasPhoto(0);
         $entity->setDidChanged(1);
-        $entity->setToSend(1);
+        //$entity->setToSend(1);
         $entity->setCellphone($request->get('cellphoneNo'));
         $entity->setVoterGroup(trim(strtoupper($request->get('voterGroup'))));
 
@@ -4206,7 +4206,7 @@ class VoterController extends Controller
 
     public function ajaxPatchProjectTemporaryVoterAction(Request $request, $proVoterId)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $entity = $em->getRepository("AppBundle:ProjectVoter")->find($proVoterId);
@@ -4302,7 +4302,7 @@ class VoterController extends Controller
 
     public function ajaxDeleteTemporaryVoterAction($proVoterId, Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $entity = $em->getRepository("AppBundle:ProjectVoter")->find($proVoterId);
         $em->remove($entity);
         $em->flush();

@@ -261,7 +261,7 @@ var Hierarchy = React.createClass({
                         proId: 3,
                         provinceCode: 53,
                         municipalityNo: $("#hierarchy_page #municipality_filter_select2").val(),
-                        brgyNo: $("#hierarchy_page #barangay_select2").val(),
+                        brgyNo: $("#hierarchy_page #barangay_filter_select2").val(),
                         voterGroup: self.state.form.data.voterGroupFilter
                     };
                 },

@@ -108,7 +108,7 @@ var HouseholdDatatable = React.createClass({
             }
         });
 
-        
+
         $("#household_table #municipality_select2").select2({
             casesentitive: false,
             placeholder: "Enter Name...",
@@ -178,7 +178,7 @@ var HouseholdDatatable = React.createClass({
             filters.provinceCode = $(this).val();
             self.setState({ filters: filters }, self.reload);
         });
-        
+
         $("#household_table #municipality_select2").on("change", function () {
             self.handleFilterChange();
         });
@@ -259,6 +259,7 @@ var HouseholdDatatable = React.createClass({
                     "type": 'GET',
                     "data": function (d) {
                         d.voterName = $('#household_table input[name="voter_name"]').val();
+                        d.voterGroup = $('#household_table input[name="voter_group"]').val();
                         d.municipalityNo = $('#household_table #municipality_select2').val();
                         d.barangayNo = $('#household_table #barangay_select2').val();
                         d.householdCode = $('#household_table input[name="household_code"]').val();
@@ -267,7 +268,7 @@ var HouseholdDatatable = React.createClass({
                 },
                 "columnDefs": [{
                     'orderable': false,
-                    'targets': [0,2, 6, 7, 8, 9, 10]
+                    'targets': [0, 6, 7, 8, 9, 10]
                 }, {
                     'className': 'align-center',
                     'targets': [2, 3]
@@ -321,7 +322,7 @@ var HouseholdDatatable = React.createClass({
                             var recruitBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-green recruits-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-calendar'></i></a>";
                             var editBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-primary edit-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-edit'></i></a>";
                             var deleteBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-red-sunglo delete-button' data-toggle='tooltip' data-title='Delete'><i class='fa fa-trash' ></i></a>";
-                            return  recruitBtn + deleteBtn;
+                            return recruitBtn + deleteBtn;
                         }
                     }
                 ],
@@ -493,7 +494,9 @@ var HouseholdDatatable = React.createClass({
                                 <td style={{ padding: "10px 5px" }}>
                                     <input type="text" className="form-control form-filter input-sm" name="voter_name" onChange={this.handleFilterChange} />
                                 </td>
-                                <td></td>
+                                <td>
+                                    <input type="text" className="form-control form-filter input-sm" name="voter_group" onChange={this.handleFilterChange} />
+                                </td>
                                 <td style={{ padding: "10px 5px" }}>
                                     <select id="municipality_select2" className="form-control form-filter input-sm" >
                                     </select>

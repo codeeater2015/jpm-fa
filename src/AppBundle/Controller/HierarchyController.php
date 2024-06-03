@@ -155,6 +155,8 @@ class HierarchyController extends Controller
         $proVoterId = $request->get('proVoterId');
         $parentId = $request->get("parentId");
 
+        //fixing bug on hierarchy
+
         $voter = $em->getRepository("AppBundle:ProjectVoter")->find($proVoterId);
         $user = $this->get("security.token_storage")->getToken()->getUser();
 

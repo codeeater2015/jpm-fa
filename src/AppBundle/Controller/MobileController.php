@@ -5502,6 +5502,10 @@ class MobileController extends Controller
         
         $hdr['members'] = $dtls;
 
+        $hdr['total_members'] = $hdr['total_members'] + 1;
+        $hdr['total_voter_members'] = $hdr['is_non_voter'] == 0 ? $hdr['total_voter_members'] + 1 : $hdr['total_voter_members'];
+        $hdr['total_non_voter_members'] = $hdr['is_non_voter'] == 1 ? $hdr['total_non_voter_members'] + 1 : $hdr['total_non_voter_members'];
+
          return new JsonResponse($hdr);
      }
 }

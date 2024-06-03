@@ -106,35 +106,35 @@ class VoterController extends Controller
      * @Method("GET")
      */
 
-    public function ajaxGetMunicipality(Request $request)
-    {
-        $searchText = trim(strtoupper($request->get('searchText')));
-        $searchText = '%' . strtoupper($searchText) . '%';
-        $provinceCode = empty($request->get("provinceCode")) ? 53 : $request->get("provinceCode");
-
-        $em = $this->getDoctrine()->getManager("electPrep2024");
-
-
-
-        $sql = "SELECT * FROM psw_municipality m
-        WHERE m.province_code = ? AND m.name LIKE ? ORDER BY m.name ASC LIMIT 30 ";
-
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1, $provinceCode);
-        $stmt->bindValue(2, $searchText);
-
-        $stmt->execute();
-        $municipalities = $stmt->fetchAll();
-
-        if (count($municipalities) <= 0) {
-            return new JsonResponse(array());
-        }
-
-        $em->clear();
-
-        return new JsonResponse($municipalities);
-    }
-
+     public function ajaxGetMunicipality(Request $request)
+     {
+         $searchText = trim(strtoupper($request->get('searchText')));
+         $searchText = '%' . strtoupper($searchText) . '%';
+         $provinceCode = empty($request->get("provinceCode")) ? 53 : $request->get("provinceCode");
+ 
+         $em = $this->getDoctrine()->getManager();
+ 
+ 
+ 
+         $sql = "SELECT * FROM psw_municipality m
+         WHERE m.province_code = ? AND m.municipality_no IN ('01','16') AND m.name LIKE ? ORDER BY m.name ASC LIMIT 30 ";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, $provinceCode);
+         $stmt->bindValue(2, $searchText);
+ 
+         $stmt->execute();
+         $municipalities = $stmt->fetchAll();
+ 
+         if (count($municipalities) <= 0) {
+             return new JsonResponse(array());
+         }
+ 
+         $em->clear();
+ 
+         return new JsonResponse($municipalities);
+     }
+ 
     /**
      * @Route("/ajax_select2_elections",
      *       name="ajax_select2_elections",

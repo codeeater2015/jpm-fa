@@ -5489,7 +5489,7 @@ class MobileController extends Controller
          $hdr = $stmt->fetch(\PDO::FETCH_ASSOC);
 
          if(!$hdr)
-            return new JsonResponse(['message' => 'not found'], 404);
+            return new JsonResponse(['message' => 'Household not found. Please contact the system administrator'], 404);
 
         $sql = "SELECT pv.voter_name,pv.municipality_name,pv.barangay_name,pv.is_non_voter FROM tbl_household_dtl hd INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = hd.pro_voter_id  
                 WHERE hd.household_id = ? ORDER BY voter_name ASC ";

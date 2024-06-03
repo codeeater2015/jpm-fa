@@ -5474,7 +5474,7 @@ class MobileController extends Controller
      public function ajaxGetHouseholdProfile(Request $request, $householdCode)
      {
  
-         $em = $this->getDoctrine()->getManager("electionPrep2024");
+         $em = $this->getDoctrine()->getManager("electPrep2024");
  
          $sql = "SELECT hh.voter_name, hh.household_code,hh.household_no, hh.municipality_name, hh.barangay_name,hh.id , pv.is_non_voter,
                 (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd WHERE hh.id = hd.household_id) AS total_members,

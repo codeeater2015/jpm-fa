@@ -5476,7 +5476,7 @@ class MobileController extends Controller
  
          $em = $this->getDoctrine()->getManager("electPrep2024");
  
-         $sql = "SELECT hh.voter_name, hh.household_code,hh.household_no, hh.municipality_name, hh.barangay_name,hh.id , pv.is_non_voter,
+         $sql = "SELECT hh.voter_name, hh.household_code,hh.household_no, hh.municipality_name, hh.barangay_name,hh.id , pv.is_non_voter, pv.precinct_no,
                 (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd WHERE hh.id = hd.household_id) AS total_members,
                 (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND ppv.is_non_voter = 0 ) AS total_voter_members,
                 (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND ppv.is_non_voter = 1 ) AS total_non_voter_members
@@ -5491,7 +5491,7 @@ class MobileController extends Controller
          if(!$hdr)
             return new JsonResponse(['message' => 'Household not found. Please contact the system administrator'], 404);
 
-        $sql = "SELECT pv.voter_name,pv.municipality_name,pv.barangay_name,pv.is_non_voter FROM tbl_household_dtl hd INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = hd.pro_voter_id  
+        $sql = "SELECT pv.voter_name,pv.municipality_name,pv.barangay_name,pv.is_non_voter,pv.precinct_no FROM tbl_household_dtl hd INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = hd.pro_voter_id  
                 WHERE hd.household_id = ? ORDER BY voter_name ASC ";
  
          $stmt = $em->getConnection()->prepare($sql);

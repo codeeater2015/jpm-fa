@@ -31,7 +31,7 @@ var HouseholdMemberCreateModal = React.createClass({
     initSelect2: function () {
         var self = this;
 
-        $("#municipality_select2").select2({
+        $("#household-member-form #municipality_select2").select2({
             casesentitive: false,
             placeholder: "Select City/Municipality",
             allowClear: true,
@@ -56,7 +56,7 @@ var HouseholdMemberCreateModal = React.createClass({
             }
         });
 
-        $("#barangay_select2").select2({
+        $("#household-member-form #barangay_select2").select2({
             casesentitive: false,
             placeholder: "Select Barangay",
             allowClear: true,
@@ -68,7 +68,7 @@ var HouseholdMemberCreateModal = React.createClass({
                 data: function (params) {
                     return {
                         searchText: params.term,
-                        municipalityNo: $("#municipality_select2").val(),
+                        municipalityNo: $("#household-member-form #municipality_select2").val(),
                         provinceCode: 53
                     };
                 },
@@ -82,7 +82,7 @@ var HouseholdMemberCreateModal = React.createClass({
             }
         });
 
-        $("#form-voter-select2").select2({
+        $("#household-member-form #form-voter-select2").select2({
             casesentitive: false,
             placeholder: "Enter Name...",
             allowClear: true,
@@ -98,8 +98,8 @@ var HouseholdMemberCreateModal = React.createClass({
                         proId: self.props.proId,
                         electId: self.props.electId,
                         provinceCode: 53,
-                        municipalityNo: $("#municipality_select2").val(),
-                        brgyNo: $("#barangay_select2").val()
+                        municipalityNo: $("#household-member-form #municipality_select2").val(),
+                        brgyNo: $("#household-member-form #barangay_select2").val()
                     };
                 },
                 processResults: function (data, params) {
@@ -181,11 +181,11 @@ var HouseholdMemberCreateModal = React.createClass({
             self.loadVoter(self.props.proId, $(this).val());
         });
 
-        $("#municipality_select2").on("change", function () {
+        $("#household-member-form #municipality_select2").on("change", function () {
             self.setFieldValue("municipalityNo", $(this).val());
         });
 
-        $("#barangay_select2").on("change", function () {
+        $("#household-member-form #barangay_select2").on("change", function () {
             self.setFieldValue("barangayNo", $(this).val());
         });
 
@@ -197,13 +197,13 @@ var HouseholdMemberCreateModal = React.createClass({
             self.setFieldValue("position", $(this).val());
         });
 
-        $("#municipality_select2").empty()
+        $("#household-member-form #municipality_select2").empty()
             .append($("<option/>")
                 .val(this.props.municipalityNo)
                 .text(this.props.municipalityName))
             .trigger("change");
 
-        $("#barangay_select2").empty()
+        $("#household-member-form #barangay_select2").empty()
             .append($("<option/>")
                 .val(this.props.barangayNo)
                 .text(this.props.barangayName))
@@ -387,7 +387,7 @@ var HouseholdMemberCreateModal = React.createClass({
         return (
             <Modal keyboard={false} enforceFocus={false} bsSize="lg" backdrop="static" show={this.props.show} onHide={this.props.onHide}>
                 <Modal.Header className="modal-header bg-blue-dark font-white" closeButton>
-                    <Modal.Title>Member Form</Modal.Title>
+                    <Modal.Title>Household Member Form</Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsClass="modal-body overflow-auto">
 
@@ -408,7 +408,7 @@ var HouseholdMemberCreateModal = React.createClass({
                         />
                     }
 
-                    <form id="voter-node-form" onSubmit={this.submit}>
+                    <form id="household-member-form" onSubmit={this.submit}>
                         <div className="row">
                             <div className="col-md-3">
                                 <FormGroup controlId="formMunicipalityNo">

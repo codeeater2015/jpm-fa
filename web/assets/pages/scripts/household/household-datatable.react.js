@@ -268,7 +268,7 @@ var HouseholdDatatable = React.createClass({
                 },
                 "columnDefs": [{
                     'orderable': false,
-                    'targets': [0, 6, 7, 8, 9, 10]
+                    'targets': [0, 6, 7, 8, 9, 10, 11]
                 }, {
                     'className': 'align-center',
                     'targets': [2, 3]
@@ -314,6 +314,17 @@ var HouseholdDatatable = React.createClass({
                         "data": "contact_no",
                         "className": "text-center",
                         "width": 120
+                    },
+                    {
+                        "data": "updated_at",
+                        "className": "text-center",
+                        "width": 80 ,
+                        "render" : function(data, type, row){
+                            console.log('updated at');
+                            console.log(data);
+
+                            return (data == "" || data == null ) ? "" : moment(data).format("MMMM Do YYYY, h:mm a"); 
+                        }
                     },
                     {
                         "width": 80,
@@ -483,6 +494,7 @@ var HouseholdDatatable = React.createClass({
                                 <th rowSpan="2" className="text-center">House No.</th>
                                 <th className="text-center" colSpan="3">Household</th>
                                 <th rowSpan="2" className="text-center">Contact #</th>
+                                <th rowSpan="2" className="text-center">Last Update</th>
                                 <th rowSpan="2" width="60px" className="text-center"></th>
                             </tr>
                             <tr>
@@ -509,6 +521,7 @@ var HouseholdDatatable = React.createClass({
                                 <td>
                                     <input type="text" className="form-control form-filter input-sm" name="household_code" onChange={this.handleFilterChange} />
                                 </td>
+                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>

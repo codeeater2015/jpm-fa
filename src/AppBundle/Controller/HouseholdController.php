@@ -369,7 +369,7 @@ class HouseholdController extends Controller
             $length = intval($request->query->get('length'));
         }
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $sql = "SELECT COALESCE(count(h.id),0) FROM tbl_household_hdr h ";

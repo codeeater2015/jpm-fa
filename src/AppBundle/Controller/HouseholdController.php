@@ -48,7 +48,7 @@ class HouseholdController extends Controller
     public function ajaxPostHouseholdHeaderAction(Request $request)
     {
         $user = $this->get("security.token_storage")->getToken()->getUser();
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");;
 
         $entity = new HouseholdHeader();
         $entity->setElectId($request->get('electId'));
@@ -165,7 +165,7 @@ class HouseholdController extends Controller
     {
         $householdNo = 1;
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");;
 
         $sql = "SELECT household_no FROM tbl_household_hdr ORDER BY household_no DESC LIMIT 1 ";
 
@@ -191,7 +191,7 @@ class HouseholdController extends Controller
     public function ajaxPatchHouseholdHeaderAction(Request $request, $householdId)
     {
         $user = $this->get("security.token_storage")->getToken()->getUser();
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");;
 
         $entity = $em->getRepository("AppBundle:HouseholdHeader")
             ->find($householdId);
@@ -369,7 +369,7 @@ class HouseholdController extends Controller
             $length = intval($request->query->get('length'));
         }
 
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager("electPrep2024");;
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $sql = "SELECT COALESCE(count(h.id),0) FROM tbl_household_hdr h ";
@@ -409,10 +409,10 @@ class HouseholdController extends Controller
             $stmt->execute();
 
             $summary = $stmt->fetch(\PDO::FETCH_ASSOC);
-            
 
-            $row['total_members'] =  $summary['total_members'] + 1 ;
-            $row['total_voters'] = $row['is_non_voter'] != 1 ? $summary['total_voters'] + 1 :  $summary['total_voters'];
+
+            $row['total_members'] = $summary['total_members'] + 1;
+            $row['total_voters'] = $row['is_non_voter'] != 1 ? $summary['total_voters'] + 1 : $summary['total_voters'];
             $row['total_non_voters'] = $row['is_non_voter'] == 1 ? $summary['total_non_voters'] + 1 : $summary['total_non_voters'];
         }
 
@@ -489,7 +489,7 @@ class HouseholdController extends Controller
             $length = intval($request->query->get('length'));
         }
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");;
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $sql = "SELECT COALESCE(count(h.id),0) FROM tbl_household_hdr h WHERE h.pro_id_code NOT IN (SELECT r.pro_id_code FROM tbl_recruitment_hdr r ) ";
@@ -531,7 +531,7 @@ class HouseholdController extends Controller
 
     public function ajaxDeleteHouseholdHeaderAction($householdId)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");;
         $entity = $em->getRepository("AppBundle:HouseholdHeader")->find($householdId);
 
         if (!$entity)
@@ -561,7 +561,7 @@ class HouseholdController extends Controller
 
     public function ajaxGetHouseholdHeader($id)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");;
         $entity = $em->getRepository("AppBundle:HouseholdHeader")
             ->find($id);
 
@@ -591,7 +591,7 @@ class HouseholdController extends Controller
 
     private function getLGC($municipalityNo, $barangayNo)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");;
         $sql = "SELECT pv.voter_name, pv.cellphone, la.municipality_name, la.barangay_name FROM tbl_location_assignment la INNER JOIN tbl_project_voter pv 
                 ON pv.pro_voter_id = la.pro_voter_id  
                 WHERE la.municipality_no = ? AND la.barangay_no = ? ";
@@ -617,7 +617,7 @@ class HouseholdController extends Controller
 
     public function ajaxGetHouseholdFullHeader($id)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");;
 
         $sql = "SELECT h.*, pv.cellphone, pv.pro_voter_id, pv.birthdate, pv.gender,
                 pv.firstname, pv.middlename, pv.lastname, pv.ext_name, pv.civil_status, pv.bloodtype,
@@ -645,7 +645,7 @@ class HouseholdController extends Controller
 
     public function ajaxPostHouseholdDetailAction(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");;
         $user = $this->get("security.token_storage")->getToken()->getUser();
 
         $entity = new HouseholdDetail();
@@ -745,7 +745,7 @@ class HouseholdController extends Controller
 
     public function ajaxSelect2Relationship(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
@@ -825,7 +825,7 @@ class HouseholdController extends Controller
             $length = intval($request->query->get('length'));
         }
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");;
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $sql = "SELECT COALESCE(count(h.id),0) FROM tbl_household_dtl h WHERE h.household_id = ${householdId}";
@@ -868,7 +868,7 @@ class HouseholdController extends Controller
 
     public function ajaxDeleteHouseholdDetailAction($householdDetailId)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");;
         $entity = $em->getRepository("AppBundle:HouseholdDetail")->find($householdDetailId);
 
         if (!$entity)
@@ -892,7 +892,7 @@ class HouseholdController extends Controller
     {
         $user = $this->get("security.token_storage")->getToken()->getUser();
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");;
 
         $sql = "SELECT * FROM psw_municipality 
                 WHERE province_code = 53 AND municipality_no <> 16  AND municipality_no IN (SELECT DISTINCT municipality_no FROM tbl_project_voter pv 
@@ -1225,7 +1225,7 @@ class HouseholdController extends Controller
     {
         $householdNo = 1;
 
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("electPrep2024");;
 
         $sql = "SELECT household_no FROM tbl_household_hdr where municipality_no = ? AND barangay_no = ? 
                ORDER BY household_no DESC LIMIT 1 ";
@@ -1243,4 +1243,46 @@ class HouseholdController extends Controller
 
         return $householdNo;
     }
+
+    /**
+     * @Route("/ajax_patch_household_notes/{householdId}", 
+     * 	name="ajax_patch_household_notes",
+     *	options={"expose" = true}
+     * )
+     * @Method("PATCH")
+     */
+
+    public function ajaxPatchHouseholdNotesAction(Request $request, $householdId)
+    {
+        $user = $this->get("security.token_storage")->getToken()->getUser();
+        $em = $this->getDoctrine()->getManager("electPrep2024");;
+
+        $entity = $em->getRepository("AppBundle:HouseholdHeader")
+            ->find($householdId);
+
+        if (!$entity)
+            return new JsonResponse([], 404);
+
+        $voter = $em->getRepository("AppBundle:ProjectVoter")
+            ->find($entity->getProVoterId());
+
+
+        if (!$voter)
+            return new JsonResponse([], 404);
+
+        $entity->setContactNo($request->get('contactNo'));
+        $entity->setRemarks($request->get('remarks'));
+        $entity->setUpdatedAt(new \DateTime());
+        $entity->setUpdatedBy($user->getUsername());
+
+        $voter->setCellphone($request->get('contactNo'));
+        
+        $em->flush();
+        $em->clear();
+
+        $serializer = $this->get('serializer');
+
+        return new JsonResponse($serializer->normalize($entity));
+    }
+
 }

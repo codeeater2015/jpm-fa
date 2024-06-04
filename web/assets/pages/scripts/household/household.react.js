@@ -15,7 +15,7 @@ var HouseholdComponent = React.createClass({
         return (
             <div className="portlet light portlet-fit bordered">
                 <div className="portlet-body">
-                    <HouseholdDatatable />
+                    <HouseholdDatatable notify={this.notify} />
                 </div>
             </div>
         )

@@ -444,6 +444,7 @@ var HouseholdDatatable = React.createClass({
                         onHide={this.closeRecruitsModal}
                         proId={this.state.filters.proId}
                         electId={this.state.filters.electId}
+                        notify={this.props.notify}
                     />
                 }
 

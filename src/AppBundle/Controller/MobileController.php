@@ -5501,10 +5501,8 @@ class MobileController extends Controller
 
        $dtls = $stmt->fetchAll(\PDO::FETCH_ASSOC);
        
-       
-
        foreach ($dtls as &$row) {
-           $row['is_same_municipality'] = $hdr['municipality_no'] == $row['municipality_no'] ? 1 : 0;
+            $row['is_gil_voter'] =  ($hdr['municipality_no'] == '16' || $hdr['municipality_no'] == '01' ) ? 1 : 0;
        }
 
        $hdr['members'] = $dtls;
@@ -5512,7 +5510,7 @@ class MobileController extends Controller
        $hdr['total_members'] = $hdr['total_members'] + 1;
        $hdr['total_voter_members'] = $hdr['is_non_voter'] == 0 ? $hdr['total_voter_members'] + 1 : $hdr['total_voter_members'];
        $hdr['total_non_voter_members'] = $hdr['is_non_voter'] == 1 ? $hdr['total_non_voter_members'] + 1 : $hdr['total_non_voter_members'];
-       $hdr['is_same_municipality'] = $hdr['municipality_no'] == $hdr['registered_municipality'] ? 1 : 0;
+       $hdr['is_gil_voter'] =  ($hdr['registered_municipality'] == '16' || $hdr['registered_municipality'] == '01' ) ? 1 : 0;
 
 
         return new JsonResponse($hdr);

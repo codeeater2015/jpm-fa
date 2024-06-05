@@ -50,19 +50,24 @@ class HouseholdController extends Controller
         $user = $this->get("security.token_storage")->getToken()->getUser();
         $em = $this->getDoctrine()->getManager("electPrep2024");;
 
+        $householdNo = $this->getNewHouseholdNoByBarangay($request->get('municipalityNo'), $request->get('barangayNo'));
+
+        $sql = "SELECT * FROM psw_barangay WHERE municipality_code = ? AND brgy_no = ?";
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, 53 . $request->get('municipalityNo'));
+        $stmt->bindValue(2, $request->get('barangayNo'));
+        $stmt->execute();
+
+        $barangay = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+
         $entity = new HouseholdHeader();
         $entity->setElectId($request->get('electId'));
         $entity->setProVoterId($request->get('proVoterId'));
         $entity->setHouseholdNo($this->getNewHouseholdNo());
-        $entity->setHouseholdCode(sprintf("%06d", $entity->getHouseholdNo()));
+        $entity->setHouseholdCode($barangay['short_name']. $householdNo);
         $entity->setMunicipalityNo($request->get('municipalityNo'));
         $entity->setBarangayNo($request->get('barangayNo'));
-
-        $entity->setFirstname($request->get('firstname'));
-        $entity->setLastname($request->get('lastname'));
-        $entity->setMiddlename($request->get('middlename'));
-        $entity->setExtName($request->get('extName'));
-        $entity->setGender($request->get('gender'));
 
         // $entity->setIsTagalog($request->get('isTagalog'));
         // $entity->setIsCuyonon($request->get('isCuyonon'));
@@ -86,11 +91,6 @@ class HouseholdController extends Controller
             if (!empty($request->get('cellphoneNo')))
                 $proVoter->setCellphone($request->get('cellphoneNo'));
 
-            $proVoter->setFirstname($entity->getFirstname());
-            $proVoter->setMiddlename($entity->getMiddlename());
-            $proVoter->setLastname($entity->getLastname());
-            $proVoter->setExtname($entity->getExtName());
-            $proVoter->setGender($entity->getGender());
             $proVoter->setBirthdate(trim($request->get('birthdate')));
             // $proVoter->setCivilStatus(trim(strtoupper($request->get('civilStatus'))));
             // $proVoter->setBloodtype(trim(strtoupper($request->get('bloodtype'))));
@@ -191,7 +191,7 @@ class HouseholdController extends Controller
     public function ajaxPatchHouseholdHeaderAction(Request $request, $householdId)
     {
         $user = $this->get("security.token_storage")->getToken()->getUser();
-        $em = $this->getDoctrine()->getManager("electPrep2024");;
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $entity = $em->getRepository("AppBundle:HouseholdHeader")
             ->find($householdId);
@@ -202,26 +202,12 @@ class HouseholdController extends Controller
         $entity->setProVoterId($request->get('proVoterId'));
         $entity->setMunicipalityNo($request->get('municipalityNo'));
         $entity->setBarangayNo($request->get('barangayNo'));
-
-        $entity->setFirstname($request->get('firstname'));
-        $entity->setLastname($request->get('lastname'));
-        $entity->setMiddlename($request->get('middlename'));
-        $entity->setExtName($request->get('extName'));
-        $entity->setGender($request->get('gender'));
-        $entity->setPosition($request->get('position'));
-
-        $entity->setIsTagalog($request->get('isTagalog'));
-        $entity->setIsCuyonon($request->get('isCuyonon'));
-        $entity->setIsBisaya($request->get('isBisaya'));
-        $entity->setIsIlonggo($request->get('isIlonggo'));
-
-        $entity->setIsCatholic($request->get('isCatholic'));
-        $entity->setIsInc($request->get('isInc'));
-        $entity->setIsIslam($request->get('isIslam'));
-        $entity->setCellphone($request->get('cellphoneNo'));
+        $entity->setVoterName($request->get('voterName'));
+     
+        $entity->setContactNo($request->get('cellphoneNo'));
 
         $validator = $this->get('validator');
-        $violations = $validator->validate($entity);
+        $violations = $validator->validate($entity,[], 'edit');
 
         $errors = [];
 
@@ -265,30 +251,7 @@ class HouseholdController extends Controller
             if (!empty($request->get('cellphoneNo')))
                 $proVoter->setCellphone($request->get('cellphoneNo'));
 
-            $proVoter->setFirstname($entity->getFirstname());
-            $proVoter->setMiddlename($entity->getMiddlename());
-            $proVoter->setLastname($entity->getLastname());
-            $proVoter->setExtName($entity->getExtName());
-            $proVoter->setGender($entity->getGender());
             $proVoter->setBirthdate(trim($request->get('birthdate')));
-            $proVoter->setCivilStatus(trim(strtoupper($request->get('civilStatus'))));
-            $proVoter->setBloodtype(trim(strtoupper($request->get('bloodtype'))));
-            $proVoter->setOccupation(trim(strtoupper($request->get('occupation'))));
-            $proVoter->setReligion(trim(strtoupper($request->get('religion'))));
-            $proVoter->setDialect(trim(strtoupper($request->get('dialect'))));
-            $proVoter->setIpGroup(trim(strtoupper($request->get('ipGroup'))));
-            $proVoter->setVoterGroup(trim(strtoupper($request->get('voterGroup'))));
-            $proVoter->setPosition(trim(strtoupper($request->get('position'))));
-
-
-            $proVoter->setIsTagalog($entity->getIsTagalog());
-            $proVoter->setIsCuyonon($entity->getIsCuyonon());
-            $proVoter->setIsBisaya($entity->getIsBisaya());
-            $proVoter->setIsIlonggo($entity->getIsIlonggo());
-
-            $proVoter->setIsCatholic($entity->getIsCatholic());
-            $proVoter->setIsInc($entity->getIsInc());
-            $proVoter->setIsIslam($entity->getIsIslam());
 
             $entity->setVoterName($proVoter->getVoterName());
             $entity->setProIdCode($proVoter->getProIdCode());

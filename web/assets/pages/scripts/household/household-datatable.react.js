@@ -268,7 +268,7 @@ var HouseholdDatatable = React.createClass({
                 },
                 "columnDefs": [{
                     'orderable': false,
-                    'targets': [0, 6, 7, 8, 9, 10, 11]
+                    'targets': [0, 6, 7, 8, 9, 10, 11, 12]
                 }, {
                     'className': 'align-center',
                     'targets': [2, 3]
@@ -291,9 +291,9 @@ var HouseholdDatatable = React.createClass({
                             return row.is_non_voter == 1 ? '--- ' + data : data;
                         }
                     },
-                    { "data": "voter_group", "className": "text-center", width: 50 },
-                    { "data": "municipality_name", "className": "text-center", width: 200 },
-                    { "data": "barangay_name", width: 150 },
+                    { "data": "voter_group", "className": "text-center", width: 40 },
+                    { "data": "municipality_name", "className": "text-center", width: 150 },
+                    { "data": "barangay_name", width: 120 },
                     { "data": "household_code", width: 80, className: "text-center" },
                     {
                         "data": "total_voters",
@@ -313,7 +313,7 @@ var HouseholdDatatable = React.createClass({
                     {
                         "data": "contact_no",
                         "className": "text-center",
-                        "width": 120
+                        "width": 100
                     },
                     {
                         "data": "updated_at",
@@ -323,17 +323,22 @@ var HouseholdDatatable = React.createClass({
                             console.log('updated at');
                             console.log(data);
 
-                            return (data == "" || data == null ) ? "" : moment(data).format("MMMM Do YYYY, h:mm a"); 
+                            return (data == "" || data == null ) ? "" : moment(data).format("MMM Do YY"); 
                         }
                     },
                     {
-                        "width": 80,
+                        "data": "updated_by",
+                        "className": "text-center",
+                        "width": 50
+                    },
+                    {
+                        "width": 100,
                         "className": "text-center",
                         "render": function (data, type, row) {
                             var recruitBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-green recruits-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-calendar'></i></a>";
                             var editBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-primary edit-button' data-toggle='tooltip' data-title='Edit'><i class='fa fa-edit'></i></a>";
                             var deleteBtn = "<a href='javascript:void(0);' class='btn btn-xs font-white bg-red-sunglo delete-button' data-toggle='tooltip' data-title='Delete'><i class='fa fa-trash' ></i></a>";
-                            return recruitBtn + deleteBtn;
+                            return editBtn + recruitBtn + deleteBtn;
                         }
                     }
                 ],
@@ -495,6 +500,7 @@ var HouseholdDatatable = React.createClass({
                                 <th className="text-center" colSpan="3">Household</th>
                                 <th rowSpan="2" className="text-center">Contact #</th>
                                 <th rowSpan="2" className="text-center">Last Update</th>
+                                <th rowSpan="2" className="text-center">User</th>
                                 <th rowSpan="2" width="60px" className="text-center"></th>
                             </tr>
                             <tr>
@@ -521,6 +527,7 @@ var HouseholdDatatable = React.createClass({
                                 <td>
                                     <input type="text" className="form-control form-filter input-sm" name="household_code" onChange={this.handleFilterChange} />
                                 </td>
+                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>

@@ -11,7 +11,9 @@ var HouseholdEditModal = React.createClass({
             form: {
                 data: {
                     electId: null,
-                    proVoterId: null
+                    proVoterId: null,
+                    voterGroup : null,
+                    voterName : null
                 },
                 errors: []
             },
@@ -25,15 +27,15 @@ var HouseholdEditModal = React.createClass({
         var data = this.state.form.data;
 
         return (
-            <Modal style={{ marginTop: "10px" }} keyboard={false} enforceFocus={false} backdrop="static" show={this.props.show} onHide={this.props.onHide}>
+            <Modal style={{ marginTop: "10px" }} keyboard={false} bsSize="lg" enforceFocus={false} backdrop="static" show={this.props.show} onHide={this.props.onHide}>
                 <Modal.Header className="modal-header bg-blue-dark font-white" closeButton>
                     <Modal.Title>Household Edit Form</Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsClass="modal-body overflow-auto">
 
-                    <form id="household-edit-form" onSubmit={this.submit}>
+                    <form id="kfc-household-edit-form" onSubmit={this.submit}>
                         <div className="row">
-                            <div className="col-md-2">
+                            <div className="col-md-3">
                                 <div className="form-group">
                                     <label className="control-label">City/Municipality</label>
                                     <select id="municipality_select2" className="form-control form-filter input-sm" name="municipalityNo">
@@ -42,7 +44,7 @@ var HouseholdEditModal = React.createClass({
                                 </div>
                             </div>
 
-                            <div className="col-md-2">
+                            <div className="col-md-3">
                                 <FormGroup controlId="formBarangay" validationState={this.getValidationState('barangayNo')}>
                                     <label className="control-label">Barangay</label>
                                     <select id="barangay_select2" className="form-control form-filter input-sm" name="brgyNo">
@@ -53,7 +55,7 @@ var HouseholdEditModal = React.createClass({
                         </div>
 
                         <div className="row">
-                            <div className="col-md-6">
+                            <div className="col-md-8">
                                 <FormGroup controlId="formVoterId" validationState={this.getValidationState('voterId')}>
                                     <ControlLabel > Household Leader : </ControlLabel>
                                     <select id="voter-recruit-select2" className="form-control input-sm">
@@ -67,7 +69,7 @@ var HouseholdEditModal = React.createClass({
                             </div>
                         </div>
 
-                        <div className="row">
+                        {/* <div className="row">
 
                             <div className="col-md-2" >
                                 <FormGroup controlId="formLastname" validationState={this.getValidationState('lastname')}>
@@ -100,10 +102,10 @@ var HouseholdEditModal = React.createClass({
                                     <HelpBlock>{this.getError('extName')}</HelpBlock>
                                 </FormGroup>
                             </div>
-                        </div>
+                        </div> */}
 
                         <div className="row">
-                            <div className="col-md-2" >
+                            <div className="col-md-3" >
                                 <FormGroup controlId="formCellphoneNo" validationState={this.getValidationState('cellphoneNo')}>
                                     <ControlLabel > Cellphone No : </ControlLabel>
                                     <input type="text" placeholder="Example : 09283182013" value={this.state.form.data.cellphoneNo} className="input-sm form-control" onChange={this.setFormProp} name="cellphoneNo" />
@@ -111,7 +113,7 @@ var HouseholdEditModal = React.createClass({
                                 </FormGroup>
                             </div>
 
-                            <div className="col-md-2" >
+                            <div className="col-md-3" >
                                 <FormGroup controlId="formBirthdate" validationState={this.getValidationState('birthdate')}>
                                     <ControlLabel > Birthdate : </ControlLabel>
                                     <input type="date" value={this.state.form.data.birthdate} className="input-sm form-control" onChange={this.setFormProp} name="birthdate" />
@@ -119,7 +121,7 @@ var HouseholdEditModal = React.createClass({
                                 </FormGroup>
                             </div>
 
-                            <div className="col-md-2">
+                            {/* <div className="col-md-2">
                                 <FormGroup controlId="formGender" validationState={this.getValidationState('gender')}>
                                     <ControlLabel > Kasarian : </ControlLabel>
                                     <select className="input-sm form-control" onChange={this.setFormProp} value={data.gender} name="gender">
@@ -129,7 +131,7 @@ var HouseholdEditModal = React.createClass({
                                     </select>
                                     <HelpBlock>{this.getError('gender')}</HelpBlock>
                                 </FormGroup>
-                            </div>
+                            </div> */}
                         </div>
 
                         {/* <div className="row">
@@ -276,7 +278,7 @@ var HouseholdEditModal = React.createClass({
     initSelect2: function () {
         var self = this;
 
-        $("#household-edit-form #municipality_select2").select2({
+        $("#kfc-household-edit-form #municipality_select2").select2({
             casesentitive: false,
             placeholder: "Select City/Municipality",
             allowClear: true,
@@ -301,7 +303,7 @@ var HouseholdEditModal = React.createClass({
             }
         });
 
-        $("#household-edit-form #barangay_select2").select2({
+        $("#kfc-household-edit-form #barangay_select2").select2({
             casesentitive: false,
             placeholder: "Select Barangay",
             allowClear: true,
@@ -313,7 +315,7 @@ var HouseholdEditModal = React.createClass({
                 data: function (params) {
                     return {
                         searchText: params.term,
-                        municipalityNo: $("#household-edit-form #municipality_select2").val(),
+                        municipalityNo: $("#kfc-household-edit-form #municipality_select2").val(),
                         provinceCode: self.state.provinceCode
                     };
                 },
@@ -327,7 +329,7 @@ var HouseholdEditModal = React.createClass({
             }
         });
 
-        $("#household-edit-form #voter-recruit-select2").select2({
+        $("#kfc-household-edit-form #voter-recruit-select2").select2({
             casesentitive: false,
             placeholder: "Enter Name...",
             allowClear: true,
@@ -343,7 +345,7 @@ var HouseholdEditModal = React.createClass({
                         electId: self.props.electId,
                         proId: self.props.proId,
                         provinceCode: self.props.provinceCode,
-                        municipalityNo: $("#household-edit-form #municipality_select2").val(),
+                        municipalityNo: $("#kfc-household-edit-form #municipality_select2").val(),
                         brgyNo: self.props.brgyNo
                     };
                 },
@@ -360,7 +362,7 @@ var HouseholdEditModal = React.createClass({
             }
         });
 
-        $("#household-edit-form #civil_status_select2").select2({
+        $("#kfc-household-edit-form #civil_status_select2").select2({
             casesentitive: false,
             placeholder: "Select...",
             allowClear: true,
@@ -391,7 +393,7 @@ var HouseholdEditModal = React.createClass({
             }
         });
 
-        $("#household-edit-form #bloodtype_select2").select2({
+        $("#kfc-household-edit-form #bloodtype_select2").select2({
             casesentitive: false,
             placeholder: "Select...",
             allowClear: true,
@@ -422,7 +424,7 @@ var HouseholdEditModal = React.createClass({
             }
         });
 
-        $("#household-edit-form #occupation_select2").select2({
+        $("#kfc-household-edit-form #occupation_select2").select2({
             casesentitive: false,
             placeholder: "Select...",
             allowClear: true,
@@ -453,7 +455,7 @@ var HouseholdEditModal = React.createClass({
             }
         });
 
-        $("#household-edit-form #religion_select2").select2({
+        $("#kfc-household-edit-form #religion_select2").select2({
             casesentitive: false,
             placeholder: "Select...",
             allowClear: true,
@@ -484,7 +486,7 @@ var HouseholdEditModal = React.createClass({
             }
         });
 
-        $("#household-edit-form #dialect_select2").select2({
+        $("#kfc-household-edit-form #dialect_select2").select2({
             casesentitive: false,
             placeholder: "Select...",
             allowClear: true,
@@ -516,7 +518,7 @@ var HouseholdEditModal = React.createClass({
         });
 
 
-        $("#household-edit-form #ip_group_select2").select2({
+        $("#kfc-household-edit-form #ip_group_select2").select2({
             casesentitive: false,
             placeholder: "Select...",
             allowClear: true,
@@ -547,7 +549,7 @@ var HouseholdEditModal = React.createClass({
             }
         });
 
-        $("#household-edit-form #voter_group_select2").select2({
+        $("#kfc-household-edit-form #voter_group_select2").select2({
             casesentitive: false,
             placeholder: "Select...",
             allowClear: true,
@@ -578,7 +580,7 @@ var HouseholdEditModal = React.createClass({
             }
         });
 
-        $("#household-edit-form #other_position_select2").select2({
+        $("#kfc-household-edit-form #other_position_select2").select2({
             casesentitive: false,
             placeholder: "Select...",
             allowClear: true,
@@ -610,53 +612,19 @@ var HouseholdEditModal = React.createClass({
         });
 
 
-
-        $("#form-voter-select2").on("change", function () {
-            self.loadVoter(self.props.proId, $(this).val());
-        });
-
-        $("#household-edit-form #civil_status_select2").on("change", function () {
-            console.log("civil status changed");
-            self.setFormPropValue("civilStatus", $(this).val());
-        });
-
-        $("#household-edit-form #bloodtype_select2").on("change", function () {
-            self.setFormPropValue("bloodtype", $(this).val());
-        });
-
-        $("#household-edit-form #occupation_select2").on("change", function () {
-            self.setFormPropValue("occupation", $(this).val());
-        });
-
-        $("#household-edit-form #religion_select2").on("change", function () {
-            self.setFormPropValue("religion", $(this).val());
-        });
-
-        $("#household-edit-form #dialect_select2").on("change", function () {
-            self.setFormPropValue("dialect", $(this).val());
-        });
-
-        $("#household-edit-form #ip_group_select2").on("change", function () {
-            self.setFormPropValue("ipGroup", $(this).val());
-        });
-
-        $("#household-edit-form #voter_group_select2").on("change", function () {
+        $("#kfc-household-edit-form #voter_group_select2").on("change", function () {
             self.setFormPropValue("voterGroup", $(this).val());
         });
 
-        $("#household-edit-form #municipality_select2").on("change", function () {
+        $("#kfc-household-edit-form #municipality_select2").on("change", function () {
             self.setFormPropValue('municipalityNo', $(this).val());
         });
 
-        $("#household-edit-form #barangay_select2").on("change", function () {
+        $("#kfc-household-edit-form #barangay_select2").on("change", function () {
             self.setFormPropValue('barangayNo', $(this).val());
         });
 
-        $("#household-edit-form #other_position_select2").on("change", function () {
-            self.setFormPropValue('position', $(this).val());
-        });
-
-        $("#household-edit-form #voter-recruit-select2").on("change", function () {
+        $("#kfc-household-edit-form #voter-recruit-select2").on("change", function () {
             self.loadVoter(3, $(this).val());
         });
     },
@@ -668,98 +636,22 @@ var HouseholdEditModal = React.createClass({
             type: "GET"
         }).done(function (res) {
 
-            var chunks = res.voterName.split(",");
-            var firstname = '';
-            var middlename = '';
-            var lastname = '';
-
-            if (chunks.length > 1) {
-                chunks = chunks[1].trim().split(" ");
-                lastname = res.voterName.split(",")[0];
-                middlename = chunks.length > 1 ? chunks[chunks.length - 1] : '';
-                firstname = res.voterName.split(",")[1].replace(middlename, '');;
-            } else {
-                chunks = res.voterName.trim().split(" ");
-                lastname = chunks[0];
-                firstname = chunks[1];
-                middlename = chunks.length > 2 ? chunks[2] : '';
-            }
-
+            
             var form = self.state.form;
             form.data.proVoterId = res.proVoterId;
             form.data.cellphoneNo = self.isEmpty(res.cellphoneNo) ? '' : res.cellphoneNo;
             form.data.birthdate = !self.isEmpty(res.birthdate) ? moment(res.birthdate).format('YYYY-MM-DD') : '';
             form.data.gender = res.gender;
-            form.data.firstname = self.isEmpty(res.firstname) ? firstname.trim() : res.firstname;
-            form.data.middlename = self.isEmpty(res.middlename) ? middlename.trim() : res.middlename;
-            form.data.lastname = self.isEmpty(res.lastname) ? lastname.trim() : res.lastname;
-            form.data.extName = res.extName;
-            form.data.civilStatus = res.civilStatus;
-            form.data.bloodtype = res.bloodtype;
-            form.data.occupation = res.occupation;
-            form.data.religion = res.religion;
-            form.data.dialect = res.dialect;
-            form.data.ipGroup = res.ipGroup;
-            form.data.position = res.position;
+            form.data.voterName = res.voterName;
+            form.data.voterGroup = res.voterGroup;
 
-            form.data.isTagalog = self.isEmpty(res.isTagalog) ? 0 : res.isTagalog;
-            form.data.isCuyonon = self.isEmpty(res.isCuyonon) ? 0 : res.isCuyonon;
-            form.data.isBisaya = self.isEmpty(res.isBisaya) ? 0 : res.isBisaya;
-            form.data.isIlonggo = self.isEmpty(res.isIlonggo) ? 0 : res.isIlonggo;
-            form.data.isCatholic = self.isEmpty(res.isCatholic) ? 0 : res.isCatholic;
-            form.data.isInc = self.isEmpty(res.isInc) ? 0 : res.isInc;
-            form.data.isIslam = self.isEmpty(res.isIslam) ? 0 : res.isIslam;
-
-            $("#household-edit-form #civil_status_select2").empty()
-                .append($("<option/>")
-                    .val(res.civilStatus)
-                    .text(res.civilStatus))
-                .trigger("change");
-
-
-            $("#household-edit-form #bloodtype_select2").empty()
-                .append($("<option/>")
-                    .val(res.bloodtype)
-                    .text(res.bloodtype))
-                .trigger("change");
-
-
-            $("#household-edit-form #occupation_select2").empty()
-                .append($("<option/>")
-                    .val(res.occupation)
-                    .text(res.occupation))
-                .trigger("change");
-
-            $("#household-edit-form #religion_select2").empty()
-                .append($("<option/>")
-                    .val(res.religion)
-                    .text(res.religion))
-                .trigger("change");
-
-            $("#household-edit-form #dialect_select2").empty()
-                .append($("<option/>")
-                    .val(res.dialect)
-                    .text(res.dialect))
-                .trigger("change");
-
-            $("#household-edit-form #ip_group_select2").empty()
-                .append($("<option/>")
-                    .val(res.ipGroup)
-                    .text(res.ipGroup))
-                .trigger("change");
-
-            $("#household-edit-form #voter_group_select2").empty()
+            $("#kfc-household-edit-form #voter_group_select2").empty()
                 .append($("<option/>")
                     .val(res.voterGroup)
                     .text(res.voterGroup))
                 .trigger("change");
 
-            $("#household-edit-form #other_position_select2").empty()
-                .append($("<option/>")
-                    .val(res.position)
-                    .text(res.position))
-                .trigger("change");
-
+            console.log('loading voter');
 
             self.setState({ form: form });
         });
@@ -788,17 +680,7 @@ var HouseholdEditModal = React.createClass({
             form.data.cellphoneNo = self.isEmpty(res.cellphone) ? '' : res.cellphone;
             form.data.birthdate = !self.isEmpty(res.birthdate) ? moment(res.birthdate).format('YYYY-MM-DD') : '';
             form.data.gender = res.gender;
-            form.data.firstname = self.isEmpty(res.firstname) ? firstname.trim() : res.firstname;
-            form.data.middlename = self.isEmpty(res.middlename) ? middlename.trim() : res.middlename;
-            form.data.lastname = self.isEmpty(res.lastname) ? lastname.trim() : res.lastname;
-            form.data.extName = res.ext_name;
-            form.data.civilStatus = res.civil_status;
-            form.data.bloodtype = res.bloodtype;
-            form.data.occupation = res.occupation;
-            form.data.religion = res.religion;
-            form.data.dialect = res.dialect;
-            form.data.ipGroup = res.ip_group;
-
+         
             form.data.municipalityName = res.municipality_name;
             form.data.municipalityNo = res.municipality_no;
             form.data.barangayName = res.barangay_name;
@@ -813,63 +695,63 @@ var HouseholdEditModal = React.createClass({
     reinitSelect2: function () {
         var data = this.state.form.data;
 
-        $("#household-edit-form #voter-recruit-select2").empty()
+        $("#kfc-household-edit-form #voter-recruit-select2").empty()
             .append($("<option/>")
                 .val(data.proVoterId)
                 .text(data.voterName))
             .trigger("change");
 
-        $("#household-edit-form #municipality_select2").empty()
+        $("#kfc-household-edit-form #municipality_select2").empty()
             .append($("<option/>")
                 .val(data.municipalityNo)
                 .text(data.municipalityName))
             .trigger("change");
 
-        $("#household-edit-form #barangay_select2").empty()
+        $("#kfc-household-edit-form #barangay_select2").empty()
             .append($("<option/>")
                 .val(data.barangayNo)
                 .text(data.barangayName))
             .trigger("change");
 
-        $("#household-edit-form #civil_status_select2").empty()
+        $("#kfc-household-edit-form #civil_status_select2").empty()
             .append($("<option/>")
                 .val(data.civilStatus)
                 .text(data.civilStatus))
             .trigger("change");
 
 
-        $("#household-edit-form #bloodtype_select2").empty()
+        $("#kfc-household-edit-form #bloodtype_select2").empty()
             .append($("<option/>")
                 .val(data.bloodtype)
                 .text(data.bloodtype))
             .trigger("change");
 
 
-        $("#household-edit-form #occupation_select2").empty()
+        $("#kfc-household-edit-form #occupation_select2").empty()
             .append($("<option/>")
                 .val(data.occupation)
                 .text(data.occupation))
             .trigger("change");
 
-        $("#household-edit-form #religion_select2").empty()
+        $("#kfc-household-edit-form #religion_select2").empty()
             .append($("<option/>")
                 .val(data.religion)
                 .text(data.religion))
             .trigger("change");
 
-        $("#household-edit-form #dialect_select2").empty()
+        $("#kfc-household-edit-form #dialect_select2").empty()
             .append($("<option/>")
                 .val(data.dialect)
                 .text(data.dialect))
             .trigger("change");
 
-        $("#household-edit-form #ip_group_select2").empty()
+        $("#kfc-household-edit-form #ip_group_select2").empty()
             .append($("<option/>")
                 .val(data.ipGroup)
                 .text(data.ipGroup))
             .trigger("change");
 
-        $("#household-edit-form #voter_group_select2").empty()
+        $("#kfc-household-edit-form #voter_group_select2").empty()
             .append($("<option/>")
                 .val(data.voterGroup)
                 .text(data.voterGroup))
@@ -951,7 +833,7 @@ var HouseholdEditModal = React.createClass({
         var data = self.state.form.data;
         data.proId = self.props.proId;
         data.electId = self.props.electId;
-        data.position = $("#household-edit-form #other_position_select2").val();
+     
 
         self.requestPost = $.ajax({
             url: Routing.generate("ajax_patch_household_header", { householdId: this.props.householdId }),

@@ -11,12 +11,12 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(name="tbl_household_hdr")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\HouseholdHeaderRepository")
- * @UniqueEntity(fields={"householdCode"},message="This household id already exists.", errorPath="householdCode")
  * @UniqueEntity(fields={"voterName"},message="This leader name already exists.", errorPath="voterName")
+ * @UniqueEntity(fields={"householdCode"},message="This household no already exists.", errorPath="householdCode")
  */
 class HouseholdHeader
 {
-     /**
+    /**
      * @var int
      *
      * @ORM\Column(name="id", type="integer")
@@ -65,7 +65,7 @@ class HouseholdHeader
      */
     private $householdCode;
 
-     /**
+    /**
      * @var string
      *
      * @ORM\Column(name="municipality_no", type="string", length=15)
@@ -98,145 +98,28 @@ class HouseholdHeader
     /**
      * @var string
      *
-     * @Assert\NotBlank()
-     */
-    private $firstname;
-
-     /**
-     * @var string
-     *
-     * @Assert\NotBlank()
-     */
-    private $middlename;
-
-     /**
-     * @var string
-     *
-     * @Assert\NotBlank()
-     */
-    private $lastname;
-
-     /**
-     * @var string
-     *
-     */
-    private $extname;
-
-    /**
-     * @var string
-     *
-     */
-    private $gender;
-
-    /**
-     * @var string
-     *
-     */
-    private $civilStatus;
-
-    /**
-     * @var string
-     *
-     */
-    private $bloodtype;
-    
-    /**
-     * @var string
-     *
-     */
-    private $occupation;
-     
-    /**
-     * @var string
-     *
-     */
-    private $ipGroup;
-
-    /**
-     * @var string
-     *
-     */
-    private $dialect;
-
-      /**
-     * @var string
-     *
-     */
-    private $religion;
-
-     /**
-     * @var string
-     *
-     */
-    private $position;
-    
-      /**
-     * @var string
-     *
      * @Assert\Regex("/^(09)\d{9}$/")
      */
     private $cellphone;
 
-     /**
+    /**
      * @var int
      *
      * @ORM\Column(name="contact_no", type="string")
      */
     private $contactNo;
-    
+
     /**
      * @var string
      *
      */
     private $voterGroup;
 
-     /**
+    /**
      * @var string
      *
      */
     private $birthdate;
-
-    /**
-     * @var int
-     *
-     */
-    private $isBisaya;
-
-     /**
-     * @var int
-     *
-     */
-    private $isCuyonon;
-
-    /**
-     * @var int
-     *
-     */
-    private $isTagalog;
-
-     /**
-     * @var int
-     *
-     */
-    private $isIlonggo;
-
-    /**
-     * @var int
-     *
-     */
-    private $isCatholic;
-
-    /**
-     * @var int
-     *
-     */
-    private $isInc;
-
-    /**
-     * @var int
-     *
-     */
-    private $isIslam;
 
     /**
      * @var string
@@ -244,7 +127,7 @@ class HouseholdHeader
      * @ORM\Column(name="voter_name", type="string", length=255)
      */
     private $voterName;
-    
+
     /**
      * @var datetime
      *
@@ -286,6 +169,7 @@ class HouseholdHeader
      * @ORM\Column(name="remarks", type="string", length=255)
      */
     private $remarks;
+
 
     /**
      * Get id
@@ -343,6 +227,30 @@ class HouseholdHeader
     public function getProVoterId()
     {
         return $this->proVoterId;
+    }
+
+    /**
+     * Set proIdCode
+     *
+     * @param string $proIdCode
+     *
+     * @return HouseholdHeader
+     */
+    public function setProIdCode($proIdCode)
+    {
+        $this->proIdCode = $proIdCode;
+
+        return $this;
+    }
+
+    /**
+     * Get proIdCode
+     *
+     * @return string
+     */
+    public function getProIdCode()
+    {
+        return $this->proIdCode;
     }
 
     /**
@@ -487,6 +395,30 @@ class HouseholdHeader
     public function getBarangayNo()
     {
         return $this->barangayNo;
+    }
+
+    /**
+     * Set contactNo
+     *
+     * @param string $contactNo
+     *
+     * @return HouseholdHeader
+     */
+    public function setContactNo($contactNo)
+    {
+        $this->contactNo = $contactNo;
+
+        return $this;
+    }
+
+    /**
+     * Get contactNo
+     *
+     * @return string
+     */
+    public function getContactNo()
+    {
+        return $this->contactNo;
     }
 
     /**
@@ -655,581 +587,5 @@ class HouseholdHeader
     public function getRemarks()
     {
         return $this->remarks;
-    }
-
-    /**
-     * Set firstname
-     *
-     * @param string $firstname
-     *
-     * @return HouseholdHeader
-     */
-    public function setFirstname($firstname)
-    {
-        $this->firstname = $firstname;
-
-        return $this;
-    }
-
-    /**
-     * Get firstname
-     *
-     * @return string
-     */
-    public function getFirstname()
-    {
-        return $this->firstname;
-    }
-
-    /**
-     * Set middlename
-     *
-     * @param string $middlename
-     *
-     * @return HouseholdHeader
-     */
-    public function setMiddlename($middlename)
-    {
-        $this->middlename = $middlename;
-
-        return $this;
-    }
-
-    /**
-     * Get middlename
-     *
-     * @return string
-     */
-    public function getMiddlename()
-    {
-        return $this->middlename;
-    }
-
-    /**
-     * Set lastname
-     *
-     * @param string $lastname
-     *
-     * @return HouseholdHeader
-     */
-    public function setLastname($lastname)
-    {
-        $this->lastname = $lastname;
-
-        return $this;
-    }
-
-    /**
-     * Get lastname
-     *
-     * @return string
-     */
-    public function getLastname()
-    {
-        return $this->lastname;
-    }
-
-    /**
-     * Set extname
-     *
-     * @param string $extname
-     *
-     * @return HouseholdHeader
-     */
-    public function setExtname($extname)
-    {
-        $this->extname = $extname;
-
-        return $this;
-    }
-
-    /**
-     * Get extname
-     *
-     * @return string
-     */
-    public function getExtname()
-    {
-        return $this->extname;
-    }
-
-    /**
-     * Set civilStatus
-     *
-     * @param string $civilStatus
-     *
-     * @return HouseholdHeader
-     */
-    public function setCivilStatus($civilStatus)
-    {
-        $this->civilStatus = $civilStatus;
-
-        return $this;
-    }
-
-    /**
-     * Get civilStatus
-     *
-     * @return string
-     */
-    public function getCivilStatus()
-    {
-        return $this->civilStatus;
-    }
-
-    /**
-     * Set bloodtype
-     *
-     * @param string $bloodtype
-     *
-     * @return HouseholdHeader
-     */
-    public function setBloodtype($bloodtype)
-    {
-        $this->bloodtype = $bloodtype;
-
-        return $this;
-    }
-
-    /**
-     * Get bloodtype
-     *
-     * @return string
-     */
-    public function getBloodtype()
-    {
-        return $this->bloodtype;
-    }
-
-    /**
-     * Set occupation
-     *
-     * @param string $occupation
-     *
-     * @return HouseholdHeader
-     */
-    public function setOccupation($occupation)
-    {
-        $this->occupation = $occupation;
-
-        return $this;
-    }
-
-    /**
-     * Get occupation
-     *
-     * @return string
-     */
-    public function getOccupation()
-    {
-        return $this->occupation;
-    }
-
-    /**
-     * Set ipGroup
-     *
-     * @param string $ipGroup
-     *
-     * @return HouseholdHeader
-     */
-    public function setIpGroup($ipGroup)
-    {
-        $this->ipGroup = $ipGroup;
-
-        return $this;
-    }
-
-    /**
-     * Get ipGroup
-     *
-     * @return string
-     */
-    public function getIpGroup()
-    {
-        return $this->ipGroup;
-    }
-
-    /**
-     * Set dialect
-     *
-     * @param string $dialect
-     *
-     * @return HouseholdHeader
-     */
-    public function setDialect($dialect)
-    {
-        $this->dialect = $dialect;
-
-        return $this;
-    }
-
-    /**
-     * Get dialect
-     *
-     * @return string
-     */
-    public function getDialect()
-    {
-        return $this->dialect;
-    }
-
-    /**
-     * Set religion
-     *
-     * @param string $religion
-     *
-     * @return HouseholdHeader
-     */
-    public function setReligion($religion)
-    {
-        $this->religion = $religion;
-
-        return $this;
-    }
-
-    /**
-     * Get religion
-     *
-     * @return string
-     */
-    public function getReligion()
-    {
-        return $this->religion;
-    }
-
-    /**
-     * Set cellphone
-     *
-     * @param string $cellphone
-     *
-     * @return HouseholdHeader
-     */
-    public function setCellphone($cellphone)
-    {
-        $this->cellphone = $cellphone;
-
-        return $this;
-    }
-
-    /**
-     * Get cellphone
-     *
-     * @return string
-     */
-    public function getCellphone()
-    {
-        return $this->cellphone;
-    }
-
-    /**
-     * Set voterGroup
-     *
-     * @param string $voterGroup
-     *
-     * @return HouseholdHeader
-     */
-    public function setVoterGroup($voterGroup)
-    {
-        $this->voterGroup = $voterGroup;
-
-        return $this;
-    }
-
-    /**
-     * Get voterGroup
-     *
-     * @return string
-     */
-    public function getVoterGroup()
-    {
-        return $this->voterGroup;
-    }
-
-    /**
-     * Set birthdate
-     *
-     * @param string $birthdate
-     *
-     * @return HouseholdHeader
-     */
-    public function setBirthdate($birthdate)
-    {
-        $this->birthdate = $birthdate;
-
-        return $this;
-    }
-
-    /**
-     * Get birthdate
-     *
-     * @return string
-     */
-    public function getBirthdate()
-    {
-        return $this->birthdate;
-    }
-
-    /**
-     * Set gender
-     *
-     * @param string $gender
-     *
-     * @return HouseholdHeader
-     */
-    public function setGender($gender)
-    {
-        $this->gender = $gender;
-
-        return $this;
-    }
-
-    /**
-     * Get gender
-     *
-     * @return string
-     */
-    public function getGender()
-    {
-        return $this->gender;
-    }
-
-    /**
-     * Set proIdCode
-     *
-     * @param string $proIdCode
-     *
-     * @return ProjectVoter
-     */
-    public function setProIdCode($proIdCode)
-    {
-        $this->proIdCode = $proIdCode;
-
-        return $this;
-    }
-
-    /**
-     * Get proIdCode
-     *
-     * @return string
-     */
-    public function getProIdCode()
-    {
-        return $this->proIdCode;
-    }
-
-    /**
-     * Set isBisaya
-     *
-     * @param integer $isBisaya
-     *
-     * @return ProjectVoter
-     */
-    public function setIsBisaya($isBisaya)
-    {
-        $this->isBisaya = $isBisaya;
-
-        return $this;
-    }
-
-    /**
-     * Get isBisaya
-     *
-     * @return integer
-     */
-    public function getIsBisaya()
-    {
-        return $this->isBisaya;
-    }
-
-    /**
-     * Set isCuyonon
-     *
-     * @param integer $isCuyonon
-     *
-     * @return ProjectVoter
-     */
-    public function setIsCuyonon($isCuyonon)
-    {
-        $this->isCuyonon = $isCuyonon;
-
-        return $this;
-    }
-
-    /**
-     * Get isCuyonon
-     *
-     * @return integer
-     */
-    public function getIsCuyonon()
-    {
-        return $this->isCuyonon;
-    }
-
-    /**
-     * Set isTagalog
-     *
-     * @param integer $isTagalog
-     *
-     * @return ProjectVoter
-     */
-    public function setIsTagalog($isTagalog)
-    {
-        $this->isTagalog = $isTagalog;
-
-        return $this;
-    }
-
-    /**
-     * Get isTagalog
-     *
-     * @return integer
-     */
-    public function getIsTagalog()
-    {
-        return $this->isTagalog;
-    }
-
-    /**
-     * Set isIlonggo
-     *
-     * @param integer $isIlonggo
-     *
-     * @return ProjectVoter
-     */
-    public function setIsIlonggo($isIlonggo)
-    {
-        $this->isIlonggo = $isIlonggo;
-
-        return $this;
-    }
-
-    /**
-     * Get isIlonggo
-     *
-     * @return integer
-     */
-    public function getIsIlonggo()
-    {
-        return $this->isIlonggo;
-    }
-
-    /**
-     * Set isCatholic
-     *
-     * @param integer $isCatholic
-     *
-     * @return ProjectVoter
-     */
-    public function setIsCatholic($isCatholic)
-    {
-        $this->isCatholic = $isCatholic;
-
-        return $this;
-    }
-
-    /**
-     * Get isCatholic
-     *
-     * @return integer
-     */
-    public function getIsCatholic()
-    {
-        return $this->isCatholic;
-    }
-
-    /**
-     * Set isInc
-     *
-     * @param integer $isInc
-     *
-     * @return ProjectVoter
-     */
-    public function setIsInc($isInc)
-    {
-        $this->isInc = $isInc;
-
-        return $this;
-    }
-
-    /**
-     * Get isInc
-     *
-     * @return integer
-     */
-    public function getIsInc()
-    {
-        return $this->isInc;
-    }
-
-    /**
-     * Set isIslam
-     *
-     * @param integer $isIslam
-     *
-     * @return ProjectVoter
-     */
-    public function setIsIslam($isIslam)
-    {
-        $this->isIslam = $isIslam;
-
-        return $this;
-    }
-
-    /**
-     * Get isIslam
-     *
-     * @return integer
-     */
-    public function getIsIslam()
-    {
-        return $this->isIslam;
-    }
-
-    /**
-     * Set position
-     *
-     * @param string $position
-     *
-     * @return ProjectVoter
-     */
-    public function setPosition($position)
-    {
-        $this->position = $position;
-
-        return $this;
-    }
-
-    /**
-     * Get position
-     *
-     * @return string
-     */
-    public function getPosition()
-    {
-        return $this->position;
-    }
-
-    /**
-     * Set contactNo
-     *
-     * @param string $contactNo
-     *
-     * @return HouseholdHeader
-     */
-    public function setContactNo($contactNo)
-    {
-        $this->contactNo = $contactNo;
-
-        return $this;
-    }
-
-    /**
-     * Get contactNo
-     *
-     * @return string
-     */
-    public function getContactNo()
-    {
-        return $this->contactNo;
     }
 }

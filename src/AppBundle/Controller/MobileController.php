@@ -5463,7 +5463,7 @@ class MobileController extends Controller
         return $response;
     }
 
-    /**
+   /**
      * @Route("/ajax_m_get_household_profile/{householdCode}",
      *       name="ajax_m_get_household_profile",
      *        options={ "expose" = true }
@@ -5479,8 +5479,8 @@ class MobileController extends Controller
         $sql = "SELECT hh.voter_name, hh.household_code,hh.household_no, hh.municipality_name, hh.barangay_name,hh.id , pv.is_non_voter, pv.precinct_no,
                pv.municipality_no AS registered_municipality, hh.municipality_no,
                (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd WHERE hh.id = hd.household_id) AS total_members,
-               (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND ppv.is_non_voter = 0 ) AS total_voter_members,
-               (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND ppv.is_non_voter = 1 ) AS total_non_voter_members
+               (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND ppv.is_non_voter = 0 AND ppv.municipality_no IN('01','16') ) AS total_voter_members,
+               (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND (ppv.is_non_voter = 1 OR ppv.municipality_no NOT IN('01','16')) ) AS total_non_voter_members
                FROM tbl_household_hdr hh INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = hh.pro_voter_id WHERE household_code = ? ";
 
         $stmt = $em->getConnection()->prepare($sql);
@@ -5502,15 +5502,16 @@ class MobileController extends Controller
        $dtls = $stmt->fetchAll(\PDO::FETCH_ASSOC);
        
        foreach ($dtls as &$row) {
-            $row['is_gil_voter'] =  ($hdr['municipality_no'] == '16' || $hdr['municipality_no'] == '01' ) ? 1 : 0;
+            $row['is_gil_voter'] =  ($row['is_non_voter'] == 0 && ($row['municipality_no'] == '16' || $row['municipality_no'] == '01' )) ? 1 : 0;
        }
 
        $hdr['members'] = $dtls;
 
+       $hdr['is_gil_voter'] =  ($hdr['is_non_voter'] == 0 && ($hdr['registered_municipality'] == '16' || $hdr['registered_municipality'] == '01' )) ? 1 : 0;
+       
        $hdr['total_members'] = $hdr['total_members'] + 1;
-       $hdr['total_voter_members'] = $hdr['is_non_voter'] == 0 ? $hdr['total_voter_members'] + 1 : $hdr['total_voter_members'];
-       $hdr['total_non_voter_members'] = $hdr['is_non_voter'] == 1 ? $hdr['total_non_voter_members'] + 1 : $hdr['total_non_voter_members'];
-       $hdr['is_gil_voter'] =  ($hdr['registered_municipality'] == '16' || $hdr['registered_municipality'] == '01' ) ? 1 : 0;
+       $hdr['total_voter_members'] = $hdr['is_gil_voter'] == 1 ? $hdr['total_voter_members'] + 1 : $hdr['total_voter_members'];
+       $hdr['total_non_voter_members'] = $hdr['is_gil_voter'] == 0 ? $hdr['total_non_voter_members'] + 1 : $hdr['total_non_voter_members'];
 
 
         return new JsonResponse($hdr);

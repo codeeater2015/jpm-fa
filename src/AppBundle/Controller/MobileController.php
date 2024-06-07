@@ -5502,17 +5502,18 @@ class MobileController extends Controller
        $dtls = $stmt->fetchAll(\PDO::FETCH_ASSOC);
        
        foreach ($dtls as &$row) {
-            $row['is_gil_voter'] =  ($row['is_non_voter'] == 0 && ($row['municipality_no'] == '16' || $row['municipality_no'] == '01' )) ? 1 : 0;
+            $row['is_non_voter'] = (int)$row['is_non_voter'];
+            $row['is_gil_voter'] =  ( ((int)$row['is_non_voter']) == 0 && ($row['municipality_no'] == '16' || $row['municipality_no'] == '01' )) ? 1 : 0;
        }
 
        $hdr['members'] = $dtls;
 
-       $hdr['is_gil_voter'] =  ($hdr['is_non_voter'] == 0 && ($hdr['registered_municipality'] == '16' || $hdr['registered_municipality'] == '01' )) ? 1 : 0;
+       $hdr['is_gil_voter'] =  (((int)$row['is_non_voter']) == 0 && ($hdr['registered_municipality'] == '16' || $hdr['registered_municipality'] == '01' )) ? 1 : 0;
        
        $hdr['total_members'] = $hdr['total_members'] + 1;
        $hdr['total_voter_members'] = $hdr['is_gil_voter'] == 1 ? $hdr['total_voter_members'] + 1 : $hdr['total_voter_members'];
-       $hdr['total_non_voter_members'] = $hdr['is_gil_voter'] == 0 ? $hdr['total_non_voter_members'] + 1 : $hdr['total_non_voter_members'];
-
+       $hdr['total_non_voter_members'] = $hdr['is_gil_voter'] == 0 ? (int)$hdr['total_non_voter_members'] + 1 : (int)$hdr['total_non_voter_members'];
+       $hdr['is_non_voter'] = (int)$hdr['is_non_voter'];
 
         return new JsonResponse($hdr);
      }

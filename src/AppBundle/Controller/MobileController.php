@@ -5463,7 +5463,7 @@ class MobileController extends Controller
         return $response;
     }
 
-   /**
+     /**
      * @Route("/ajax_m_get_household_profile/{householdCode}",
      *       name="ajax_m_get_household_profile",
      *        options={ "expose" = true }
@@ -5508,8 +5508,9 @@ class MobileController extends Controller
 
        $hdr['members'] = $dtls;
 
-       $hdr['is_gil_voter'] =  (((int)$row['is_non_voter']) == 0 && ($hdr['registered_municipality'] == '16' || $hdr['registered_municipality'] == '01' )) ? 1 : 0;
-       
+       $hdr['is_gil_voter'] =  ( ((int)$hdr['is_non_voter']) == 0 && ($hdr['registered_municipality'] == '16' || $hdr['registered_municipality'] == '01' ) ) ? 1 : 0;
+
+
        $hdr['total_members'] = $hdr['total_members'] + 1;
        $hdr['total_voter_members'] = $hdr['is_gil_voter'] == 1 ? $hdr['total_voter_members'] + 1 : $hdr['total_voter_members'];
        $hdr['total_non_voter_members'] = $hdr['is_gil_voter'] == 0 ? (int)$hdr['total_non_voter_members'] + 1 : (int)$hdr['total_non_voter_members'];

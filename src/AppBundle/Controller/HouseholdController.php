@@ -37,6 +37,19 @@ class HouseholdController extends Controller
         return $this->render('template/household/index.html.twig', ['user' => $user, "hostIp" => $hostIp, 'imgUrl' => $imgUrl]);
     }
 
+     /**
+     * @Route("/printing", name="household_printing_index", options={"main" = true })
+     */
+
+     public function householdPrintingAction(Request $request)
+     {
+         $user = $this->get('security.token_storage')->getToken()->getUser();
+         $hostIp = $this->getParameter('host_ip');
+         $imgUrl = $this->getParameter('img_url');
+ 
+         return $this->render('template/household-printing/index.html.twig', ['user' => $user, "hostIp" => $hostIp, 'imgUrl' => $imgUrl]);
+     }
+
     /**
      * @Route("/ajax_post_household_header", 
      * 	name="ajax_post_household_header",
@@ -99,6 +112,7 @@ class HouseholdController extends Controller
             // $proVoter->setDialect(trim(strtoupper($request->get('dialect'))));
             // $proVoter->setIpGroup(trim(strtoupper($request->get('ipGroup'))));
             $proVoter->setVoterGroup(trim(strtoupper($request->get('voterGroup'))));
+            $proVoter->setPosition('HLEADER');
 
             // $proVoter->setIsTagalog($entity->getIsTagalog());
             // $proVoter->setIsCuyonon($entity->getIsCuyonon());
@@ -252,6 +266,7 @@ class HouseholdController extends Controller
                 $proVoter->setCellphone($request->get('cellphoneNo'));
 
             $proVoter->setBirthdate(trim($request->get('birthdate')));
+            $proVoter->setPosition('HLEADER');
 
             $entity->setVoterName($proVoter->getVoterName());
             $entity->setProIdCode($proVoter->getProIdCode());
@@ -654,13 +669,9 @@ class HouseholdController extends Controller
             if (!empty($entity->getCellphone()))
                 $proVoter->setCellphone($entity->getCellphone());
 
-            $proVoter->setFirstname($entity->getFirstname());
-            $proVoter->setMiddlename($entity->getMiddlename());
-            $proVoter->setLastname($entity->getLastname());
-            $proVoter->setExtname($entity->getExtName());
             $proVoter->setGender($entity->getGender());
             $proVoter->setBirthdate($entity->getBirthdate());
-            $proVoter->setPosition(trim(strtoupper($entity->getPosition())));
+            $proVoter->setPosition('HMEMBER');
         }
 
         $sql = "SELECT * FROM psw_municipality 
@@ -1248,4 +1259,65 @@ class HouseholdController extends Controller
         return new JsonResponse($serializer->normalize($entity));
     }
 
+
+    
+    /**
+     * @Route("/ajax_get_table_household_headers", name="ajax_get_table_household_headers", options={"expose"=true})
+     * @Method("GET")
+     * @param Request $request
+     * @return JsonResponse
+     */
+
+     public function ajaxGetTableHouseholdHeadersAction(Request $request)
+     {
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+
+        $municipalityName = $request->get("municipalityName");
+        $barangayName = $request->get("barangayName");
+
+
+        if(!$municipalityName || !$barangayName){
+            return new JsonResponse([],404);
+        }
+ 
+         $sql = "SELECT h.*,pv.is_non_voter, pv.voter_group FROM tbl_household_hdr h 
+             INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = h.pro_voter_id 
+             WHERE h.municipality_no = ? AND h.barangay_no = ? ORDER BY municipality_name, barangay_name, voter_name  ";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, $municipalityName);
+         $stmt->bindValue(2, $barangayName);
+         $stmt->execute();
+
+         $data = [];
+ 
+         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+             $data[] = $row;
+         }
+ 
+         foreach ($data as &$row) {
+             $sql = "SELECT COUNT(pv.pro_voter_id)  as total_members,
+                     COALESCE(COUNT(CASE WHEN pv.is_non_voter = 0 then 1 end),0) as total_voters,
+                     COALESCE(COUNT(CASE WHEN pv.is_non_voter = 1 then 1 end),0) as total_non_voters
+ 
+                     FROM tbl_household_dtl hd 
+                     INNER JOIN tbl_project_voter pv 
+                     ON pv.pro_voter_id = hd.pro_voter_id 
+                     WHERE hd.household_id = ? ORDER BY pv.voter_name ";
+             $stmt = $em->getConnection()->prepare($sql);
+             $stmt->bindValue(1, $row['id']);
+             $stmt->execute();
+ 
+             $summary = $stmt->fetch(\PDO::FETCH_ASSOC);
+ 
+ 
+             $row['total_members'] = $summary['total_members'] + 1;
+             $row['total_voters'] = $row['is_non_voter'] != 1 ? $summary['total_voters'] + 1 : $summary['total_voters'];
+             $row['total_non_voters'] = $row['is_non_voter'] == 1 ? $summary['total_non_voters'] + 1 : $summary['total_non_voters'];
+         }
+ 
+ 
+         return new JsonResponse($data);
+     }
+ 
 }

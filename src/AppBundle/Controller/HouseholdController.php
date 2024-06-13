@@ -51,6 +51,19 @@ class HouseholdController extends Controller
      }
 
     /**
+     * @Route("/monitoring", name="household_monitoring", options={"main" = true })
+     */
+
+     public function householdMonitoringAction(Request $request)
+     {
+         $user = $this->get('security.token_storage')->getToken()->getUser();
+         $hostIp = $this->getParameter('host_ip');
+         $imgUrl = $this->getParameter('img_url');
+ 
+         return $this->render('template/household-monitoring/index.html.twig', ['user' => $user, "hostIp" => $hostIp, 'imgUrl' => $imgUrl]);
+     }
+
+    /**
      * @Route("/ajax_post_household_header", 
      * 	name="ajax_post_household_header",
      *	options={"expose" = true}
@@ -1320,4 +1333,61 @@ class HouseholdController extends Controller
          return new JsonResponse($data);
      }
  
+     /**
+     * @Route("/ajax_get_table_household_monitoring_by_barangay", name="ajax_get_table_household_monitoring_by_barangay", options={"expose"=true})
+     * @Method("GET")
+     * @param Request $request
+     * @return JsonResponse
+     */
+
+     public function ajaxGetTableHouseholdMonitoringByBarangayAction(Request $request)
+     {
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+
+         $sql = "Select municipality_name, barangay_name ,DATE(updated_at) AS call_date, count(*) as total_household
+         from tbl_household_hdr 
+         wherE updated_at is not null 
+         group by barangay_name
+         ORDER BY municipality_name,barangay_name ";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->execute();
+
+         $data = [];
+ 
+         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+             $data[] = $row;
+         }
+ 
+         return new JsonResponse($data);
+     }
+
+       /**
+     * @Route("/ajax_get_table_household_monitoring_by_date", name="ajax_get_table_household_monitoring_by_date", options={"expose"=true})
+     * @Method("GET")
+     * @param Request $request
+     * @return JsonResponse
+     */
+
+     public function ajaxGetTableHouseholdMonitoringByDateAction(Request $request)
+     {
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+
+         $sql = "Select municipality_name, barangay_name ,DATE(updated_at) AS call_date, count(*) as total_household
+         from tbl_household_hdr 
+         wherE updated_at is not null 
+         group by call_date
+         ORDER BY call_date ";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->execute();
+
+         $data = [];
+ 
+         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+             $data[] = $row;
+         }
+ 
+         return new JsonResponse($data);
+     }
 }

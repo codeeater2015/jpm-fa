@@ -147,6 +147,7 @@ var HouseholdMemberModal = React.createClass({
             type: 'PATCH'
         }).done(function (res) {
             self.props.notify("Household has been updated.", 'teal');
+            self.props.onDataPatched();
         }).fail(function (err) {
             self.props.notify("Validation failed !", 'ruby');
         });

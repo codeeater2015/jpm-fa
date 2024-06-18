@@ -198,8 +198,9 @@ var HouseholdCreateModal = React.createClass({
                 processResults: function (data, params) {
                     return {
                         results: data.map(function (item) {
-                            var hasId = parseInt(item.has_id) == 1 ? "YES" : "NO";
-                            var text = item.voter_name + ' ( ' + item.municipality_name + ', ' + item.barangay_name + ' ) - ID : ' + hasId;
+                            var voterStatus = parseInt(item.is_non_voter) == 0 ? "V" :"NV";
+                            var position = (item.position == null || item.position == '') ? "No Household" : item.position;
+                            var text = item.voter_name + ' ( ' + item.municipality_name + ', ' + item.barangay_name + ' ) - ' + voterStatus + '|' + position;
 
                             return { id: item.pro_voter_id, text: text };
                         })

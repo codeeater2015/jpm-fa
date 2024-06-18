@@ -9,6 +9,7 @@ var HouseholdDatatable = React.createClass({
             typingTimer: null,
             doneTypingInterval: 1500,
             user: null,
+            summary: null,
             filters: {
                 electId: 3,
                 provinceCode: 53,
@@ -20,6 +21,7 @@ var HouseholdDatatable = React.createClass({
     componentDidMount: function () {
         this.loadUser(window.userId);
         this.initSelect2();
+        this.loadSummary();
     },
 
     loadUser: function (userId) {
@@ -30,6 +32,18 @@ var HouseholdDatatable = React.createClass({
             type: "GET"
         }).done(function (res) {
             self.setState({ user: res }, self.reinitSelect2);
+        });
+    },
+
+    loadSummary: function (userId) {
+        var self = this;
+
+        self.requestUser = $.ajax({
+            url: Routing.generate("ajax_m_get_household_voters_summary"),
+            type: "GET"
+        }).done(function (res) {
+            console.log("summary has been received");
+            self.setState({ summary: res });
         });
     },
 
@@ -263,7 +277,7 @@ var HouseholdDatatable = React.createClass({
                         d.municipalityNo = $('#household_table #municipality_select2').val();
                         d.barangayNo = $('#household_table #barangay_select2').val();
                         d.householdCode = $('#household_table input[name="household_code"]').val();
-                        d.electId = self.state.filters.electId;
+                        d.electId = 423;
                     }
                 },
                 "columnDefs": [{
@@ -318,12 +332,12 @@ var HouseholdDatatable = React.createClass({
                     {
                         "data": "updated_at",
                         "className": "text-center",
-                        "width": 80 ,
-                        "render" : function(data, type, row){
+                        "width": 80,
+                        "render": function (data, type, row) {
                             console.log('updated at');
                             console.log(data);
 
-                            return (data == "" || data == null ) ? "" : moment(data).format("MMM Do YY"); 
+                            return (data == "" || data == null) ? "" : moment(data).format("MMM Do YY");
                         }
                     },
                     {
@@ -422,6 +436,8 @@ var HouseholdDatatable = React.createClass({
     },
 
     render: function () {
+        let summary = this.state.summary;
+
         return (
             <div>
                 {
@@ -461,36 +477,51 @@ var HouseholdDatatable = React.createClass({
                         proId={this.state.filters.proId}
                         electId={this.state.filters.electId}
                         notify={this.props.notify}
+                        onDataPatched={this.reload}
                     />
                 }
 
                 <div className="row" id="handler_component">
-                    <div className="col-md-5">
+                    <div className="col-md-7">
                         <button type="button" className="btn btn-primary" onClick={this.openCreateModal}>New Household</button>
                     </div>
 
-                    <div className="col-md-7">
-                        <form onSubmit={this.onApplyCode}>
-                            <div className="col-md-3 col-md-offset-1">
-                                <select id="election_select2" className="form-control form-filter input-sm" >
-                                </select>
-                            </div>
-                            <div className="col-md-4">
-                                <select id="province_select2" className="form-control form-filter input-sm" >
-                                </select>
-                            </div>
-                            <div className="col-md-4">
-                                <select id="project_select2" className="form-control form-filter input-sm" >
-                                </select>
-                            </div>
-                        </form>
+                    <div className="col-md-5">
+                        <table className="table table-condensed table-bordered">
+                            <thead style={{ backgroundColor: "#5ab866" }}>
+                                <tr className="text-center">
+                                    <th colSpan="2" className="text-center">Voters</th>
+                                    <th rowSpan="2" className="text-center">Outside</th>
+                                    <th colSpan="2" className="text-center">Potential</th>
+                                    <th rowSpan="2" className="text-center">Total Households</th>
+                                </tr>
+                                <tr>
+                                    <th className="text-center">Puerto</th>
+                                    <th className="text-center">Aborlan</th>
+                                    <th className="text-center">Puerto</th>
+                                    <th className="text-center">Aborlan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {summary != null ? (
+                                    <tr className="text-center">
+                                        <td>{summary.voters[1].total_voter}</td>
+                                        <td>{summary.voters[0].total_voter}</td>
+                                        <td>{summary.total_voter_outside}</td>
+                                        <td>{summary.total_voter_potential[1].total_voter_potential}</td>
+                                        <td>{summary.total_voter_potential[0].total_voter_potential}</td>
+                                        <td>{summary.total_household}</td>
+                                    </tr>
+                                ) : null }
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div className="table-container" style={{ marginTop: "20px" }}>
+                <div className="table-container" >
                     <table id="household_table" className="table table-striped table-bordered" width="100%">
                         <thead>
-                            <tr>
+                            <tr >
                                 <th rowSpan="2">No</th>
                                 <th rowSpan="2">Name</th>
                                 <th rowSpan="2">Position</th>

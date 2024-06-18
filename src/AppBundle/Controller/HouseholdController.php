@@ -37,31 +37,31 @@ class HouseholdController extends Controller
         return $this->render('template/household/index.html.twig', ['user' => $user, "hostIp" => $hostIp, 'imgUrl' => $imgUrl]);
     }
 
-     /**
+    /**
      * @Route("/printing", name="household_printing_index", options={"main" = true })
      */
 
-     public function householdPrintingAction(Request $request)
-     {
-         $user = $this->get('security.token_storage')->getToken()->getUser();
-         $hostIp = $this->getParameter('host_ip');
-         $imgUrl = $this->getParameter('img_url');
- 
-         return $this->render('template/household-printing/index.html.twig', ['user' => $user, "hostIp" => $hostIp, 'imgUrl' => $imgUrl]);
-     }
+    public function householdPrintingAction(Request $request)
+    {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $hostIp = $this->getParameter('host_ip');
+        $imgUrl = $this->getParameter('img_url');
+
+        return $this->render('template/household-printing/index.html.twig', ['user' => $user, "hostIp" => $hostIp, 'imgUrl' => $imgUrl]);
+    }
 
     /**
      * @Route("/monitoring", name="household_monitoring", options={"main" = true })
      */
 
-     public function householdMonitoringAction(Request $request)
-     {
-         $user = $this->get('security.token_storage')->getToken()->getUser();
-         $hostIp = $this->getParameter('host_ip');
-         $imgUrl = $this->getParameter('img_url');
- 
-         return $this->render('template/household-monitoring/index.html.twig', ['user' => $user, "hostIp" => $hostIp, 'imgUrl' => $imgUrl]);
-     }
+    public function householdMonitoringAction(Request $request)
+    {
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+        $hostIp = $this->getParameter('host_ip');
+        $imgUrl = $this->getParameter('img_url');
+
+        return $this->render('template/household-monitoring/index.html.twig', ['user' => $user, "hostIp" => $hostIp, 'imgUrl' => $imgUrl]);
+    }
 
     /**
      * @Route("/ajax_post_household_header", 
@@ -74,7 +74,8 @@ class HouseholdController extends Controller
     public function ajaxPostHouseholdHeaderAction(Request $request)
     {
         $user = $this->get("security.token_storage")->getToken()->getUser();
-        $em = $this->getDoctrine()->getManager("electPrep2024");;
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        ;
 
         $householdNo = $this->getNewHouseholdNoByBarangay($request->get('municipalityNo'), $request->get('barangayNo'));
 
@@ -91,7 +92,7 @@ class HouseholdController extends Controller
         $entity->setElectId($request->get('electId'));
         $entity->setProVoterId($request->get('proVoterId'));
         $entity->setHouseholdNo($this->getNewHouseholdNo());
-        $entity->setHouseholdCode($barangay['short_name']. $householdNo);
+        $entity->setHouseholdCode($barangay['short_name'] . $householdNo);
         $entity->setMunicipalityNo($request->get('municipalityNo'));
         $entity->setBarangayNo($request->get('barangayNo'));
 
@@ -192,7 +193,8 @@ class HouseholdController extends Controller
     {
         $householdNo = 1;
 
-        $em = $this->getDoctrine()->getManager("electPrep2024");;
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        ;
 
         $sql = "SELECT household_no FROM tbl_household_hdr ORDER BY household_no DESC LIMIT 1 ";
 
@@ -230,11 +232,11 @@ class HouseholdController extends Controller
         $entity->setMunicipalityNo($request->get('municipalityNo'));
         $entity->setBarangayNo($request->get('barangayNo'));
         $entity->setVoterName($request->get('voterName'));
-     
+
         $entity->setContactNo($request->get('cellphoneNo'));
 
         $validator = $this->get('validator');
-        $violations = $validator->validate($entity,[], 'edit');
+        $violations = $validator->validate($entity, [], 'edit');
 
         $errors = [];
 
@@ -360,7 +362,8 @@ class HouseholdController extends Controller
             $length = intval($request->query->get('length'));
         }
 
-        $em = $this->getDoctrine()->getManager("electPrep2024");;
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        ;
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $sql = "SELECT COALESCE(count(h.id),0) FROM tbl_household_hdr h ";
@@ -480,7 +483,8 @@ class HouseholdController extends Controller
             $length = intval($request->query->get('length'));
         }
 
-        $em = $this->getDoctrine()->getManager("electPrep2024");;
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        ;
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $sql = "SELECT COALESCE(count(h.id),0) FROM tbl_household_hdr h WHERE h.pro_id_code NOT IN (SELECT r.pro_id_code FROM tbl_recruitment_hdr r ) ";
@@ -522,7 +526,8 @@ class HouseholdController extends Controller
 
     public function ajaxDeleteHouseholdHeaderAction($householdId)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");;
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        ;
         $entity = $em->getRepository("AppBundle:HouseholdHeader")->find($householdId);
 
         if (!$entity)
@@ -552,7 +557,8 @@ class HouseholdController extends Controller
 
     public function ajaxGetHouseholdHeader($id)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");;
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        ;
         $entity = $em->getRepository("AppBundle:HouseholdHeader")
             ->find($id);
 
@@ -582,7 +588,8 @@ class HouseholdController extends Controller
 
     private function getLGC($municipalityNo, $barangayNo)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");;
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        ;
         $sql = "SELECT pv.voter_name, pv.cellphone, la.municipality_name, la.barangay_name FROM tbl_location_assignment la INNER JOIN tbl_project_voter pv 
                 ON pv.pro_voter_id = la.pro_voter_id  
                 WHERE la.municipality_no = ? AND la.barangay_no = ? ";
@@ -608,7 +615,8 @@ class HouseholdController extends Controller
 
     public function ajaxGetHouseholdFullHeader($id)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");;
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        ;
 
         $sql = "SELECT h.*, pv.cellphone, pv.pro_voter_id, pv.birthdate, pv.gender,
                 pv.firstname, pv.middlename, pv.lastname, pv.ext_name, pv.civil_status, pv.bloodtype,
@@ -636,7 +644,8 @@ class HouseholdController extends Controller
 
     public function ajaxPostHouseholdDetailAction(Request $request)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");;
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        ;
         $user = $this->get("security.token_storage")->getToken()->getUser();
 
         $entity = new HouseholdDetail();
@@ -812,7 +821,8 @@ class HouseholdController extends Controller
             $length = intval($request->query->get('length'));
         }
 
-        $em = $this->getDoctrine()->getManager("electPrep2024");;
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        ;
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $sql = "SELECT COALESCE(count(h.id),0) FROM tbl_household_dtl h WHERE h.household_id = ${householdId}";
@@ -855,7 +865,8 @@ class HouseholdController extends Controller
 
     public function ajaxDeleteHouseholdDetailAction($householdDetailId)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");;
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        ;
         $entity = $em->getRepository("AppBundle:HouseholdDetail")->find($householdDetailId);
 
         if (!$entity)
@@ -879,7 +890,8 @@ class HouseholdController extends Controller
     {
         $user = $this->get("security.token_storage")->getToken()->getUser();
 
-        $em = $this->getDoctrine()->getManager("electPrep2024");;
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        ;
 
         $sql = "SELECT * FROM psw_municipality 
                 WHERE province_code = 53 AND municipality_no <> 16  AND municipality_no IN (SELECT DISTINCT municipality_no FROM tbl_project_voter pv 
@@ -1212,7 +1224,8 @@ class HouseholdController extends Controller
     {
         $householdNo = 1;
 
-        $em = $this->getDoctrine()->getManager("electPrep2024");;
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        ;
 
         $sql = "SELECT household_no FROM tbl_household_hdr where municipality_no = ? AND barangay_no = ? 
                ORDER BY household_no DESC LIMIT 1 ";
@@ -1242,7 +1255,8 @@ class HouseholdController extends Controller
     public function ajaxPatchHouseholdNotesAction(Request $request, $householdId)
     {
         $user = $this->get("security.token_storage")->getToken()->getUser();
-        $em = $this->getDoctrine()->getManager("electPrep2024");;
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        ;
 
         $entity = $em->getRepository("AppBundle:HouseholdHeader")
             ->find($householdId);
@@ -1263,7 +1277,7 @@ class HouseholdController extends Controller
         $entity->setUpdatedBy($user->getUsername());
 
         $voter->setCellphone($request->get('contactNo'));
-        
+
         $em->flush();
         $em->clear();
 
@@ -1273,7 +1287,7 @@ class HouseholdController extends Controller
     }
 
 
-    
+
     /**
      * @Route("/ajax_get_table_household_headers", name="ajax_get_table_household_headers", options={"expose"=true})
      * @Method("GET")
@@ -1281,35 +1295,35 @@ class HouseholdController extends Controller
      * @return JsonResponse
      */
 
-     public function ajaxGetTableHouseholdHeadersAction(Request $request)
-     {
+    public function ajaxGetTableHouseholdHeadersAction(Request $request)
+    {
         $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $municipalityName = $request->get("municipalityName");
         $barangayName = $request->get("barangayName");
 
 
-        if(!$municipalityName || !$barangayName){
-            return new JsonResponse([],404);
+        if (!$municipalityName || !$barangayName) {
+            return new JsonResponse([], 404);
         }
- 
-         $sql = "SELECT h.*,pv.is_non_voter, pv.voter_group FROM tbl_household_hdr h 
+
+        $sql = "SELECT h.*,pv.is_non_voter, pv.voter_group FROM tbl_household_hdr h 
              INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = h.pro_voter_id 
              WHERE h.municipality_no = ? AND h.barangay_no = ? ORDER BY municipality_name, barangay_name, voter_name  ";
- 
-         $stmt = $em->getConnection()->prepare($sql);
-         $stmt->bindValue(1, $municipalityName);
-         $stmt->bindValue(2, $barangayName);
-         $stmt->execute();
 
-         $data = [];
- 
-         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-             $data[] = $row;
-         }
- 
-         foreach ($data as &$row) {
-             $sql = "SELECT COUNT(pv.pro_voter_id)  as total_members,
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, $municipalityName);
+        $stmt->bindValue(2, $barangayName);
+        $stmt->execute();
+
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        foreach ($data as &$row) {
+            $sql = "SELECT COUNT(pv.pro_voter_id)  as total_members,
                      COALESCE(COUNT(CASE WHEN pv.is_non_voter = 0 then 1 end),0) as total_voters,
                      COALESCE(COUNT(CASE WHEN pv.is_non_voter = 1 then 1 end),0) as total_non_voters
  
@@ -1317,77 +1331,142 @@ class HouseholdController extends Controller
                      INNER JOIN tbl_project_voter pv 
                      ON pv.pro_voter_id = hd.pro_voter_id 
                      WHERE hd.household_id = ? ORDER BY pv.voter_name ";
-             $stmt = $em->getConnection()->prepare($sql);
-             $stmt->bindValue(1, $row['id']);
-             $stmt->execute();
- 
-             $summary = $stmt->fetch(\PDO::FETCH_ASSOC);
- 
- 
-             $row['total_members'] = $summary['total_members'] + 1;
-             $row['total_voters'] = $row['is_non_voter'] != 1 ? $summary['total_voters'] + 1 : $summary['total_voters'];
-             $row['total_non_voters'] = $row['is_non_voter'] == 1 ? $summary['total_non_voters'] + 1 : $summary['total_non_voters'];
-         }
- 
- 
-         return new JsonResponse($data);
-     }
- 
-     /**
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $row['id']);
+            $stmt->execute();
+
+            $summary = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+
+            $row['total_members'] = $summary['total_members'] + 1;
+            $row['total_voters'] = $row['is_non_voter'] != 1 ? $summary['total_voters'] + 1 : $summary['total_voters'];
+            $row['total_non_voters'] = $row['is_non_voter'] == 1 ? $summary['total_non_voters'] + 1 : $summary['total_non_voters'];
+        }
+
+
+        return new JsonResponse($data);
+    }
+
+    /**
      * @Route("/ajax_get_table_household_monitoring_by_barangay", name="ajax_get_table_household_monitoring_by_barangay", options={"expose"=true})
      * @Method("GET")
      * @param Request $request
      * @return JsonResponse
      */
 
-     public function ajaxGetTableHouseholdMonitoringByBarangayAction(Request $request)
-     {
+    public function ajaxGetTableHouseholdMonitoringByBarangayAction(Request $request)
+    {
         $em = $this->getDoctrine()->getManager("electPrep2024");
 
-         $sql = "Select municipality_name, barangay_name ,DATE(updated_at) AS call_date, count(*) as total_household
+        $sql = "Select municipality_name, barangay_name ,DATE(updated_at) AS call_date, count(*) as total_household
          from tbl_household_hdr 
          wherE updated_at is not null 
          group by barangay_name
          ORDER BY municipality_name,barangay_name ";
- 
-         $stmt = $em->getConnection()->prepare($sql);
-         $stmt->execute();
 
-         $data = [];
- 
-         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-             $data[] = $row;
-         }
- 
-         return new JsonResponse($data);
-     }
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
 
-       /**
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return new JsonResponse($data);
+    }
+
+    /**
      * @Route("/ajax_get_table_household_monitoring_by_date", name="ajax_get_table_household_monitoring_by_date", options={"expose"=true})
      * @Method("GET")
      * @param Request $request
      * @return JsonResponse
      */
 
-     public function ajaxGetTableHouseholdMonitoringByDateAction(Request $request)
-     {
+    public function ajaxGetTableHouseholdMonitoringByDateAction(Request $request)
+    {
         $em = $this->getDoctrine()->getManager("electPrep2024");
 
-         $sql = "Select municipality_name, barangay_name ,DATE(updated_at) AS call_date, count(*) as total_household
+        $sql = "Select municipality_name, barangay_name ,DATE(updated_at) AS call_date, count(*) as total_household
          from tbl_household_hdr 
          wherE updated_at is not null 
          group by call_date
          ORDER BY call_date ";
- 
-         $stmt = $em->getConnection()->prepare($sql);
-         $stmt->execute();
 
-         $data = [];
- 
-         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-             $data[] = $row;
-         }
- 
-         return new JsonResponse($data);
-     }
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return new JsonResponse($data);
+    }
+
+
+    /**
+     * @Route("/ajax_m_get_household_voters_summary",
+     *       name="ajax_m_get_household_voters_summary",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetHouseholdVotersSummary(Request $request)
+    {
+
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+
+        $sql = "SELECT pv.municipality_name, COALESCE(COUNT(DISTINCT pv.pro_voter_id ),0) AS total_voter
+                FROM tbl_project_voter pv
+                WHERE pv.municipality_no IN ('01','16') 
+                AND pv.position IS NOT NULL AND pv.position <> ''
+                AND pv.is_non_voter = 0
+                GROUP BY pv.municipality_name ";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+
+        $summary = [];
+
+        $summary['voters'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        if (!$summary)
+            return new JsonResponse(['message' => 'Household not found. Please contact the system administrator'], 404);
+
+
+        $sql = "SELECT COALESCE(COUNT(DISTINCT pv.pro_voter_id ),0) AS total_voter_outside
+                FROM tbl_project_voter pv
+                WHERE pv.municipality_no NOT IN ('01','16') 
+                AND pv.position IS NOT NULL AND pv.position <> ''
+                AND pv.is_non_voter = 0";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+
+        $summary['total_voter_outside'] = $stmt->fetchColumn();
+
+        $sql = "SELECT municipality_name , COALESCE(COUNT(DISTINCT pv.pro_voter_id ),0) AS total_voter_potential
+                FROM tbl_project_voter pv
+                WHERE pv.municipality_no IN ('01','16') 
+                AND pv.position IS NOT NULL AND pv.position <> ''
+                AND pv.is_non_voter = 1 
+                GROUP BY municipality_name ";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+
+        $summary['total_voter_potential'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+        $sql = "SELECT COUNT(*) as total_household FROM tbl_household_hdr ";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->execute();
+
+        $summary['total_household'] = $stmt->fetchColumn();
+
+        return new JsonResponse($summary);
+    }
 }

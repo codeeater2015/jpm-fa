@@ -491,10 +491,11 @@ var HouseholdDatatable = React.createClass({
                             <thead style={{ backgroundColor: "#5ab866" }}>
                                 <tr className="text-center">
                                     <th rowSpan="2" className="text-center">Household Address</th>
+                                    <th rowSpan="2" className="text-center">Households</th>
+                                    <th rowSpan="2" className="text-center">Est. Target</th>
                                     <th colSpan="2" className="text-center">Voting Address</th>
                                     <th rowSpan="2" className="text-center">Outside</th>
                                     <th rowSpan="2" className="text-center">Potential</th>
-                                    <th rowSpan="2" className="text-center">Total Households</th>
                                 </tr>
                                 <tr>
                                     <th className="text-center">Puerto</th>
@@ -505,21 +506,23 @@ var HouseholdDatatable = React.createClass({
                                 {summary != null ? (
                                     <tr className="text-center">
                                         <td>ABORLAN</td>
+                                        <td>{summary.household[0].total_household}</td>
+                                        <td>{summary.household[0].total_household * 4}</td>
                                         <td>{summary.voters[0].total_puerto}</td>
                                         <td>{summary.voters[0].total_aborlan}</td>  
                                         <td>{summary.total_voter_outside[0].total_voter}</td>
                                         <td>{summary.total_voter_potential[0].total_voter_potential}</td>
-                                        <td>{summary.household[0].total_household}</td>
                                     </tr>
                                 ) : null }
                                 {summary != null ? (
                                     <tr className="text-center">
                                         <td>PUERTO PRINCESA CITY</td>
+                                        <td>{summary.household[1].total_household}</td>
+                                        <td>{summary.household[1].total_household * 4 }</td>
                                         <td>{summary.voters[1].total_puerto}</td>
                                         <td>{summary.voters[1].total_aborlan}</td>  
                                         <td>{summary.total_voter_outside[1].total_voter}</td>
                                         <td>{summary.total_voter_potential[1].total_voter_potential}</td>
-                                        <td>{summary.household[1].total_household}</td>
                                     </tr>
                                 ) : null }
                             </tbody>

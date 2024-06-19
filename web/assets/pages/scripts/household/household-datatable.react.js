@@ -482,22 +482,21 @@ var HouseholdDatatable = React.createClass({
                 }
 
                 <div className="row" id="handler_component">
-                    <div className="col-md-7">
+                    <div className="col-md-6">
                         <button type="button" className="btn btn-primary" onClick={this.openCreateModal}>New Household</button>
                     </div>
 
-                    <div className="col-md-5">
+                    <div className="col-md-6">
                         <table className="table table-condensed table-bordered">
                             <thead style={{ backgroundColor: "#5ab866" }}>
                                 <tr className="text-center">
-                                    <th colSpan="2" className="text-center">Voters</th>
+                                    <th rowSpan="2" className="text-center">Household Address</th>
+                                    <th colSpan="2" className="text-center">Voting Address</th>
                                     <th rowSpan="2" className="text-center">Outside</th>
-                                    <th colSpan="2" className="text-center">Potential</th>
+                                    <th rowSpan="2" className="text-center">Potential</th>
                                     <th rowSpan="2" className="text-center">Total Households</th>
                                 </tr>
                                 <tr>
-                                    <th className="text-center">Puerto</th>
-                                    <th className="text-center">Aborlan</th>
                                     <th className="text-center">Puerto</th>
                                     <th className="text-center">Aborlan</th>
                                 </tr>
@@ -505,12 +504,22 @@ var HouseholdDatatable = React.createClass({
                             <tbody>
                                 {summary != null ? (
                                     <tr className="text-center">
-                                        <td>{summary.voters[1].total_voter}</td>
-                                        <td>{summary.voters[0].total_voter}</td>
-                                        <td>{summary.total_voter_outside}</td>
-                                        <td>{summary.total_voter_potential[1].total_voter_potential}</td>
+                                        <td>ABORLAN</td>
+                                        <td>{summary.voters[0].total_puerto}</td>
+                                        <td>{summary.voters[0].total_aborlan}</td>  
+                                        <td>{summary.total_voter_outside[0].total_voter}</td>
                                         <td>{summary.total_voter_potential[0].total_voter_potential}</td>
-                                        <td>{summary.total_household}</td>
+                                        <td>{summary.household[0].total_household}</td>
+                                    </tr>
+                                ) : null }
+                                {summary != null ? (
+                                    <tr className="text-center">
+                                        <td>PUERTO PRINCESA CITY</td>
+                                        <td>{summary.voters[1].total_puerto}</td>
+                                        <td>{summary.voters[1].total_aborlan}</td>  
+                                        <td>{summary.total_voter_outside[1].total_voter}</td>
+                                        <td>{summary.total_voter_potential[1].total_voter_potential}</td>
+                                        <td>{summary.household[1].total_household}</td>
                                     </tr>
                                 ) : null }
                             </tbody>

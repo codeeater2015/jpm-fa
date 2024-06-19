@@ -1419,12 +1419,15 @@ class HouseholdController extends Controller
 
         $em = $this->getDoctrine()->getManager("electPrep2024");
 
-        $sql = "SELECT pv.municipality_name, COALESCE(COUNT(DISTINCT pv.pro_voter_id ),0) AS total_voter
-                FROM tbl_project_voter pv
-                WHERE pv.municipality_no IN ('01','16') 
-                AND pv.position IS NOT NULL AND pv.position <> ''
+        $sql = "SELECT asn_municipality_name, COUNT(*) AS total_voter,
+                COALESCE(COUNT(CASE WHEN pv.municipality_no = '01' THEN 1 END), 0) AS total_aborlan,
+                COALESCE(COUNT(CASE WHEN pv.municipality_no = '16' THEN 1 END), 0) AS total_puerto
+                FROM tbl_project_voter pv 
+                WHERE pv.position IN ('HLEADER','HMEMBER') 
+                AND pv.municipality_no IN ('01','16')
                 AND pv.is_non_voter = 0
-                GROUP BY pv.municipality_name ";
+                GROUP BY pv.asn_municipality_name 
+                ORDER BY pv.asn_municipality_name";
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();
@@ -1437,35 +1440,43 @@ class HouseholdController extends Controller
             return new JsonResponse(['message' => 'Household not found. Please contact the system administrator'], 404);
 
 
-        $sql = "SELECT COALESCE(COUNT(DISTINCT pv.pro_voter_id ),0) AS total_voter_outside
-                FROM tbl_project_voter pv
-                WHERE pv.municipality_no NOT IN ('01','16') 
-                AND pv.position IS NOT NULL AND pv.position <> ''
-                AND pv.is_non_voter = 0";
+        $sql = "SELECT asn_municipality_name, COUNT(*) AS total_voter,
+                COALESCE(COUNT(CASE WHEN pv.municipality_no = '01' THEN 1 END), 0) AS total_aborlan,
+                COALESCE(COUNT(CASE WHEN pv.municipality_no = '16' THEN 1 END), 0) AS total_puerto
+                FROM tbl_project_voter pv 
+                WHERE pv.position IN ('HLEADER','HMEMBER') 
+                and pv.municipality_no NOT IN ('01','16')
+                AND pv.is_non_voter = 0
+                GROUP BY pv.asn_municipality_name 
+                ORDER BY pv.asn_municipality_name";
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();
 
-        $summary['total_voter_outside'] = $stmt->fetchColumn();
+        $summary['total_voter_outside'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        $sql = "SELECT municipality_name , COALESCE(COUNT(DISTINCT pv.pro_voter_id ),0) AS total_voter_potential
+        $sql = "SELECT pv.asn_municipality_name  , COALESCE(COUNT(DISTINCT pv.pro_voter_id ),0) AS total_voter_potential
                 FROM tbl_project_voter pv
                 WHERE pv.municipality_no IN ('01','16') 
                 AND pv.position IS NOT NULL AND pv.position <> ''
                 AND pv.is_non_voter = 1 
-                GROUP BY municipality_name ";
+                GROUP BY pv.asn_municipality_name 
+                ORDER BY pv.asn_municipality_name";
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();
 
         $summary['total_voter_potential'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
-        $sql = "SELECT COUNT(*) as total_household FROM tbl_household_hdr ";
+        $sql = "SELECT municipality_name , COUNT(*) AS total_household 
+                FROM tbl_household_hdr 
+                GROUP BY municipality_name
+                ORDER  BY municipality_name ";
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->execute();
 
-        $summary['total_household'] = $stmt->fetchColumn();
+        $summary['household'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         return new JsonResponse($summary);
     }

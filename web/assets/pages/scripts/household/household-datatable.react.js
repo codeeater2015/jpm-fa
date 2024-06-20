@@ -5,8 +5,11 @@ var HouseholdDatatable = React.createClass({
             showCreateModal: false,
             showEditModal: false,
             showRecruitsModal: false,
+            showHouseholdSummary: false,
             target: null,
             typingTimer: null,
+            municipalityNo: null,
+            modalMunicipalityNo : null,
             doneTypingInterval: 1500,
             user: null,
             summary: null,
@@ -195,6 +198,7 @@ var HouseholdDatatable = React.createClass({
 
         $("#household_table #municipality_select2").on("change", function () {
             self.handleFilterChange();
+            self.setState({ municipalityNo: $(this).val() });
         });
 
         $("#household_table #barangay_select2").on("change", function () {
@@ -411,6 +415,16 @@ var HouseholdDatatable = React.createClass({
         }
     },
 
+    openHouseholdSummary : function(municipalityNo){
+        console.log("modal municipalityNo ", municipalityNo);
+
+        this.setState({ showHouseholdSummary : true , modalMunicipalityNo : municipalityNo });
+    },
+
+    closeHouseholdSummary : function(){
+        this.setState( { showHouseholdSummary : false});
+    },
+
     onCreateSuccess: function (id) {
         var self = this;
         self.setState({ showRecruitsModal: true, target: id });
@@ -437,6 +451,7 @@ var HouseholdDatatable = React.createClass({
 
     render: function () {
         let summary = this.state.summary;
+        let self = this;
 
         return (
             <div>
@@ -481,12 +496,18 @@ var HouseholdDatatable = React.createClass({
                     />
                 }
 
-                <div className="row" id="handler_component">
-                    <div className="col-md-6">
-                        <button type="button" className="btn btn-primary" onClick={this.openCreateModal}>New Household</button>
-                    </div>
+                {
+                    this.state.showHouseholdSummary &&
+                    <HouseholdSummaryModal
+                        show={this.state.showHouseholdSummary}
+                        municipalityNo={this.state.modalMunicipalityNo}
+                        onHide={this.closeHouseholdSummary}
+                    />
+                }
 
-                    <div className="col-md-6">
+                <div className="row" id="handler_component">
+
+                    <div className="col-md-6 col-md-offset-3" >
                         <table className="table table-condensed table-bordered">
                             <thead style={{ backgroundColor: "#5ab866" }}>
                                 <tr className="text-center">
@@ -496,6 +517,8 @@ var HouseholdDatatable = React.createClass({
                                     <th colSpan="2" className="text-center">Voting Address</th>
                                     <th rowSpan="2" className="text-center">Outside</th>
                                     <th rowSpan="2" className="text-center">Potential</th>
+                                    <th rowSpan="2" className="text-center">Total</th>
+                                    <th rowSpan="2" className="text-center"></th>
                                 </tr>
                                 <tr>
                                     <th className="text-center">Puerto</th>
@@ -503,85 +526,117 @@ var HouseholdDatatable = React.createClass({
                                 </tr>
                             </thead>
                             <tbody>
-                                {summary != null ? (
+                                {(summary != null && (self.state.municipalityNo == null || self.state.municipalityNo == '01')) ? (
                                     <tr className="text-center">
                                         <td>ABORLAN</td>
                                         <td>{summary.household[0].total_household}</td>
                                         <td>{summary.household[0].total_household * 4}</td>
                                         <td>{summary.voters[0].total_puerto}</td>
-                                        <td>{summary.voters[0].total_aborlan}</td>  
+                                        <td>{summary.voters[0].total_aborlan}</td>
                                         <td>{summary.total_voter_outside[0].total_voter}</td>
                                         <td>{summary.total_voter_potential[0].total_voter_potential}</td>
+                                        <td>{Number.parseInt(summary.voters[0].total_aborlan) + Number.parseInt(summary.voters[0].total_puerto) + Number.parseInt(summary.total_voter_potential[0].total_voter_potential) }</td>
+                                        <td>
+                                            <button onClick={this.openHouseholdSummary.bind(this,'01')} className="btn btn-xs btn-primary btn-icon"><i className="fa fa-eye"></i></button>
+                                        </td>
                                     </tr>
-                                ) : null }
-                                {summary != null ? (
+                                ) : null}
+                                {(summary != null && (self.state.municipalityNo == null || self.state.municipalityNo == '16')) ? (
                                     <tr className="text-center">
                                         <td>PUERTO PRINCESA CITY</td>
                                         <td>{summary.household[1].total_household}</td>
-                                        <td>{summary.household[1].total_household * 4 }</td>
+                                        <td>{summary.household[1].total_household * 4}</td>
                                         <td>{summary.voters[1].total_puerto}</td>
-                                        <td>{summary.voters[1].total_aborlan}</td>  
+                                        <td>{summary.voters[1].total_aborlan}</td>
                                         <td>{summary.total_voter_outside[1].total_voter}</td>
                                         <td>{summary.total_voter_potential[1].total_voter_potential}</td>
+                                        <td>{Number.parseInt(summary.voters[1].total_aborlan) + Number.parseInt(summary.voters[1].total_puerto) + Number.parseInt(summary.total_voter_potential[1].total_voter_potential) }</td>
+                                        
+                                        <td>
+                                            <button onClick={this.openHouseholdSummary.bind(this,'16')}  className="btn btn-xs btn-primary btn-icon"><i className="fa fa-eye"></i></button>
+                                        </td>
                                     </tr>
-                                ) : null }
+                                ) : null}
+                                {(summary != null && (self.state.municipalityNo == null)) ? (
+                                    <tr className="text-center">
+                                        <td><strong>Total</strong></td>
+                                        <td>{ Number.parseInt(summary.household[0].total_household) + Number.parseInt(summary.household[1].total_household)}</td>
+                                        <td>{(Number.parseInt(summary.household[0].total_household) + Number.parseInt(summary.household[1].total_household)) * 4}</td>
+                                        <td>{Number.parseInt(summary.voters[0].total_puerto) + Number.parseInt(summary.voters[1].total_puerto)}</td>
+                                        <td>{Number.parseInt(summary.voters[0].total_aborlan) + Number.parseInt(summary.voters[1].total_aborlan)}</td>
+                                        <td>{Number.parseInt(summary.total_voter_outside[0].total_voter) + Number.parseInt(summary.total_voter_outside[1].total_voter)}</td>
+                                        <td>{Number.parseInt(summary.total_voter_potential[0].total_voter_potential) + Number.parseInt(summary.total_voter_potential[1].total_voter_potential)}</td>
+                                        <td>{(Number.parseInt(summary.voters[0].total_aborlan) + Number.parseInt(summary.voters[0].total_puerto) + Number.parseInt(summary.total_voter_potential[0].total_voter_potential) ) 
+                                            + Number.parseInt(summary.voters[1].total_aborlan) + Number.parseInt(summary.voters[1].total_puerto) + Number.parseInt(summary.total_voter_potential[1].total_voter_potential) }</td>
+                                        
+                                        <td>
+                                            
+                                        </td>
+                                    </tr>
+                                ) : null}
                             </tbody>
                         </table>
                     </div>
                 </div>
-
-                <div className="table-container" >
-                    <table id="household_table" className="table table-striped table-bordered" width="100%">
-                        <thead>
-                            <tr >
-                                <th rowSpan="2">No</th>
-                                <th rowSpan="2">Name</th>
-                                <th rowSpan="2">Position</th>
-                                <th rowSpan="2" className="text-center">Municipality</th>
-                                <th rowSpan="2" className="text-center">Barangay</th>
-                                <th rowSpan="2" className="text-center">House No.</th>
-                                <th className="text-center" colSpan="3">Household</th>
-                                <th rowSpan="2" className="text-center">Contact #</th>
-                                <th rowSpan="2" className="text-center">Last Update</th>
-                                <th rowSpan="2" className="text-center">User</th>
-                                <th rowSpan="2" width="60px" className="text-center"></th>
-                            </tr>
-                            <tr>
-                                <th className="text-center">Voter</th>
-                                <th className="text-center">Non-Voter</th>
-                                <th className="text-center">Total</th>
-                            </tr>
-                            <tr>
-                                <td></td>
-                                <td style={{ padding: "10px 5px" }}>
-                                    <input type="text" className="form-control form-filter input-sm" name="voter_name" onChange={this.handleFilterChange} />
-                                </td>
-                                <td>
-                                    <input type="text" className="form-control form-filter input-sm" name="voter_group" onChange={this.handleFilterChange} />
-                                </td>
-                                <td style={{ padding: "10px 5px" }}>
-                                    <select id="municipality_select2" className="form-control form-filter input-sm" >
-                                    </select>
-                                </td>
-                                <td style={{ padding: "10px 5px" }}>
-                                    <select id="barangay_select2" className="form-control form-filter input-sm">
-                                    </select>
-                                </td>
-                                <td>
-                                    <input type="text" className="form-control form-filter input-sm" name="household_code" onChange={this.handleFilterChange} />
-                                </td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
+                <div className="col-md-6">
+                    <button type="button" className="btn btn-primary" onClick={this.openCreateModal}>New Household</button>
+                    <br />
+                    <br />
+                </div>
+                <div className="col-md-12">
+                    <div className="table-container" >
+                        <table id="household_table" className="table table-striped table-bordered" width="100%">
+                            <thead>
+                                <tr >
+                                    <th rowSpan="2">No</th>
+                                    <th rowSpan="2">Name</th>
+                                    <th rowSpan="2">Position</th>
+                                    <th rowSpan="2" className="text-center">Municipality</th>
+                                    <th rowSpan="2" className="text-center">Barangay</th>
+                                    <th rowSpan="2" className="text-center">House No.</th>
+                                    <th className="text-center" colSpan="3">Household</th>
+                                    <th rowSpan="2" className="text-center">Contact #</th>
+                                    <th rowSpan="2" className="text-center">Last Update</th>
+                                    <th rowSpan="2" className="text-center">User</th>
+                                    <th rowSpan="2" width="60px" className="text-center"></th>
+                                </tr>
+                                <tr>
+                                    <th className="text-center">Voter</th>
+                                    <th className="text-center">Non-Voter</th>
+                                    <th className="text-center">Total</th>
+                                </tr>
+                                <tr>
+                                    <td></td>
+                                    <td style={{ padding: "10px 5px" }}>
+                                        <input type="text" className="form-control form-filter input-sm" name="voter_name" onChange={this.handleFilterChange} />
+                                    </td>
+                                    <td>
+                                        <input type="text" className="form-control form-filter input-sm" name="voter_group" onChange={this.handleFilterChange} />
+                                    </td>
+                                    <td style={{ padding: "10px 5px" }}>
+                                        <select id="municipality_select2" className="form-control form-filter input-sm" >
+                                        </select>
+                                    </td>
+                                    <td style={{ padding: "10px 5px" }}>
+                                        <select id="barangay_select2" className="form-control form-filter input-sm">
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input type="text" className="form-control form-filter input-sm" name="household_code" onChange={this.handleFilterChange} />
+                                    </td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         )

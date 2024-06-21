@@ -35,7 +35,7 @@ var Hierarchy = React.createClass({
 
         $('#tree1').tree({
             dragAndDrop: true,
-            autoOpen:  false,
+            autoOpen:  true,
             onCreateLi: function (node, $li) {
                 // Append a link to the jqtree-element div.
                 // The link has an url '#node-[id]' and a data property 'node-id'.
@@ -181,6 +181,18 @@ var Hierarchy = React.createClass({
         this.initSelect2();
     },
 
+    notify : function(message,color){
+        $.notific8('zindex', 11500);
+        $.notific8(message, {
+            heading: 'System Message',
+            color: color,
+            life: 5000,
+            verticalEdge: 'right',
+            horizontalEdge: 'top',
+        });
+    },
+
+
     openCreateModal: function () {
         console.log("open sms modal");
         this.setState({ showCreateModal: true });
@@ -234,8 +246,10 @@ var Hierarchy = React.createClass({
                 processResults: function (data, params) {
                     return {
                         results: data.map(function (item) {
-                            var isVoter = item.is_non_voter == 1 ? "NO" : "YES";
-                            var text = item.voter_name + ' ( ' + item.municipality_name + ', ' + item.barangay_name + ' ) - is voter? : ' + isVoter;
+                            var isVoter = item.is_non_voter == 1 ? "NV" : "V";
+                            var profileLabel = (item.position == '' || item.position == null) ? "No Profile" : item.position;
+
+                            var text = item.voter_name + ' ( ' + item.municipality_name + ', ' + item.barangay_name + ' ) ' + isVoter + " | " + profileLabel;
 
                             return { id: item.pro_voter_id, text: text };
                         })
@@ -270,6 +284,7 @@ var Hierarchy = React.createClass({
                         results: data.map(function (item) {
                             var isVoter = item.is_non_voter == 1 ? "NO" : "YES";
                             var voterGroup = item.voter_group;
+
                             var text = item.voter_name + ' ( ' + item.municipality_name + ', ' + item.barangay_name + ' ) - is voter? : ' + isVoter + '||' + voterGroup;
 
                             return { id: item.pro_voter_id, text: text };
@@ -675,8 +690,13 @@ var Hierarchy = React.createClass({
                     }).done(function (res) {
                         console.log("request succeeded.")
                         self.loadHierarchyData();
+                        $("#hierarchy_page #voter-select2").empty().trigger("change");
                     }).fail(function (err) {
-                        self.setErrors(err.responseJSON);
+
+                        for (const [key, value] of Object.entries(err.responseJSON)) {
+                            console.log(`Key: ${key}, Value: ${value}`);
+                            self.notify(`${key} : ${value}`, "teal");
+                        }
                         console.log("ops! something went wrong");
                     });
                 }

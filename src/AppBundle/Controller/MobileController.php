@@ -5477,7 +5477,7 @@ class MobileController extends Controller
         $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sql = "SELECT hh.voter_name, hh.household_code,hh.household_no, hh.municipality_name, hh.barangay_name,hh.id , pv.is_non_voter, pv.precinct_no,
-                pv.municipality_no AS registered_municipality, hh.municipality_no,
+                pv.municipality_no AS registered_municipality, hh.municipality_no,pv.cellphone,
                 (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd WHERE hh.id = hd.household_id) AS total_members,
                 (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND ppv.is_non_voter = 0 AND ppv.municipality_no IN('01','16') ) AS total_voter_members,
                 (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND (ppv.is_non_voter = 1 OR ppv.municipality_no NOT IN('01','16')) ) AS total_non_voter_members

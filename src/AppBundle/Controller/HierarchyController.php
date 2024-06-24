@@ -184,7 +184,7 @@ class HierarchyController extends Controller
         $entity->setVoterGroup($request->get('voterGroup'));
         $entity->setAssignedMunNo($request->get('assignedMunNo'));
         $entity->setAssignedBrgyNo($request->get('assignedBrgyNo'));
-        $entity->setAssignedPurok($request->get('assignedPurok'));
+        $entity->setAssignedPurok(strtoupper($request->get('assignedPurok')));
 
         $entity->setStatus('A');
 
@@ -454,15 +454,11 @@ class HierarchyController extends Controller
 
         $sql = "SELECT DISTINCT h.assigned_purok 
                 FROM tbl_organization_hierarchy h 
-                WHERE h.assigned_mun_no = ? 
-                AND h.assigned_brgy_no = ? 
-                AND h.assigned_purok LIKE ? 
+                WHERE h.assigned_purok LIKE ? 
                 ORDER BY h.assigned_purok ASC LIMIT 30";
 
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1, $municipalityNo);
-        $stmt->bindValue(2, $brgyNo);
-        $stmt->bindValue(3, $searchText);
+        $stmt->bindValue(1, $searchText);
         $stmt->execute();
 
         $data = $stmt->fetchAll();

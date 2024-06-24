@@ -434,7 +434,7 @@ var Hierarchy = React.createClass({
                 processResults: function (data, params) {
                     return {
                         results: data.map(function (item) {
-                            return { id: item.brgy_no, text: item.name };
+                            return { id: item.assigned_purok, text: item.assigned_purok };
                         })
                     };
                 },

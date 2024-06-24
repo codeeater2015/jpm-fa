@@ -85,13 +85,16 @@ class HierarchyController extends Controller
         $stmt->execute();
 
         $data = [];
+        $counter = 0;
+
 
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $children = $this->getChildNodes($row['pro_voter_id']);
+            $counter++;
 
             $data[] = [
                 "id" => $row['pro_voter_id'],
-                'name' => $row['voter_group'] . ': ' . $row['voter_name'] . ' | ' . $row['assigned_municipality'] . ', ' . $row['assigned_barangay'],
+                'name' => $counter . '. ' . $row['voter_group'] . ': ' . $row['voter_name'] . ' | ' . $row['assigned_municipality'] . ', ' . $row['assigned_barangay'],
                 'data' => [
                     'voter_group' => $row['voter_group']
                 ],
@@ -126,11 +129,14 @@ class HierarchyController extends Controller
         if (empty($entities) || count($entities) <= 0)
             return [];
 
+        $counter = 0;
 
         foreach ($entities as $entity) {
+            $counter++;
+
             $item = [
                 'id' => $entity['pro_voter_id'],
-                'name' => $entity['voter_group'] . ': ' . $entity['voter_name'] . ' | ' . $entity['assigned_municipality'] . ', ' . $entity['assigned_barangay'],
+                'name' => $counter . '. ' . $entity['voter_group'] . ': ' . $entity['voter_name'] . ' | ' . $entity['assigned_municipality'] . ', ' . $entity['assigned_barangay'],
             ];
 
             $item['children'] = $this->getChildNodes($entity['pro_voter_id']);

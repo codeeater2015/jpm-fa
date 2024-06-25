@@ -44,6 +44,12 @@ var HouseholdSummaryModal = React.createClass({
         var gPotential = 0;
         var gTotal = 0;
 
+        var gTl = 0;
+        var gK0 = 0;
+        var gK1 = 0;
+        var gK2 = 0;
+        var gNoPos = 0;
+
         return (
             <Modal style={{ marginTop: "10px" }} keyboard={false} bsSize="lg" enforceFocus={false} backdrop="static" show={this.props.show} onHide={this.props.onHide}>
                 <Modal.Header className="modal-header bg-blue-dark font-white" closeButton>
@@ -68,10 +74,16 @@ var HouseholdSummaryModal = React.createClass({
                                     <th rowSpan="2" className="text-center">Outside</th>
                                     <th rowSpan="2" className="text-center">Potential</th>
                                     <th rowSpan="2" className="text-center">Total</th>
+                                    <th colSpan="5" className="text-center">Hierarchy</th>
                                 </tr>
                                 <tr>
                                     <th className="text-center">Puerto</th>
                                     <th className="text-center">Aborlan</th>
+                                    <th className="text-center">TL</th>
+                                    <th className="text-center">K0</th>
+                                    <th className="text-center">K1</th>
+                                    <th className="text-center">K2</th>
+                                    <th className="text-center">No Position</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -85,6 +97,12 @@ var HouseholdSummaryModal = React.createClass({
                                         gOutside += Number.parseInt(item.total_outside);
                                         gPotential += Number.parseInt(item.total_potential);
 
+                                        gTl += Number.parseInt(item.total_tl);
+                                        gK0 += Number.parseInt(item.total_k0);
+                                        gK1 += Number.parseInt(item.total_k1);
+                                        gK2 += Number.parseInt(item.total_k2);
+                                        gNoPos += Number.parseInt(item.total_no_pos);
+
                                         return (
                                             <tr>
                                                 <td className="text-left">{++index}. {item.asn_barangay_name}</td>
@@ -95,6 +113,11 @@ var HouseholdSummaryModal = React.createClass({
                                                 <td className="text-center">{Number.parseInt(item.total_outside)}</td>
                                                 <td className="text-center">{Number.parseInt(item.total_potential)}</td>
                                                 <td className="text-center"><strong>{Number.parseInt(item.total_puerto) + Number.parseInt(item.total_aborlan) + Number.parseInt(item.total_potential)}</strong></td>
+                                                <td className="text-center">{Number.parseInt(item.total_tl)}</td>
+                                                <td className="text-center">{Number.parseInt(item.total_k0)}</td>
+                                                <td className="text-center">{Number.parseInt(item.total_k1)}</td>
+                                                <td className="text-center">{Number.parseInt(item.total_k2)}</td>
+                                                <td className="text-center">{Number.parseInt(item.total_no_pos)}</td>
                                             </tr>
                                         );
                                     })
@@ -108,6 +131,12 @@ var HouseholdSummaryModal = React.createClass({
                                     <td className="text-center"><strong>{gOutside}</strong></td>
                                     <td className="text-center"><strong>{gPotential}</strong></td>
                                     <td className="text-center"><strong>{gPuerto + gAborlan + gPotential}</strong></td>
+
+                                    <td className="text-center"><strong>{gTl}</strong></td>
+                                    <td className="text-center"><strong>{gK0}</strong></td>
+                                    <td className="text-center"><strong>{gK1}</strong></td>
+                                    <td className="text-center"><strong>{gK2}</strong></td>
+                                    <td className="text-center"><strong>{gNoPos}</strong></td>
                                 </tr>
                             </tbody>
                         </table>

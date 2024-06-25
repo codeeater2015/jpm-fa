@@ -103,6 +103,34 @@ class ProjectVoter
     /**
      * @var string
      *
+     * @ORM\Column(name="asn_municipality_name", type="string", length=150)
+     */
+    private $asnMunicipalityName;
+
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="asn_municipality_no", type="string", length=15)
+     */
+    private $asnMunicipalityNo;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="asn_barangay_name", type="string", length=150)
+     */
+    private $asnBarangayName;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="asn_barangay_no", type="string", length=15)
+     */
+    private $asnBarangayNo;
+
+    /**
+     * @var string
+     *
      * @ORM\Column(name="precinct_no", type="string", length=30)
      */
     private $precinctNo;
@@ -170,6 +198,13 @@ class ProjectVoter
      * @ORM\Column(name="has_photo", type="integer")
      */
     private $hasPhoto;
+
+        /**
+     * @var int
+     *
+     * @ORM\Column(name="has_attended", type="integer")
+     */
+    private $hasAttended;
     
     /**
      * @var int
@@ -1474,5 +1509,125 @@ class ProjectVoter
     public function getIsOnHold()
     {
         return $this->isOnHold;
+    }
+
+    /**
+     * Set hasAttended
+     *
+     * @param integer $hasAttended
+     *
+     * @return ProjectVoter
+     */
+    public function setHasAttended($hasAttended)
+    {
+        $this->hasAttended = $hasAttended;
+
+        return $this;
+    }
+
+    /**
+     * Get hasAttended
+     *
+     * @return integer
+     */
+    public function getHasAttended()
+    {
+        return $this->hasAttended;
+    }
+
+    /**
+     * Set asnMunicipalityName
+     *
+     * @param string $asnMunicipalityName
+     *
+     * @return ProjectVoter
+     */
+    public function setAsnMunicipalityName($asnMunicipalityName)
+    {
+        $this->asnMunicipalityName = $asnMunicipalityName;
+
+        return $this;
+    }
+
+    /**
+     * Get asnMunicipalityName
+     *
+     * @return string
+     */
+    public function getAsnMunicipalityName()
+    {
+        return $this->asnMunicipalityName;
+    }
+
+    /**
+     * Set asnMunicipalityNo
+     *
+     * @param string $asnMunicipalityNo
+     *
+     * @return ProjectVoter
+     */
+    public function setAsnMunicipalityNo($asnMunicipalityNo)
+    {
+        $this->asnMunicipalityNo = $asnMunicipalityNo;
+
+        return $this;
+    }
+
+    /**
+     * Get asnMunicipalityNo
+     *
+     * @return string
+     */
+    public function getAsnMunicipalityNo()
+    {
+        return $this->asnMunicipalityNo;
+    }
+
+    /**
+     * Set asnBarangayName
+     *
+     * @param string $asnBarangayName
+     *
+     * @return ProjectVoter
+     */
+    public function setAsnBarangayName($asnBarangayName)
+    {
+        $this->asnBarangayName = $asnBarangayName;
+
+        return $this;
+    }
+
+    /**
+     * Get asnBarangayName
+     *
+     * @return string
+     */
+    public function getAsnBarangayName()
+    {
+        return $this->asnBarangayName;
+    }
+
+    /**
+     * Set asnBarangayNo
+     *
+     * @param string $asnBarangayNo
+     *
+     * @return ProjectVoter
+     */
+    public function setAsnBarangayNo($asnBarangayNo)
+    {
+        $this->asnBarangayNo = $asnBarangayNo;
+
+        return $this;
+    }
+
+    /**
+     * Get asnBarangayNo
+     *
+     * @return string
+     */
+    public function getAsnBarangayNo()
+    {
+        return $this->asnBarangayNo;
     }
 }

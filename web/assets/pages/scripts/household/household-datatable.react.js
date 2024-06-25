@@ -459,7 +459,7 @@ var HouseholdDatatable = React.createClass({
                     this.state.showCreateModal &&
                     <HouseholdCreateModal
                         proId={this.state.filters.proId}
-                        electId={this.state.filters.electId}
+                        electId={"423"}
                         provinceCode={this.state.filters.provinceCode}
                         show={this.state.showCreateModal}
                         notify={this.props.notify}
@@ -473,7 +473,7 @@ var HouseholdDatatable = React.createClass({
                     this.state.showEditModal &&
                     <HouseholdEditModal
                         proId={this.state.filters.proId}
-                        electId={this.state.filters.electId}
+                        electId={"423"}
                         provinceCode={this.state.filters.provinceCode}
                         show={this.state.showEditModal}
                         notify={this.props.notify}
@@ -490,7 +490,7 @@ var HouseholdDatatable = React.createClass({
                         reload={this.reload}
                         onHide={this.closeRecruitsModal}
                         proId={this.state.filters.proId}
-                        electId={this.state.filters.electId}
+                        electId={"423"}
                         notify={this.props.notify}
                         onDataPatched={this.reload}
                     />

@@ -97,9 +97,7 @@ var HouseholdMemberCreateModal = React.createClass({
                         searchText: params.term,
                         proId: self.props.proId,
                         electId: self.props.electId,
-                        provinceCode: 53,
-                        municipalityNo: $("#household-member-form #municipality_select2").val(),
-                        brgyNo: $("#household-member-form #barangay_select2").val()
+                        provinceCode: 53
                     };
                 },
                 processResults: function (data, params) {
@@ -395,7 +393,7 @@ var HouseholdMemberCreateModal = React.createClass({
                         this.state.showNewVoterCreateModal &&
                         <VoterTemporaryCreateModal
                             proId={3}
-                            electId={3}
+                            electId={423}
                             provinceCode={53}
                             show={this.state.showNewVoterCreateModal}
                             onHide={this.closeNewVoterCreateModal}

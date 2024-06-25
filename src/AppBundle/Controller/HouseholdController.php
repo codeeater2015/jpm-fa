@@ -96,17 +96,6 @@ class HouseholdController extends Controller
         $entity->setMunicipalityNo($request->get('municipalityNo'));
         $entity->setBarangayNo($request->get('barangayNo'));
 
-        // $entity->setIsTagalog($request->get('isTagalog'));
-        // $entity->setIsCuyonon($request->get('isCuyonon'));
-        // $entity->setIsBisaya($request->get('isBisaya'));
-        // $entity->setIsIlonggo($request->get('isIlonggo'));
-
-        // $entity->setIsCatholic($request->get('isCatholic'));
-        // $entity->setIsInc($request->get('isInc'));
-        // $entity->setIsIslam($request->get('isIslam'));
-        // $entity->setCellphone($request->get('cellphoneNo'));
-        // $entity->setPosition($request->get('position'));
-
         $entity->setCreatedAt(new \DateTime());
         $entity->setCreatedBy($user->getUsername());
         $entity->setRemarks($request->get('remarks'));
@@ -119,24 +108,9 @@ class HouseholdController extends Controller
                 $proVoter->setCellphone($request->get('cellphoneNo'));
 
             $proVoter->setBirthdate(trim($request->get('birthdate')));
-            // $proVoter->setCivilStatus(trim(strtoupper($request->get('civilStatus'))));
-            // $proVoter->setBloodtype(trim(strtoupper($request->get('bloodtype'))));
-            // $proVoter->setOccupation(trim(strtoupper($request->get('occupation'))));
-            // $proVoter->setReligion(trim(strtoupper($request->get('religion'))));
-            // $proVoter->setDialect(trim(strtoupper($request->get('dialect'))));
-            // $proVoter->setIpGroup(trim(strtoupper($request->get('ipGroup'))));
             $proVoter->setVoterGroup(trim(strtoupper($request->get('voterGroup'))));
             $proVoter->setPosition('HLEADER');
 
-            // $proVoter->setIsTagalog($entity->getIsTagalog());
-            // $proVoter->setIsCuyonon($entity->getIsCuyonon());
-            // $proVoter->setIsBisaya($entity->getIsBisaya());
-            // $proVoter->setIsIlonggo($entity->getIsIlonggo());
-
-            // $proVoter->setIsCatholic($entity->getIsCatholic());
-            // $proVoter->setIsInc($entity->getIsInc());
-            // $proVoter->setIsIslam($entity->getIsIslam());
-            // $proVoter->setPosition($entity->getPosition());
 
             $entity->setVoterName($proVoter->getVoterName());
             $entity->setProIdCode($proVoter->getProIdCode());
@@ -179,6 +153,11 @@ class HouseholdController extends Controller
 
         if ($barangay != null)
             $entity->setBarangayName($barangay['name']);
+        
+        $proVoter->setAsnMunicipalityName($entity->getMunicipalityName());
+        $proVoter->setAsnMunicipalityNo($entity->getMunicipalityNo());
+        $proVoter->setAsnBarangayName($entity->getBarangayName());
+        $proVoter->setAsnBarangayNo($entity->getBarangayNo());
 
         $em->persist($entity);
         $em->flush();
@@ -484,7 +463,6 @@ class HouseholdController extends Controller
         }
 
         $em = $this->getDoctrine()->getManager("electPrep2024");
-        ;
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
         $sql = "SELECT COALESCE(count(h.id),0) FROM tbl_household_hdr h WHERE h.pro_id_code NOT IN (SELECT r.pro_id_code FROM tbl_recruitment_hdr r ) ";
@@ -648,6 +626,12 @@ class HouseholdController extends Controller
         ;
         $user = $this->get("security.token_storage")->getToken()->getUser();
 
+        $hdr = $em->getRepository("AppBundle:HouseholdHeader")
+        ->find($request->get('householdId'));
+
+        if(!$hdr)
+            return new JsonResponse(['message' => 'household not found...'], 404);
+
         $entity = new HouseholdDetail();
         $entity->setHouseholdId($request->get('householdId'));
         $entity->setProVoterId($request->get('proVoterId'));
@@ -721,6 +705,11 @@ class HouseholdController extends Controller
 
         if ($barangay != null)
             $entity->setBarangayName($barangay['name']);
+          
+        $proVoter->setAsnMunicipalityName($hdr->getMunicipalityName());
+        $proVoter->setAsnMunicipalityNo($hdr->getMunicipalityNo());
+        $proVoter->setAsnBarangayName($hdr->getBarangayName());
+        $proVoter->setAsnBarangayNo($hdr->getBarangayNo());
 
         $em->persist($entity);
         $em->flush();
@@ -1256,7 +1245,6 @@ class HouseholdController extends Controller
     {
         $user = $this->get("security.token_storage")->getToken()->getUser();
         $em = $this->getDoctrine()->getManager("electPrep2024");
-        ;
 
         $entity = $em->getRepository("AppBundle:HouseholdHeader")
             ->find($householdId);

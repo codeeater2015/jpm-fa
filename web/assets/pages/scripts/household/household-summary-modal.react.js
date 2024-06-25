@@ -15,14 +15,18 @@ var HouseholdSummaryModal = React.createClass({
         this.loadSummary();
     },
 
-    
+    printPage: function () {
+        console.log('printing');
+        $.print("#household_summary1_table" /*, options*/);
+    },
+
     loadSummary: function (userId) {
         var self = this;
 
         console.log('municipality no');
         console.log(this.props.municipalityNo);
         self.requestUser = $.ajax({
-            url: Routing.generate("ajax_m_get_household_voters_summary_by_barangay",{ municipalityNo : this.props.municipalityNo }),
+            url: Routing.generate("ajax_m_get_household_voters_summary_by_barangay", { municipalityNo: this.props.municipalityNo }),
             type: "GET"
         }).done(function (res) {
             console.log("summary has been received");
@@ -46,8 +50,15 @@ var HouseholdSummaryModal = React.createClass({
                     <Modal.Title>Municipality Breakdown Summary</Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsClass="modal-body overflow-auto">
+
+                    <div className="row">
+                        <div className="col-md-12 text-right">
+                            <button type="button" className="btn btn-primary" onClick={this.printPage}>Print Page</button>
+                        </div>
+                    </div>
+                    <br/>
                     <div>
-                    <table className="table table-condensed table-bordered">
+                        <table id="household_summary1_table" className="table table-condensed table-bordered">
                             <thead style={{ backgroundColor: "#5ab866" }}>
                                 <tr className="text-center">
                                     <th rowSpan="2" className="text-center">Household Address</th>
@@ -83,7 +94,7 @@ var HouseholdSummaryModal = React.createClass({
                                                 <td className="text-center">{Number.parseInt(item.total_aborlan)}</td>
                                                 <td className="text-center">{Number.parseInt(item.total_outside)}</td>
                                                 <td className="text-center">{Number.parseInt(item.total_potential)}</td>
-                                                <td className="text-center"><strong>{Number.parseInt(item.total_puerto) + Number.parseInt(item.total_aborlan) + Number.parseInt(item.total_potential) }</strong></td>
+                                                <td className="text-center"><strong>{Number.parseInt(item.total_puerto) + Number.parseInt(item.total_aborlan) + Number.parseInt(item.total_potential)}</strong></td>
                                             </tr>
                                         );
                                     })
@@ -105,7 +116,7 @@ var HouseholdSummaryModal = React.createClass({
             </Modal>
         );
     }
-   
+
 });
 
 

@@ -1504,7 +1504,7 @@ class HouseholdController extends Controller
                 COALESCE(COUNT(CASE WHEN pv.municipality_no = '16' AND pv.is_non_voter = 0 THEN 1 END), 0) AS total_puerto,
                 COALESCE(COUNT(CASE WHEN pv.municipality_no NOT IN ('16','01') AND pv.is_non_voter = 0 THEN 1 END), 0) AS total_outside,
                 COALESCE(COUNT(CASE WHEN pv.is_non_voter = 1 THEN 1 END), 0) AS total_potential,
-                ( SELECT COALESCE(COUNT(hh.id),0) FROM tbl_household_hdr hh WHERE hh.municipality_no = pv.asn_municipality_no AND hh.barangay_no = pv.asn_barangay_no) AS total_household,
+                ( SELECT COALESCE(COUNT( DISTINCT hh.pro_voter_id),0) FROM tbl_household_hdr hh WHERE hh.municipality_no = pv.asn_municipality_no AND hh.barangay_no = pv.asn_barangay_no) AS total_household,
                
                 COALESCE(COUNT(CASE WHEN pv.voter_group = 'TOP LEADER' AND pv.position IN ('HLEADER','HMEMBER') THEN 1 END), 0) AS total_tl,
                 COALESCE(COUNT(CASE WHEN pv.voter_group = 'K0' AND pv.position IN ('HLEADER','HMEMBER') THEN 1 END), 0) AS total_k0,

@@ -9,7 +9,7 @@ var HouseholdDatatable = React.createClass({
             target: null,
             typingTimer: null,
             municipalityNo: null,
-            modalMunicipalityNo : null,
+            modalMunicipalityNo: null,
             doneTypingInterval: 1500,
             user: null,
             summary: null,
@@ -415,14 +415,14 @@ var HouseholdDatatable = React.createClass({
         }
     },
 
-    openHouseholdSummary : function(municipalityNo){
+    openHouseholdSummary: function (municipalityNo) {
         console.log("modal municipalityNo ", municipalityNo);
 
-        this.setState({ showHouseholdSummary : true , modalMunicipalityNo : municipalityNo });
+        this.setState({ showHouseholdSummary: true, modalMunicipalityNo: municipalityNo });
     },
 
-    closeHouseholdSummary : function(){
-        this.setState( { showHouseholdSummary : false});
+    closeHouseholdSummary: function () {
+        this.setState({ showHouseholdSummary: false });
     },
 
     onCreateSuccess: function (id) {
@@ -507,22 +507,29 @@ var HouseholdDatatable = React.createClass({
 
                 <div className="row" id="handler_component">
 
-                    <div className="col-md-6 col-md-offset-3" >
+                    <div className="col-md-10 col-md-offset-1" >
                         <table className="table table-condensed table-bordered">
                             <thead style={{ backgroundColor: "#5ab866" }}>
                                 <tr className="text-center">
                                     <th rowSpan="2" className="text-center">Household Address</th>
                                     <th rowSpan="2" className="text-center">Households</th>
-                                    <th rowSpan="2" className="text-center">Est. Target</th>
+                                    <th rowSpan="2" className="text-center">Converted Votes</th>
                                     <th colSpan="2" className="text-center">Voting Address</th>
                                     <th rowSpan="2" className="text-center">Outside</th>
                                     <th rowSpan="2" className="text-center">Potential</th>
                                     <th rowSpan="2" className="text-center">Total</th>
+                                    <th colSpan="6" className="text-center">Hierarchy</th>
                                     <th rowSpan="2" className="text-center"></th>
                                 </tr>
                                 <tr>
                                     <th className="text-center">Puerto</th>
                                     <th className="text-center">Aborlan</th>
+                                    <th className="text-center">TL</th>
+                                    <th className="text-center">K0</th>
+                                    <th className="text-center">K1</th>
+                                    <th className="text-center">K2</th>
+                                    <th className="text-center">No Position</th>
+                                    <th className="text-center">No Household</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -535,9 +542,16 @@ var HouseholdDatatable = React.createClass({
                                         <td>{summary.voters[0].total_aborlan}</td>
                                         <td>{summary.total_voter_outside[0].total_voter}</td>
                                         <td>{summary.total_voter_potential[0].total_voter_potential}</td>
-                                        <td>{Number.parseInt(summary.voters[0].total_aborlan) + Number.parseInt(summary.voters[0].total_puerto) + Number.parseInt(summary.total_voter_potential[0].total_voter_potential) }</td>
+                                        <td>{Number.parseInt(summary.voters[0].total_aborlan) + Number.parseInt(summary.voters[0].total_puerto) + Number.parseInt(summary.total_voter_potential[0].total_voter_potential)}</td>
+                                        <td>{summary.hierarchy_summary[1].total_tl}</td>
+                                        <td>{summary.hierarchy_summary[1].total_k0}</td>
+                                        <td>{summary.hierarchy_summary[1].total_k1}</td>
+                                        <td>{summary.hierarchy_summary[1].total_k2}</td>
+                                        <td>{summary.hierarchy_summary[1].total_no_pos}</td>
+                                        <td rowSpan={3} >{summary.hierarchy_summary[0].total_no_profile}</td>
+
                                         <td>
-                                            <button onClick={this.openHouseholdSummary.bind(this,'01')} className="btn btn-xs btn-primary btn-icon"><i className="fa fa-eye"></i></button>
+                                            <button onClick={this.openHouseholdSummary.bind(this, '01')} className="btn btn-xs btn-primary btn-icon"><i className="fa fa-eye"></i></button>
                                         </td>
                                     </tr>
                                 ) : null}
@@ -550,28 +564,45 @@ var HouseholdDatatable = React.createClass({
                                         <td>{summary.voters[1].total_aborlan}</td>
                                         <td>{summary.total_voter_outside[1].total_voter}</td>
                                         <td>{summary.total_voter_potential[1].total_voter_potential}</td>
-                                        <td>{Number.parseInt(summary.voters[1].total_aborlan) + Number.parseInt(summary.voters[1].total_puerto) + Number.parseInt(summary.total_voter_potential[1].total_voter_potential) }</td>
-                                        
+                                        <td>{Number.parseInt(summary.voters[1].total_aborlan) + Number.parseInt(summary.voters[1].total_puerto) + Number.parseInt(summary.total_voter_potential[1].total_voter_potential)}</td>
+                                        <td>{summary.hierarchy_summary[2].total_tl}</td>
+                                        <td>{summary.hierarchy_summary[2].total_k0}</td>
+                                        <td>{summary.hierarchy_summary[2].total_k1}</td>
+                                        <td>{summary.hierarchy_summary[2].total_k2}</td>
+                                        <td>{summary.hierarchy_summary[2].total_no_pos}</td>
                                         <td>
-                                            <button onClick={this.openHouseholdSummary.bind(this,'16')}  className="btn btn-xs btn-primary btn-icon"><i className="fa fa-eye"></i></button>
+                                            <button onClick={this.openHouseholdSummary.bind(this, '16')} className="btn btn-xs btn-primary btn-icon"><i className="fa fa-eye"></i></button>
                                         </td>
                                     </tr>
                                 ) : null}
                                 {(summary != null && (self.state.municipalityNo == null)) ? (
                                     <tr className="text-center">
                                         <td><strong>Total</strong></td>
-                                        <td>{ Number.parseInt(summary.household[0].total_household) + Number.parseInt(summary.household[1].total_household)}</td>
+                                        <td>{Number.parseInt(summary.household[0].total_household) + Number.parseInt(summary.household[1].total_household)}</td>
                                         <td>{(Number.parseInt(summary.household[0].total_household) + Number.parseInt(summary.household[1].total_household)) * 4}</td>
                                         <td>{Number.parseInt(summary.voters[0].total_puerto) + Number.parseInt(summary.voters[1].total_puerto)}</td>
                                         <td>{Number.parseInt(summary.voters[0].total_aborlan) + Number.parseInt(summary.voters[1].total_aborlan)}</td>
                                         <td>{Number.parseInt(summary.total_voter_outside[0].total_voter) + Number.parseInt(summary.total_voter_outside[1].total_voter)}</td>
                                         <td>{Number.parseInt(summary.total_voter_potential[0].total_voter_potential) + Number.parseInt(summary.total_voter_potential[1].total_voter_potential)}</td>
-                                        <td>{(Number.parseInt(summary.voters[0].total_aborlan) + Number.parseInt(summary.voters[0].total_puerto) + Number.parseInt(summary.total_voter_potential[0].total_voter_potential) ) 
-                                            + Number.parseInt(summary.voters[1].total_aborlan) + Number.parseInt(summary.voters[1].total_puerto) + Number.parseInt(summary.total_voter_potential[1].total_voter_potential) }</td>
-                                        
+                                        <td>{(Number.parseInt(summary.voters[0].total_aborlan) + Number.parseInt(summary.voters[0].total_puerto) + Number.parseInt(summary.total_voter_potential[0].total_voter_potential))
+                                            + Number.parseInt(summary.voters[1].total_aborlan) + Number.parseInt(summary.voters[1].total_puerto) + Number.parseInt(summary.total_voter_potential[1].total_voter_potential)}</td>
+
                                         <td>
-                                            
+                                            {Number.parseInt(summary.hierarchy_summary[1].total_tl) + Number.parseInt(summary.hierarchy_summary[2].total_tl)}
                                         </td>
+                                        <td>
+                                            {Number.parseInt(summary.hierarchy_summary[1].total_k0) + Number.parseInt(summary.hierarchy_summary[2].total_k0)}
+                                        </td>
+                                        <td>
+                                            {Number.parseInt(summary.hierarchy_summary[1].total_k1) + Number.parseInt(summary.hierarchy_summary[2].total_k1)}
+                                        </td>
+                                        <td>
+                                            {Number.parseInt(summary.hierarchy_summary[1].total_k2) + Number.parseInt(summary.hierarchy_summary[2].total_k2)}
+                                        </td>
+                                        <td>
+                                            {Number.parseInt(summary.hierarchy_summary[1].total_no_pos) + Number.parseInt(summary.hierarchy_summary[2].total_no_pos)}
+                                        </td>
+                                        <td></td>
                                     </tr>
                                 ) : null}
                             </tbody>

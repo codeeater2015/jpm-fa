@@ -1394,7 +1394,7 @@ class HouseholdController extends Controller
     }
 
 
-    /**
+     /**
      * @Route("/ajax_m_get_household_voters_summary",
      *       name="ajax_m_get_household_voters_summary",
      *        options={ "expose" = true }
@@ -1402,72 +1402,90 @@ class HouseholdController extends Controller
      * @Method("GET")
      */
 
-    public function ajaxGetHouseholdVotersSummary(Request $request)
-    {
-
-        $em = $this->getDoctrine()->getManager("electPrep2024");
-
-        $sql = "SELECT asn_municipality_name, COUNT(*) AS total_voter,
-                COALESCE(COUNT(CASE WHEN pv.municipality_no = '01' THEN 1 END), 0) AS total_aborlan,
-                COALESCE(COUNT(CASE WHEN pv.municipality_no = '16' THEN 1 END), 0) AS total_puerto
+     public function ajaxGetHouseholdVotersSummary(Request $request)
+     {
+ 
+         $em = $this->getDoctrine()->getManager("electPrep2024");
+ 
+         $sql = "SELECT asn_municipality_name, COUNT(*) AS total_voter,
+                 COALESCE(COUNT(CASE WHEN pv.municipality_no = '01' THEN 1 END), 0) AS total_aborlan,
+                 COALESCE(COUNT(CASE WHEN pv.municipality_no = '16' THEN 1 END), 0) AS total_puerto
+                 FROM tbl_project_voter pv 
+                 WHERE pv.position IN ('HLEADER','HMEMBER') 
+                 AND pv.municipality_no IN ('01','16')
+                 AND pv.is_non_voter = 0
+                 GROUP BY pv.asn_municipality_name 
+                 ORDER BY pv.asn_municipality_name";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->execute();
+ 
+         $summary = [];
+ 
+         $summary['voters'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+ 
+         if (!$summary)
+             return new JsonResponse(['message' => 'Household not found. Please contact the system administrator'], 404);
+ 
+ 
+         $sql = "SELECT asn_municipality_name, COUNT(*) AS total_voter,
+                 COALESCE(COUNT(CASE WHEN pv.municipality_no = '01' THEN 1 END), 0) AS total_aborlan,
+                 COALESCE(COUNT(CASE WHEN pv.municipality_no = '16' THEN 1 END), 0) AS total_puerto
+                 FROM tbl_project_voter pv 
+                 WHERE pv.position IN ('HLEADER','HMEMBER') 
+                 and pv.municipality_no NOT IN ('01','16')
+                 AND pv.is_non_voter = 0
+                 GROUP BY pv.asn_municipality_name 
+                 ORDER BY pv.asn_municipality_name";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->execute();
+ 
+         $summary['total_voter_outside'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+ 
+         $sql = "SELECT pv.asn_municipality_name  , COALESCE(COUNT(DISTINCT pv.pro_voter_id ),0) AS total_voter_potential
+                 FROM tbl_project_voter pv
+                 WHERE pv.municipality_no IN ('01','16') 
+                 AND pv.position IS NOT NULL AND pv.position <> ''
+                 AND pv.is_non_voter = 1 
+                 GROUP BY pv.asn_municipality_name 
+                 ORDER BY pv.asn_municipality_name";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->execute();
+ 
+         $summary['total_voter_potential'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+ 
+         $sql = "SELECT municipality_name , COUNT(DISTINCT pro_voter_id) AS total_household 
+                 FROM tbl_household_hdr 
+                 GROUP BY municipality_name
+                 ORDER  BY municipality_name ";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->execute();
+ 
+         $summary['household'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+ 
+         $sql = "SELECT asn_municipality_name, COUNT(*) AS total_voter,
+                COALESCE(COUNT(CASE WHEN pv.voter_group = 'TOP LEADER' AND pv.position IN ('HLEADER','HMEMBER') THEN 1 END), 0) AS total_tl,
+                COALESCE(COUNT(CASE WHEN pv.voter_group = 'K0' AND pv.position IN ('HLEADER','HMEMBER') THEN 1 END), 0) AS total_k0,
+                COALESCE(COUNT(CASE WHEN pv.voter_group = 'K1' THEN 1 END), 0) AS total_k1,
+                COALESCE(COUNT(CASE WHEN pv.voter_group = 'K2' THEN 1 END), 0) AS total_k2,
+                COALESCE(COUNT(CASE WHEN (pv.voter_group = '' OR pv.voter_group IS NULL) AND  pv.position IN ('HLEADER') THEN 1 END), 0) AS total_no_pos,
+                COALESCE(COUNT(CASE WHEN (pv.voter_group <> '' AND pv.voter_group IS NOT NULL) AND (pv.position IS NULL OR pv.position = '') THEN 1 END), 0) AS total_no_profile
                 FROM tbl_project_voter pv 
-                WHERE pv.position IN ('HLEADER','HMEMBER') 
+                WHERE pv.elect_id = 423
                 AND pv.municipality_no IN ('01','16')
-                AND pv.is_non_voter = 0
                 GROUP BY pv.asn_municipality_name 
                 ORDER BY pv.asn_municipality_name";
-
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->execute();
-
-        $summary = [];
-
-        $summary['voters'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        if (!$summary)
-            return new JsonResponse(['message' => 'Household not found. Please contact the system administrator'], 404);
-
-
-        $sql = "SELECT asn_municipality_name, COUNT(*) AS total_voter,
-                COALESCE(COUNT(CASE WHEN pv.municipality_no = '01' THEN 1 END), 0) AS total_aborlan,
-                COALESCE(COUNT(CASE WHEN pv.municipality_no = '16' THEN 1 END), 0) AS total_puerto
-                FROM tbl_project_voter pv 
-                WHERE pv.position IN ('HLEADER','HMEMBER') 
-                and pv.municipality_no NOT IN ('01','16')
-                AND pv.is_non_voter = 0
-                GROUP BY pv.asn_municipality_name 
-                ORDER BY pv.asn_municipality_name";
-
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->execute();
-
-        $summary['total_voter_outside'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        $sql = "SELECT pv.asn_municipality_name  , COALESCE(COUNT(DISTINCT pv.pro_voter_id ),0) AS total_voter_potential
-                FROM tbl_project_voter pv
-                WHERE pv.municipality_no IN ('01','16') 
-                AND pv.position IS NOT NULL AND pv.position <> ''
-                AND pv.is_non_voter = 1 
-                GROUP BY pv.asn_municipality_name 
-                ORDER BY pv.asn_municipality_name";
-
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->execute();
-
-        $summary['total_voter_potential'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        $sql = "SELECT municipality_name , COUNT(*) AS total_household 
-                FROM tbl_household_hdr 
-                GROUP BY municipality_name
-                ORDER  BY municipality_name ";
-
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->execute();
-
-        $summary['household'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        return new JsonResponse($summary);
-    }
+                
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->execute();
+ 
+         $summary['hierarchy_summary'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+ 
+         return new JsonResponse($summary);
+     }
 
     /**
      * @Route("/ajax_m_get_household_voters_summary_by_barangay/{municipalityNo}",

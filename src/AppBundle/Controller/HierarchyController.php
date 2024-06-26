@@ -60,17 +60,19 @@ class HierarchyController extends Controller
         $em = $this->getDoctrine()->getManager("electPrep2024");
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
-        $sql = "SELECT h.*, 
+        $sql = "SELECT h.*, pv.position,
                 (SELECT COALESCE(COUNT(ap.pro_voter_id),0) FROM tbl_attendance_detail a
                 LEFT JOIN tbl_attendance_profile ap 
                 ON ap.hdr_id = a.id
                 WHERE a.pro_voter_id = h.pro_voter_id
                 ) AS total_household_members 
                 FROM tbl_organization_hierarchy h 
-                WHERE (pro_voter_id = ? OR ? IS NULL) 
-                AND (voter_group = ? OR ? IS NULL ) 
-                AND (municipality_no = ? OR ? IS NULL)
-                AND (barangay_no = ? OR ? IS NULL )
+                INNER JOIN tbl_project_voter pv 
+                ON pv.pro_voter_id = h.pro_voter_id
+                WHERE (h.pro_voter_id = ? OR ? IS NULL) 
+                AND (h.voter_group = ? OR ? IS NULL ) 
+                AND (h.municipality_no = ? OR ? IS NULL)
+                AND (h.barangay_no = ? OR ? IS NULL )
                 ORDER BY h.voter_name ASC ";
 
         $stmt = $em->getConnection()->prepare($sql);
@@ -87,14 +89,15 @@ class HierarchyController extends Controller
         $data = [];
         $counter = 0;
 
-
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $children = $this->getChildNodes($row['pro_voter_id']);
             $counter++;
 
+            $profileLabel = ($row['position'] == null || empty($row['position']) || $row['position'] == '' ) ? 'No household profile.' : $row['position'];
+
             $data[] = [
                 "id" => $row['pro_voter_id'],
-                'name' => $counter . '. ' . $row['voter_group'] . ': ' . $row['voter_name'] . ' | ' . $row['assigned_municipality'] . ', ' . $row['assigned_barangay'],
+                'name' => $counter . '. ' . $row['voter_group'] . ': ' . $row['voter_name'] . ' | ' . $row['barangay_name'] . '|' . $profileLabel ,
                 'data' => [
                     'voter_group' => $row['voter_group']
                 ],
@@ -110,13 +113,15 @@ class HierarchyController extends Controller
     private function getChildNodes($id)
     {
         $em = $this->getDoctrine()->getManager("electPrep2024");
-        $sql = "SELECT h.*,
+        $sql = "SELECT h.*, pv.position,
                 (SELECT COALESCE(COUNT(ap.pro_voter_id),0) FROM tbl_attendance_detail a
                 LEFT JOIN tbl_attendance_profile ap 
                 ON ap.hdr_id = a.id
                 WHERE a.pro_voter_id = h.pro_voter_id
                 ) AS total_household_members  
                 from tbl_organization_hierarchy h
+                INNER JOIN tbl_project_voter pv 
+                ON h.pro_voter_id = pv.pro_voter_id
                 WHERE h.parent_node = ? ORDER BY h.voter_name ASC ";
 
         $stmt = $em->getConnection()->prepare($sql);
@@ -134,9 +139,11 @@ class HierarchyController extends Controller
         foreach ($entities as $entity) {
             $counter++;
 
+            $profileLabel = ($entity['position'] == null || empty($entity['position']) || $entity['position'] == '' ) ? 'No household profile.' : $entity['position'];
+
             $item = [
                 'id' => $entity['pro_voter_id'],
-                'name' => $counter . '. ' . $entity['voter_group'] . ': ' . $entity['voter_name'] . ' | ' . $entity['assigned_municipality'] . ', ' . $entity['assigned_barangay'],
+                'name' => $counter . '. ' . $entity['voter_group'] . ': ' . $entity['voter_name'] . ' | ' . $entity['barangay_name'] . '|'. $profileLabel,
             ];
 
             $item['children'] = $this->getChildNodes($entity['pro_voter_id']);
@@ -509,6 +516,20 @@ class HierarchyController extends Controller
 
         $entity['voter'] = $voter;
 
+              
+        $sql = "SELECT hd.* FROM tbl_household_hdr hh INNER JOIN tbl_household_dtl hd 
+                ON hh.id = hd.household_id  
+                where hh.pro_voter_id = ? ";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, $proVoterId);
+        $stmt->execute();
+        
+        $members = [];
+
+        $members = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $entity['members'] = $members;
+    
         return new JsonResponse($entity, 200);
     }
 

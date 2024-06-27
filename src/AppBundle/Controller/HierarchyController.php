@@ -57,6 +57,9 @@ class HierarchyController extends Controller
         $municipalityNo = $request->get('municipalityNo');
         $barangayNo = $request->get('barangayNo');
 
+        if((empty($barangayNo) || $barangayNo == null) && $leaderId == null)
+            return new JsonResponse([]);
+
         $em = $this->getDoctrine()->getManager("electPrep2024");
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 

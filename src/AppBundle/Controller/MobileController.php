@@ -1,12 +1,12 @@
 <?php
 namespace AppBundle\Controller;
 
-use AppBundle\Entity\BcbpMember;
+use AppBundle\Entity\ApEventDetail;
+use AppBundle\Entity\ApEventRaffle;
 use AppBundle\Entity\PendingVoter;
 use AppBundle\Entity\ProjectEventDetail;
 use AppBundle\Entity\ProjectVoter;
 use AppBundle\Entity\Voter;
-use AppBundle\Entity\BcbpEventHeader;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -349,7 +349,7 @@ class MobileController extends Controller
 
     public function ajaxGetProjectVoter($proId, $generatedIdNo)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("voter2023");
         $imgUrl = $this->getParameter('img_url');
 
 
@@ -427,7 +427,7 @@ class MobileController extends Controller
 
     public function ajaxGetActiveEvent($proId)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("voter2023");
         $event = $em->getRepository("AppBundle:ProjectEventHeader")->findOneBy([
             'proId' => $proId,
             'status' => self::ACTIVE_STATUS,
@@ -487,7 +487,7 @@ class MobileController extends Controller
 
     public function ajaxGetActiveEventAttendees(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("voter2023");
         $imgUrl = $this->getParameter('img_url');
 
         $batchSize = 10;
@@ -1546,7 +1546,7 @@ class MobileController extends Controller
 
     public function ajaxPostEventAttendee(Request $request)
     {
-        $em = $this->getDoctrine()->getManager();
+        $em = $this->getDoctrine()->getManager("voter2023");
 
         $data = json_decode($request->getContent(), true);
         $request->request->replace($data);
@@ -4055,7 +4055,7 @@ class MobileController extends Controller
 
     public function ajaxGetJpmProjectVoters2023(Request $request)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager("voter2023");
 
         $provinceCode = $request->get('provinceCode');
         $municipalityNo = $request->get('municipalityNo');
@@ -4080,8 +4080,6 @@ class MobileController extends Controller
             $sql .= " (pv.generated_id_no LIKE ? OR ? IS NULL ) ";
         }
 
-
-
         $sql .= "AND pv.elect_id = ? 
         AND (pv.municipality_name LIKE ? OR ? IS NULL) 
         AND (pv.barangay_name LIKE ? OR ? IS NULL) 
@@ -4091,7 +4089,7 @@ class MobileController extends Controller
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, '%' . $voterName . '%');
         $stmt->bindValue(2, empty($voterName) ? null : '%' . $voterName . '%');
-        $stmt->bindValue(3, 423);
+        $stmt->bindValue(3, 4);
         $stmt->bindValue(4, '%' . $municipalityName . '%');
         $stmt->bindValue(5, empty($municipalityName) ? null : '%' . $municipalityName . '%');
         $stmt->bindValue(6, '%' . $barangayName . '%');
@@ -4100,12 +4098,12 @@ class MobileController extends Controller
 
         $data = [];
 
+
         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
             $row['imgUrl'] = $imgUrl . '3_' . $row['generated_id_no'] . '?' . strtotime((new \DateTime())->format('Y-m-d H:i:s'));
             $row['cellphone_no'] = $row['cellphone'];
             $data[] = $row;
         }
-
 
         return new JsonResponse($data);
     }
@@ -4644,6 +4642,52 @@ class MobileController extends Controller
         return $response;
     }
 
+    /**
+     * BCBP Functions
+     */
+
+
+    /**
+     * @Route("/ajax_m_get_bcbp_profiles",
+     *       name="ajax_m_get_bcbp_profiles",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetBcbpProfiles(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+
+        $name = $request->get('name');
+
+        $batchSize = 10;
+        $batchNo = $request->get("batchNo");
+
+        $batchOffset = $batchNo * $batchSize;
+
+        $sql = "SELECT b.* FROM tbl_temp_bcbp_profile b WHERE 1 AND ";
+
+        if (!is_numeric($name)) {
+            $sql .= " (b.name LIKE ? OR ? IS NULL ) ";
+        }
+
+        $sql .= " ORDER BY b.name ASC LIMIT {$batchSize} OFFSET {$batchOffset}";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, '%' . $name . '%');
+        $stmt->bindValue(2, empty($name) ? null : '%' . $name . '%');
+        $stmt->execute();
+
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return new JsonResponse($data);
+    }
+
 
     /**
      * @Route("/ajax_m_get_deactivated_profiles",
@@ -4828,421 +4872,32 @@ class MobileController extends Controller
         return new JsonResponse($serializer->normalize($proVoter));
     }
 
-    /**
-     * BCBP FUNCTIONS
-     */
-
-    /**
-     * @Route("/ajax_m_get_bcbp_profiles",
-     *       name="ajax_m_get_bcbp_profiles",
-     *        options={ "expose" = true }
-     * )
-     * @Method("GET")
-     */
-
-    public function ajaxGetBcbpProfiles(Request $request)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $name = $request->get('name');
-
-        $batchSize = 10;
-        $batchNo = $request->get("batchNo");
-
-        $batchOffset = $batchNo * $batchSize;
-
-        $sql = "SELECT b.* FROM tbl_temp_bcbp_profile b WHERE 1 AND ";
-
-        if (!is_numeric($name)) {
-            $sql .= " (b.name LIKE ? OR ? IS NULL ) ";
-        }
-
-        $sql .= " ORDER BY b.name ASC LIMIT {$batchSize} OFFSET {$batchOffset}";
-
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1, '%' . $name . '%');
-        $stmt->bindValue(2, empty($name) ? null : '%' . $name . '%');
-        $stmt->execute();
-
-        $data = [];
-
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $data[] = $row;
-        }
-
-        return new JsonResponse($data);
-    }
-
-    /**
-     * @Route("/ajax_m_get_bcbp_events",
-     *       name="ajax_m_get_bcbp_events",
-     *        options={ "expose" = true }
-     * )
-     * @Method("GET")
-     */
-
-    public function ajaxGetBcbpEvents(Request $request)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $sql = "SELECT h.* ,
-                (SELECT COALESCE(COUNT(*),0) FROM tbl_bcbp_event_detail d WHERE d.event_id = h.id AND d.has_attended = 1 ) as total_attended
-                FROM tbl_bcbp_event_header h
-                WHERE (h.event_description LIKE ? OR ? IS NULL) ORDER BY h.id DESC LIMIT 30";
-        $name = $request->get("name");
-
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1, '%' . $name . '%');
-        $stmt->bindValue(2, empty($name) ? null : $name);
-        $stmt->execute();
-
-        $data = [];
-
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $data[] = $row;
-        }
-
-        return new JsonResponse($data);
-    }
-
-    /**
-     * @Route("/ajax_m_post_bcbp_event",
-     *       name="ajax_m_post_bcbp_event",
-     *        options={ "expose" = true }
-     * )
-     * @Method("POST")
-     */
-
-    public function ajaxPostBcbpEvent(Request $request)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $entity = new BcbpEventHeader();
-        $entity->setEventDescription($request->get('eventDescription'));
-        $entity->setEventDate($request->get('eventDate'));
-        $entity->setEventType($request->get('eventType'));
-
-
-        $validator = $this->get('validator');
-        $violations = $validator->validate($entity);
-
-        $errors = [];
-
-        if (count($violations) > 0) {
-            foreach ($violations as $violation) {
-                $errors[$violation->getPropertyPath()] = $violation->getMessage();
-            }
-            return new JsonResponse($errors, 400);
-        }
-
-        $entity->setStatus('A');
-
-        $em->persist($entity);
-        $em->flush();
-
-        $sql = "SELECT * FROM tbl_bcbp_members";
-
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->execute();
-
-        $data = [];
-
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $data[] = $row;
-        }
-
-        foreach ($data as $row) {
-            $sql = "INSERT INTO tbl_bcbp_event_detail(
-                member_id,
-                event_id,
-                has_attended,
-                status
-            )
-            VALUES(?,?,?,?)
-            ";
-
-            $stmt = $em->getConnection()->prepare($sql);
-            $stmt->bindValue(1, $row['id']);
-            $stmt->bindValue(2, $entity->getId());
-            $stmt->bindValue(3, 0);
-            $stmt->bindValue(4, 'A');
-            $stmt->execute();
-        }
-
-        $em->clear();
-
-        $serializer = $this->get('serializer');
-        $entity = $serializer->normalize($entity);
-
-        return new JsonResponse($entity);
-    }
-
-    /**
-     * @Route("/ajax_m_get_bcbp_event_attendees/{eventId}",
-     *       name="ajax_m_get_bcbp_event_attendees",
-     *        options={ "expose" = true }
-     * )
-     * @Method("GET")
-     */
-
-    public function ajaxGetBcbpEventAttendees($eventId, Request $request)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $unitFilter = $request->get("unitFilter");
-        $agFilter = $request->get("agFilter");
-        $genderFilter = $request->get("genderFilter");
-        $attendedFilter = $request->get("attendedFilter");
-
-        $unitFilter = $unitFilter == 'ALL' ? "" : $unitFilter;
-        $agFilter = $agFilter == 'ALL' ? "" : $agFilter;
-        $genderFilter = $genderFilter == 'ALL' ? "" : $genderFilter;
-
-        if ($attendedFilter == 'ATTENDED') {
-            $attended = 1;
-        } else if ($attendedFilter == 'NOT_ATTENDED') {
-            $attended = 0;
-        } else {
-            $attended = -1;
-        }
-
-        $sql = "SELECT 
-        (SELECT COUNT(*) FROM tbl_bcbp_event_detail dd WHERE dd.event_id = ? ) AS total_attendees,
-	    (SELECT COUNT(*) FROM tbl_bcbp_event_detail dd 
-        INNER JOIN tbl_bcbp_members mm
-        ON dd.member_id = mm.id 
-        WHERE dd.event_id = ? AND dd.has_attended = 1 
-        AND (mm.unit_no = ? OR ? IS NULL)
-        AND (mm.ag_no = ? OR ? IS NULL) 
-        AND (mm.gender = ? OR ? IS NULL)
-        ) AS total_attended,
-       
-        m.*, d.id as dtl_id , d.has_attended 
-        FROM tbl_bcbp_event_detail d INNER JOIN tbl_bcbp_members m
-        ON d.member_id = m.id 
-        WHERE d.event_id = ? 
-        AND (d.has_attended = ? OR ? IS NULL)
-        AND (m.unit_no = ? OR ? IS NULL)
-        AND (m.ag_no = ? OR ? IS NULL)
-        AND (m.gender = ? OR ? IS NULL)
-        AND m.status = 'A'
-        ORDER BY m.name ASC";
-
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1, $eventId);
-        $stmt->bindValue(2, $eventId);
-        $stmt->bindValue(3, $unitFilter);
-        $stmt->bindValue(4, $unitFilter == "" ? null : $unitFilter);
-        $stmt->bindValue(5, $agFilter);
-        $stmt->bindValue(6, $agFilter == "" ? null : $agFilter);
-        $stmt->bindValue(7, $genderFilter);
-        $stmt->bindValue(8, $genderFilter == "" ? null : $genderFilter);
-
-        $stmt->bindValue(9, $eventId);
-        $stmt->bindValue(10, $attended);
-        $stmt->bindValue(11, $attended == -1 ? null : $attended);
-        $stmt->bindValue(12, $unitFilter);
-        $stmt->bindValue(13, $unitFilter == "" ? null : $unitFilter);
-        $stmt->bindValue(14, $agFilter);
-        $stmt->bindValue(15, $agFilter == "" ? null : $agFilter);
-        $stmt->bindValue(16, $genderFilter);
-        $stmt->bindValue(17, $genderFilter == "" ? null : $genderFilter);
-        $stmt->execute();
-
-        $data = [];
-
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $data[] = $row;
-        }
-
-        return new JsonResponse($data);
-    }
-
-    /**
-     * @Route("/ajax_m_get_bcbp_members",
-     *       name="ajax_m_get_bcbp_members",
-     *        options={ "expose" = true }
-     * )
-     * @Method("GET")
-     */
-
-    public function ajaxGetBcbpMembers(Request $request)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $searchText = $request->get("searchText");
-
-        $sql = "SELECT * 
-                 FROM tbl_bcbp_members m 
-                 WHERE (m.name like ? OR ? IS NULL)
-                 ORDER BY name ASC";
-
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1, '%' . $searchText . '%');
-        $stmt->bindValue(2, $searchText == "" ? null : $searchText);
-        $stmt->execute();
-
-        $data = [];
-
-        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
-            $data[] = $row;
-        }
-
-        return new JsonResponse($data);
-    }
-
-    /**
-     * @Route("/ajax_patch_bcbp_event_has_attended/{dtlId}/{hasAttended}",
-     *     name="ajax_patch_bcbp_event_has_attended",
-     *    options={"expose" = true}
-     * )
-     * @Method("PATCH")
-     */
-
-    public function ajaxPatchBcbpEventHasAttendedAction($dtlId, $hasAttended, Request $request)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $user = $this->get('security.token_storage')->getToken()->getUser();
-
-        $entity = $em->getRepository("AppBundle:BcbpEventDetail")->find($dtlId);
-
-        if (!$entity) {
-            return new JsonResponse([], 404);
-        }
-
-        $entity->setHasAttended($hasAttended);
-
-        $validator = $this->get('validator');
-        $violations = $validator->validate($entity);
-
-        $errors = [];
-
-        if (count($violations) > 0) {
-            foreach ($violations as $violation) {
-                $errors[$violation->getPropertyPath()] = $violation->getMessage();
-            }
-            return new JsonResponse($errors, 400);
-        }
-
-        $em->flush();
-        $serializer = $this->get('serializer');
-
-        return new JsonResponse($serializer->normalize($entity));
-    }
-
-
-
-    /**
-     * @Route("/ajax_patch_bcbp_status/{id}/{newStatus}",
-     *     name="ajax_patch_bcbp_status",
-     *    options={"expose" = true}
-     * )
-     * @Method("PATCH")
-     */
-
-    public function ajaxPatchBcbpStatus($id, $newStatus, Request $request)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $user = $this->get('security.token_storage')->getToken()->getUser();
-
-        $entity = $em->getRepository("AppBundle:BcbpMember")->find($id);
-
-        if (!$entity) {
-            return new JsonResponse([], 404);
-        }
-
-        $entity->setStatus($newStatus);
-
-        $validator = $this->get('validator');
-        $violations = $validator->validate($entity);
-
-        $errors = [];
-
-        if (count($violations) > 0) {
-            foreach ($violations as $violation) {
-                $errors[$violation->getPropertyPath()] = $violation->getMessage();
-            }
-            return new JsonResponse($errors, 400);
-        }
-
-        $em->flush();
-        $serializer = $this->get('serializer');
-
-        return new JsonResponse($serializer->normalize($entity));
-    }
-
-    /**
-     * @Route("/ajax_m_post_bcbp_member",
-     *       name="ajax_m_post_bcbp_member",
-     *        options={ "expose" = true }
-     * )
-     * @Method("POST")
-     */
-
-    public function ajaxPostBcbpMember(Request $request)
-    {
-        $em = $this->getDoctrine()->getManager();
-
-        $entity = new BcbpMember();
-        $entity->setName($request->get('memberName'));
-        $entity->setPosition($request->get('memberPosition'));
-        $entity->setUnitNo($request->get('memberUnit'));
-        $entity->setAgNo($request->get('memberGroup'));
-        $entity->setTUnits($request->get('memberTights'));
-
-        $validator = $this->get('validator');
-        $violations = $validator->validate($entity);
-
-        $errors = [];
-
-        if (count($violations) > 0) {
-            foreach ($violations as $violation) {
-                $errors[$violation->getPropertyPath()] = $violation->getMessage();
-            }
-            return new JsonResponse($errors, 400);
-        }
-
-        $entity->setStatus('A');
-
-        $em->persist($entity);
-        $em->flush();
-
-
-        $serializer = $this->get('serializer');
-        $entity = $serializer->normalize($entity);
-
-        return new JsonResponse($entity);
-    }
-
-    /**
-     * @Route("/ajax_delete_bcbp_event/{eventId}",
-     *     name="ajax_delete_bcbp_event",
-     *    options={"expose" = true}
-     * )
-     * @Method("DELETE")
-     */
-
-    public function ajaxDeleteBcbpEventAction($eventId, Request $request)
-    {
-        $em = $this->getDoctrine()->getManager();
-        $header = $em->getRepository("AppBundle:BcbpEventHeader")->find($eventId);
-
-        if (!$header) {
-            return new JsonResponse(null, 404);
-        }
-
-        $sql = "DELETE FROM tbl_bcbp_event_detail WHERE event_id = ? ";
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1, $eventId);
-        $stmt->execute();
-
-        $em->remove($header);
-        $em->flush();
-
-        return new JsonResponse(null, 200);
-    }
 
     /**
      * Ako Palawan Functions
      */
+
+    /**
+     * @Route("/ajax_m_get_ap_active_event",
+     *       name="ajax_m_get_ap_active_event",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetApActiveEvent(Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $entity = $em->getRepository("AppBundle:ApEventHeader")->findOneBy(["status" => 'A']);
+
+        if (!$entity) {
+            return new JsonResponse([], 404);
+        }
+
+        $serializer = $this->get('serializer');
+
+        return new JsonResponse($serializer->normalize($entity));
+    }
 
     /**
      * @Route("/ajax_m_get_ap_active_event_attendees",
@@ -5319,6 +4974,99 @@ class MobileController extends Controller
     }
 
     /**
+     * @Route("/ajax_ap_add_event_attendee/{qrCodeNo}",
+     *     name="ajax_ap_add_event_attendee",
+     *    options={"expose" = true}
+     * )
+     * @Method("POST")
+     */
+
+    public function ajaxApAddEventAttendeeAction($qrCodeNo, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        $apCard = $em->getRepository("AppBundle:ApCard")->findOneBy(['qrCodeNo' => $qrCodeNo]);
+        $event = $em->getRepository("AppBundle:ApEventHeader")->findOneBy(["status" => 'A']);
+
+        if (!$apCard || !$event) {
+            return new JsonResponse([], 404);
+        }
+
+        $entity = new ApEventDetail();
+        $entity->setEventId($event->getEventId());
+        $entity->setProVoterId($apCard->getProVoterId());
+        $entity->setProIdCode($apCard->getProIdCode());
+        $entity->setQrCodeNo($apCard->getQrCodeNo());
+        $entity->setCardNo($apCard->getCardNo());
+        $entity->setHasAttended(1);
+
+        $entity->setCreatedAt(new \DateTime());
+        $entity->setCreatedBy('android_app');
+        $entity->setStatus('A');
+
+        $validator = $this->get('validator');
+        $violations = $validator->validate($entity);
+
+        $errors = [];
+
+        if (count($violations) > 0) {
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()] = $violation->getMessage();
+            }
+            return new JsonResponse($errors, 400);
+        }
+
+        $em->persist($entity);
+        $em->flush();
+
+        $serializer = $this->get('serializer');
+
+        return new JsonResponse($serializer->normalize($apCard));
+    }
+
+    /**
+     * @Route("/ajax_m_get_ap_event_attendee/{eventId}",
+     *       name="ajax_m_get_ap_event_attendee",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetApActiveEventAttendee($eventId, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $imgUrl = $this->getParameter('img_url');
+
+        $batchSize = 10;
+        $batchNo = $request->get("batchNo");
+        $searchText = $request->get("searchText");
+
+        $batchOffset = $batchNo * $batchSize;
+
+
+        $sql = "SELECT ac.* FROM tbl_ap_event_detail ed
+                INNER JOIN tbl_ap_card ac 
+                ON ac.qr_code_no = ed.qr_code_no AND ac.card_no = ed.card_no
+                WHERE ((ac.qr_code_no LIKE ? OR ac.card_no LIKE ?) OR ? IS NULL) 
+                AND (ac.pro_voter_id IS NOT NULL AND ac.pro_voter_id <> '')  
+                LIMIT 100 ";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, '%' . $searchText . '%');
+        $stmt->bindValue(2, '%' . $searchText . '%');
+        $stmt->bindValue(3, empty($searchText) ? null : $searchText);
+        $stmt->execute();
+
+        $data = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+        return new JsonResponse($data);
+    }
+
+    /**
      * @Route("/ajax_ap_link_profile/{qrCodeNo}/{proVoterId}",
      *     name="ajax_ap_link_profile",
      *    options={"expose" = true}
@@ -5332,7 +5080,8 @@ class MobileController extends Controller
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $proVoter = $em->getRepository("AppBundle:ProjectVoter")->find($proVoterId);
-        $apCard = $em->getRepository("AppBundle:ApCard")->findOneBy(['qrCodeNo' => $qrCodeNo, "cardNo" => $request->get('cardNo')]);
+        $apCard = $em->getRepository("AppBundle:ApCard")->findOneBy(['qrCodeNo' => $qrCodeNo]);
+        $contactNo = $request->get('contactNo');
 
         if (!$proVoter || !$apCard) {
             return new JsonResponse([], 404);
@@ -5344,6 +5093,7 @@ class MobileController extends Controller
         $apCard->setVoterName($proVoter->getVoterName());
         $apCard->setBarangayName($proVoter->getBarangayName());
         $apCard->setMunicipalityName($proVoter->getMunicipalityName());
+        $apCard->setContactNo($contactNo);
         $apCard->setDateActivated(date('Y-m-d'));
 
         $validator = $this->get('validator');
@@ -5414,7 +5164,7 @@ class MobileController extends Controller
 
     public function ajaxUploadApProfilePhoto(Request $request, $qrCodeNo)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager();
 
         $entity = $em->getRepository("AppBundle:ApCard")
             ->findOneBy(['qrCodeNo' => $qrCodeNo]);
@@ -5463,7 +5213,194 @@ class MobileController extends Controller
         return $response;
     }
 
-     /**
+    /**
+     * @Route("/ajax_get_raffle_winners/{eventId}/{totalWinners}",
+     *       name="ajax_get_raffle_winners",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetRaffleWinners($eventId, $totalWinners, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $imgUrl = $this->getParameter('img_url');
+
+        $batchSize = 10;
+        $batchNo = $request->get("batchNo");
+        $searchText = $request->get("searchText");
+
+        $batchOffset = $batchNo * $batchSize;
+
+
+        $sql = "SELECT ac.*, ed.event_detail_id as detail_id,
+                 FROM tbl_ap_event_detail ed
+                 INNER JOIN tbl_ap_card ac 
+                 ON ac.qr_code_no = ed.qr_code_no AND ac.card_no = ed.card_no
+                 WHERE ed.event_id = ? and ed.is_raffle_winner <> 1 ";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, $eventId);
+        $stmt->execute();
+
+        $data = [];
+        $keys = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        $randKeys = array_rand($data, $totalWinners);
+
+        $winners = [];
+
+        if (is_int($randKeys)) {
+            $keys[] = $randKeys;
+        } else {
+            $keys = $randKeys;
+        }
+
+        foreach ($keys as $key => $value) {
+            $winners[] = $data[$value];
+        }
+
+        foreach ($winners as $winner) {
+
+            $entity = new ApEventRaffle();
+            $entity->setEventId($eventId);
+            $entity->setProVoterId($winner['pro_voter_id']);
+            $entity->setGeneratedIdNo($winner['generated_id_no']);
+            $entity->setQrCodeNo($winner['qr_code_no']);
+            $entity->setCardNo($winner['card_no']);
+            $entity->setMunicipalityName($winner['municipality_name']);
+            $entity->setBarangayName($winner['barangay_name']);
+            $entity->setHasClaimed(0);
+
+            $em->persist($entity);
+            $em->flush();
+
+
+            $sql = "UPDATE tbl_ap_event_detail SET is_raffle_winner = 1 WHERE event_detail_id = ? ";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $winner['detail_id']);
+            $stmt->execute();
+
+        }
+
+        $em->clear();
+
+        return new JsonResponse($winners);
+    }
+
+    /**
+     * @Route("/ajax_ap_get_event_raffle_winners/{eventId}",
+     *     name="ajax_ap_get_event_raffle_winners",
+     *    options={"expose" = true}
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxApGetEventRaffleWinnersAction($eventId, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+
+        $event = $em->getRepository("AppBundle:ApEventHeader")->find($eventId);
+
+        if (!$event) {
+            return new JsonResponse([], 404);
+        }
+
+        $winners = $em->getRepository("AppBundle:ApEventRaffle")->findBy(['eventId' => $eventId]);
+
+        $serializer = $this->get('serializer');
+
+        return new JsonResponse($serializer->normalize($winners));
+    }
+
+    /**
+     * @Route("/ajax_ap_raffle_claim_winner/{id}/{hasClaimed}",
+     *     name="ajax_ap_raffle_claim_winner",
+     *    options={"expose" = true}
+     * )
+     * @Method("PATCH")
+     */
+
+    public function ajaxPatchBcbpEventHasAttendedAction($id, $hasClaimed, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        $entity = $em->getRepository("AppBundle:ApEventRaffle")->find($id);
+
+        if (!$entity) {
+            return new JsonResponse([], 404);
+        }
+
+        $entity->setHasClaimed($hasClaimed);
+
+        $validator = $this->get('validator');
+        $violations = $validator->validate($entity);
+
+        $errors = [];
+
+        if (count($violations) > 0) {
+            foreach ($violations as $violation) {
+                $errors[$violation->getPropertyPath()] = $violation->getMessage();
+            }
+            return new JsonResponse($errors, 400);
+        }
+
+        $em->flush();
+        $serializer = $this->get('serializer');
+
+        return new JsonResponse($serializer->normalize($entity));
+    }
+
+    /**
+     * @Route("/ajax_get_raffle_counters/{eventId}",
+     *       name="ajax_get_raffle_counters",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetRaffleCounters($eventId, Request $request)
+    {
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $imgUrl = $this->getParameter('img_url');
+
+        $batchSize = 10;
+        $batchNo = $request->get("batchNo");
+        $searchText = $request->get("searchText");
+
+        $batchOffset = $batchNo * $batchSize;
+
+        $sql = "SELECT
+                 COALESCE(COUNT(CASE WHEN er.has_claimed = 1 then 1 end),0) as total_claimed,
+                 COALESCE(COUNT(er.id),0) as total_winner
+                 FROM tbl_ap_event_raffle er
+                 INNER JOIN tbl_ap_event_detail ed
+                 ON er.event_id = ed.event_id AND er.pro_voter_id = ed.pro_voter_id
+                 WHERE er.event_id = ?";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, $eventId);
+        $stmt->execute();
+
+        $data = [];
+        $keys = [];
+
+        while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+            $data[] = $row;
+        }
+
+        return new JsonResponse($data);
+    }
+
+    /**
      * @Route("/ajax_m_get_household_profile/{keywords}",
      *       name="ajax_m_get_household_profile",
      *        options={ "expose" = true }
@@ -5477,7 +5414,7 @@ class MobileController extends Controller
         $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $sql = "SELECT hh.voter_name, hh.household_code,hh.household_no, hh.municipality_name, hh.barangay_name,hh.id , pv.is_non_voter, pv.precinct_no,
-                pv.municipality_no AS registered_municipality, hh.municipality_no,pv.cellphone,
+                pv.municipality_no AS registered_municipality, hh.municipality_no,
                 (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd WHERE hh.id = hd.household_id) AS total_members,
                 (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND ppv.is_non_voter = 0 AND ppv.municipality_no IN('01','16') ) AS total_voter_members,
                 (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND (ppv.is_non_voter = 1 OR ppv.municipality_no NOT IN('01','16')) ) AS total_non_voter_members
@@ -5495,7 +5432,7 @@ class MobileController extends Controller
         if (!$hdr)
             return new JsonResponse(['message' => 'Household not found. Please contact the system administrator'], 404);
 
-        $sql = "SELECT pv.voter_name,pv.municipality_name,pv.barangay_name,pv.is_non_voter,pv.precinct_no, pv.municipality_no,pv.cellphone FROM tbl_household_dtl hd INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = hd.pro_voter_id  
+        $sql = "SELECT pv.voter_name,pv.municipality_name,pv.barangay_name,pv.is_non_voter,pv.precinct_no, pv.municipality_no FROM tbl_household_dtl hd INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = hd.pro_voter_id  
                WHERE hd.household_id = ? ORDER BY voter_name ASC ";
 
         $stmt = $em->getConnection()->prepare($sql);
@@ -5520,5 +5457,122 @@ class MobileController extends Controller
         $hdr['is_non_voter'] = (int) $hdr['is_non_voter'];
 
         return new JsonResponse($hdr);
+    }
+
+     /**
+     * @Route("/ajax_m_get_household_3district_summary",
+     *       name="ajax_m_get_household_3district_summary",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+     public function ajaxGetHousehold3rdDistrictSummary(Request $request)
+     {
+ 
+         $em = $this->getDoctrine()->getManager("electPrep2024");
+ 
+         $sql = "SELECT pv.asn_municipality_name,
+                COALESCE(COUNT(CASE WHEN pv.municipality_no = '01' THEN 1 END), 0) AS total_aborlan,
+                COALESCE(COUNT(CASE WHEN pv.municipality_no = '16' THEN 1 END), 0) AS total_puerto,
+                (SELECT COALESCE(SUM(b.target_hh),0) AS target_household FROM psw_barangay b WHERE b.municipality_code = CONCAT('53',pv.asn_municipality_no)) as target_household,
+                (SELECT coalesce(COUNT(hh.pro_voter_id),0) from tbl_household_hdr hh where hh.municipality_no = pv.asn_municipality_no ) as actual_household,
+                COUNT( DISTINCT  pv.pro_voter_id) AS actual_voter,
+                (SELECT 
+                    COALESCE(COUNT(pv2.pro_voter_id),0)
+                    FROM tbl_project_voter pv2
+                    WHERE pv2.position IN ('HLEADER','HMEMBER') 
+                    AND pv2.municipality_no NOT IN ('01','16')
+                    AND pv2.is_non_voter = 0
+                    AND pv2.asn_municipality_no = pv.asn_municipality_no
+                    GROUP BY pv2.asn_municipality_name 
+                    ORDER BY pv2.asn_municipality_name ) as total_outside,
+                (
+                    SELECT COALESCE(COUNT(DISTINCT pv2.pro_voter_id ),0)
+                    FROM tbl_project_voter pv2
+                    WHERE pv2.municipality_no IN ('01','16') 
+                    AND pv2.position IS NOT NULL AND pv2.position <> ''
+                    AND pv2.is_non_voter = 1 
+                    AND pv2.asn_municipality_no =  pv.asn_municipality_no
+                ) as total_potential
+                FROM tbl_project_voter pv 
+                WHERE pv.position IN ('HLEADER','HMEMBER') 
+                AND pv.asn_municipality_no IN ('01','16')
+                AND pv.is_non_voter = 0
+                AND pv.elect_id = 423
+                GROUP BY pv.asn_municipality_name ";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->execute();
+        
+         $summary = [];
+
+         while($row =  $stmt->fetch(\PDO::FETCH_ASSOC)){
+            $row['target_voter'] = (int)$row['target_household'] * 4;
+            $summary[] = $row;
+        }
+
+        return new JsonResponse($summary);
+     }
+
+
+      /**
+     * @Route("/ajax_m_get_household_barangay_summary/{municipalityNo}/{barangayNo}",
+     *       name="ajax_m_get_household_barangay_summary",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+    public function ajaxGetHouseholdBarangaySummary(Request $request, $municipalityNo, $barangayNo)
+    {
+
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+
+        $sql = "SELECT pv.asn_municipality_name,pv.asn_barangay_name,
+                COALESCE(COUNT(CASE WHEN pv.municipality_no = '01' THEN 1 END), 0) AS total_aborlan,
+                COALESCE(COUNT(CASE WHEN pv.municipality_no = '16' THEN 1 END), 0) AS total_puerto,
+                (SELECT COALESCE(b.target_hh,0) AS target_household FROM psw_barangay b WHERE b.municipality_code = CONCAT('53',pv.asn_municipality_no) AND b.brgy_no = pv.asn_barangay_no) AS target_household,
+                (SELECT COALESCE(COUNT(hh.pro_voter_id),0) FROM tbl_household_hdr hh WHERE hh.municipality_no = pv.asn_municipality_no AND hh.barangay_no = pv.asn_barangay_no) AS actual_household,
+                COUNT( DISTINCT  pv.pro_voter_id) AS actual_voter,
+                (SELECT 
+                    COALESCE(COUNT(pv2.pro_voter_id),0)
+                    FROM tbl_project_voter pv2
+                    WHERE pv2.position IN ('HLEADER','HMEMBER') 
+                    AND pv2.municipality_no NOT IN ('01','16')
+                    AND pv2.is_non_voter = 0
+                    AND pv2.asn_municipality_no = pv.asn_municipality_no
+                    AND pv2.asn_barangay_no = pv.asn_barangay_no) AS total_outside,
+                (
+                    SELECT COALESCE(COUNT(DISTINCT pv2.pro_voter_id ),0)
+                    FROM tbl_project_voter pv2
+                    WHERE pv2.municipality_no IN ('01','16') 
+                    AND pv2.position IS NOT NULL AND pv2.position <> ''
+                    AND pv2.is_non_voter = 1 
+                    AND pv2.asn_municipality_no =  pv.asn_municipality_no
+                    AND pv2.asn_barangay_no = pv.asn_barangay_no
+                    
+                ) AS total_potential
+                FROM tbl_project_voter pv 
+                WHERE pv.position IN ('HLEADER','HMEMBER') 
+                AND pv.asn_municipality_no IN ('01','16')
+                AND pv.is_non_voter = 0
+                AND pv.elect_id = 423
+                AND pv.asn_municipality_no = ?
+                AND pv.asn_barangay_no = ?
+                GROUP BY pv.asn_barangay_no
+                ORDER BY pv.asn_barangay_name ASC  ";
+
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1, $municipalityNo);
+        $stmt->bindValue(2, $barangayNo);
+        $stmt->execute();
+       
+        $summary = [];
+
+        while($row =  $stmt->fetch(\PDO::FETCH_ASSOC)){
+           $row['target_voter'] = (int)$row['target_household'] * 4;
+           $summary[] = $row;
+       }
+
+       return new JsonResponse($summary);
     }
 }

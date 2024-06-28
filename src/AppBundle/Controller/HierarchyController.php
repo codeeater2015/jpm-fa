@@ -520,15 +520,19 @@ class HierarchyController extends Controller
         $entity['voter'] = $voter;
 
               
-        $sql = "SELECT hd.*,pv.is_non_voter,pv.municipality_no AS voting_municipality_no FROM tbl_household_hdr hh 
+        $sql = "SELECT hd.*,pv.is_non_voter,pv.municipality_no AS voting_municipality_no,
+                hh.voter_name AS hh_voter_name,
+                hh.pro_voter_id AS hh_pro_voter_id
+                FROM tbl_household_hdr hh 
                 INNER JOIN tbl_household_dtl hd 
                 ON hh.id = hd.household_id  
                 INNER JOIN tbl_project_voter pv 
                 ON pv.pro_voter_id = hd.pro_voter_id
-                where hh.pro_voter_id = ? ";
+                where hh.pro_voter_id = ? OR hd.pro_voter_id = ? ";
 
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, $proVoterId);
+        $stmt->bindValue(2, $proVoterId);
         $stmt->execute();
         
         $members = [];
@@ -555,13 +559,25 @@ class HierarchyController extends Controller
             }
         }
 
-        if($entity['voter']['isNonVoter'] == 1){
+        
+
+        if(count($members) > 0 && $members[0]['hh_pro_voter_id'] != $proVoterId ){
+            $voter = $em->getRepository("AppBundle:ProjectVoter")->find($members[0]['hh_pro_voter_id']);
+            $voter = $serializer->normalize($voter);
+            $entity['hh_pro_voter_id'] = $members[0]['hh_pro_voter_id'];
+            $entity['hh_voter_name'] = $members[0]['hh_voter_name'];
+        }else{
+            $entity['hh_pro_voter_id'] = $proVoterId;
+            $entity['hh_voter_name'] = $voter['voterName'];
+        }
+
+        if($voter['isNonVoter'] == 1){
             $totalNonVoter++;
         }else{
             $totalVoter++;
         }
 
-        if($entity['voter']['municipalityNo'] != '16' && $entity['voter']['municipalityNo'] != '01'){
+        if($voter['municipalityNo'] != '16' && $voter['municipalityNo'] != '01'){
             $outsideDistrict++;
         }else{
             $withinDistrict++;

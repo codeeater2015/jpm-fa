@@ -883,7 +883,7 @@ var Hierarchy = React.createClass({
                                     <div><strong><small>HH Position :</small></strong> {selectedItem.voter.position} </div>
                                     <br/>
                                     <div><strong><small>Total Household Members :</small></strong> {selectedItem.members.length} </div>
-                                    <div><strong><small>Voting Strength :</small></strong> {selectedItem.votingStrength.totalVoter} / { (selectedItem.members.length + 1)} </div>
+                                    <div><strong><small>Voting Strength :</small></strong> {selectedItem.votingStrength.totalVoter} / { selectedItem.members.length + 1} </div>
                                     <div><strong><small>Within District : </small></strong> {selectedItem.votingStrength.withinDistrict}</div>
                                     <div><strong><small>Outside District : </small></strong> {selectedItem.votingStrength.outsideDistrict}</div>
                                 </div>

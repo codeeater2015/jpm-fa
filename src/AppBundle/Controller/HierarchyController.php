@@ -571,7 +571,8 @@ class HierarchyController extends Controller
             "totalVoter" => $totalVoter,
             "totalNonVoter" => $totalNonVoter,
             "outsideDistrict" => $outsideDistrict,
-            "withinDistrict" => $withinDistrict
+            "withinDistrict" => $withinDistrict,
+            "householdSize" => count($members) + 1
         ];
     
         return new JsonResponse($entity, 200);
@@ -719,34 +720,34 @@ class HierarchyController extends Controller
     }
 
     /**
-     * @Route("/ajax_get__hierarchy_datatable_attendance_profile", 
-     * name="ajax_get__hierarchy_datatable_attendance_profile", options={"expose"=true})
+     * @Route("/ajax_get__hierarchy_datatable_household_profile", 
+     * name="ajax_get__hierarchy_datatable_household_profile", options={"expose"=true})
      * @Method("GET")
      * @param Request $request
      * @return JsonResponse
      */
-    public function ajaxGetHierarchyDatatableProfileAction(Request $request)
+    public function ajaxGetHierarchyDatatableHouseholdProfileAction(Request $request)
     {
         $columns = array(
-            0 => "h.id",
-            1 => "h.voter_name",
-            2 => "h.municipality_name",
-            3 => "h.barangay_name",
-            4 => "h.contact_no"
+            0 => "hd.id",
+            1 => "hd.voter_name",
+            2 => "hd.municipality_name",
+            3 => "hd.barangay_name",
+            4 => "hd.contact_no"
         );
 
         $sWhere = "";
 
-        $select['ap.voter_name'] = $request->get('voterName');
-        $select['ap.municipality_name'] = $request->get('municipalityName');
-        $select['ap.barangay_name'] = $request->get('barangayName');
-        $select['ap.contact_no'] = $request->get('contactNo');
-        $select['h.pro_voter_id'] = $request->get('proVoterId');
+        $select['hd.voter_name'] = $request->get('voterName');
+        $select['hd.municipality_name'] = $request->get('municipalityName');
+        $select['hd.barangay_name'] = $request->get('barangayName');
+        $select['hd.contact_no'] = $request->get('contactNo');
+        $select['hh.pro_voter_id'] = $request->get('proVoterId');
 
         foreach ($select as $key => $value) {
             $searchValue = $select[$key];
             if ($searchValue != null || !empty($searchValue)) {
-                if ($key == 'h.pro_voter_id') {
+                if ($key == 'hh.pro_voter_id') {
                     $sWhere .= " AND " . $key . "= '" . $searchValue . "' ";
                 } else {
                     $sWhere .= " AND " . $key . " LIKE \"%" . $searchValue . "%\"";
@@ -783,23 +784,26 @@ class HierarchyController extends Controller
         $em = $this->getDoctrine()->getManager("electPrep2024");
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
-        $sql = "SELECT COALESCE(count(h.id),0) 
-                FROM tbl_organization_hierarchy h 
-                INNER JOIN tbl_attendance_detail a
-                ON h.pro_voter_id = a.pro_voter_id 
-                LEFT JOIN tbl_attendance_profile ap 
-                ON ap.hdr_id =  a.id 
-                WHERE 1 ";
+        $sql = "SELECT COALESCE(count(hd.pro_voter_id),0) 
+                FROM tbl_household_dtl hd 
+                INNER JOIN tbl_household_hdr hh
+                ON hd.household_id = hh.id 
+                INNER JOIN tbl_project_voter pv 
+                ON pv.pro_voter_id = hd.pro_voter_id
+                WHERE hh.pro_voter_id = ? ";
 
-        $stmt = $em->getConnection()->query($sql);
+        $stmt = $em->getConnection()->prepare($sql);
+        $stmt->bindValue(1,$select['hh.pro_voter_id']);
+        $stmt->execute();
+        
         $recordsTotal = $stmt->fetchColumn();
 
-        $sql = "SELECT COALESCE(COUNT(ap.id),0) 
-                FROM tbl_organization_hierarchy h 
-                INNER JOIN tbl_attendance_detail a
-                ON h.pro_voter_id = a.pro_voter_id 
-                LEFT JOIN tbl_attendance_profile ap 
-                ON ap.hdr_id =  a.id
+        $sql = "SELECT COALESCE(count(hd.pro_voter_id),0) 
+                FROM tbl_household_dtl hd 
+                INNER JOIN tbl_household_hdr hh
+                ON hd.household_id = hh.id 
+                INNER JOIN tbl_project_voter pv 
+                ON pv.pro_voter_id = hd.pro_voter_id
                 WHERE 1 ";
 
         $sql .= $sWhere . " " . $sOrder;
@@ -807,11 +811,12 @@ class HierarchyController extends Controller
         $recordsFiltered = $stmt->fetchColumn();
 
 
-        $sql = "SELECT ap.* FROM tbl_organization_hierarchy h 
-                INNER JOIN tbl_attendance_detail a
-                ON h.pro_voter_id = a.pro_voter_id 
-                LEFT JOIN tbl_attendance_profile ap 
-                ON ap.hdr_id =  a.id
+        $sql = "SELECT pv.*
+                FROM tbl_household_dtl hd 
+                INNER JOIN tbl_household_hdr hh
+                ON hd.household_id = hh.id 
+                INNER JOIN tbl_project_voter pv 
+                ON pv.pro_voter_id = hd.pro_voter_id
                 WHERE 1 " . $sWhere . " " . $sOrder . " LIMIT {$length} OFFSET {$start} ";
 
         $stmt = $em->getConnection()->query($sql);

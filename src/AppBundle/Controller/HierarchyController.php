@@ -520,8 +520,11 @@ class HierarchyController extends Controller
         $entity['voter'] = $voter;
 
               
-        $sql = "SELECT hd.* FROM tbl_household_hdr hh INNER JOIN tbl_household_dtl hd 
+        $sql = "SELECT hd.*,pv.is_non_voter,pv.municipality_no AS voting_municipality_no FROM tbl_household_hdr hh 
+                INNER JOIN tbl_household_dtl hd 
                 ON hh.id = hd.household_id  
+                INNER JOIN tbl_project_voter pv 
+                ON pv.pro_voter_id = hd.pro_voter_id
                 where hh.pro_voter_id = ? ";
 
         $stmt = $em->getConnection()->prepare($sql);
@@ -532,6 +535,44 @@ class HierarchyController extends Controller
 
         $members = $stmt->fetchAll(\PDO::FETCH_ASSOC);
         $entity['members'] = $members;
+
+        $totalVoter = 0;
+        $totalNonVoter = 0;
+        $withinDistrict = 0;
+        $outsideDistrict = 0;
+
+        foreach($members as $row){
+            if($row['voting_municipality_no'] != '16' && $row['voting_municipality_no'] != '01'){
+                $outsideDistrict++;
+            }else{
+                $withinDistrict++;
+            }
+
+            if($row['is_non_voter'] == 1){
+                $totalNonVoter++;
+            }else{
+                $totalVoter++;
+            }
+        }
+
+        if($entity['voter']['isNonVoter'] == 1){
+            $totalNonVoter++;
+        }else{
+            $totalVoter++;
+        }
+
+        if($entity['voter']['municipalityNo'] != '16' && $entity['voter']['municipalityNo'] != '01'){
+            $outsideDistrict++;
+        }else{
+            $withinDistrict++;
+        }
+
+        $entity['votingStrength'] = [
+            "totalVoter" => $totalVoter,
+            "totalNonVoter" => $totalNonVoter,
+            "outsideDistrict" => $outsideDistrict,
+            "withinDistrict" => $withinDistrict
+        ];
     
         return new JsonResponse($entity, 200);
     }

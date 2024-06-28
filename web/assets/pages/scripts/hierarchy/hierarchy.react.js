@@ -878,8 +878,14 @@ var Hierarchy = React.createClass({
                                     <div style={{ marginBottom: "10px" }}><strong> <small>is Voter :</small> </strong> {selectedItem.isNonVoter == 1 ? "NO" : "YES"}</div>
                                     <div style={{ marginBottom: "10px" }}><strong><small>Assigned Address :</small></strong> <br /> {selectedItem.assignedMunicipality},  {selectedItem.assignedBarangay}, {selectedItem.assignedPurok}</div>
 
-                                    <div><strong>Contact # :</strong>  {selectedItem.contactNo} </div>
-                                    <div><strong>Position :</strong> {selectedItem.voterGroup} </div>
+                                    <div><strong><small>Contact # :</small></strong>  {selectedItem.voter.cellphone} </div>
+                                    <div><strong><small>Hierarchy Position :</small></strong> {selectedItem.voter.voterGroup} </div>
+                                    <div><strong><small>HH Position :</small></strong> {selectedItem.voter.position} </div>
+                                    <br/>
+                                    <div><strong><small>Total Household Members :</small></strong> {selectedItem.members.length} </div>
+                                    <div><strong><small>Voting Strength :</small></strong> {selectedItem.votingStrength.totalVoter} / { (selectedItem.members.length + 1)} </div>
+                                    <div><strong><small>Within District : </small></strong> {selectedItem.votingStrength.withinDistrict}</div>
+                                    <div><strong><small>Outside District : </small></strong> {selectedItem.votingStrength.outsideDistrict}</div>
                                 </div>
                             ) : ""}
                         </div>

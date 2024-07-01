@@ -902,7 +902,7 @@ class HierarchyController extends Controller
         if (empty($municipalityNo) && empty($barangayNo)) {
             //return new JsonResponse(['message' => 'return province result'],200);
 
-            $sql = "SELECT h.municipality_name, COUNT(*) AS total_voter,
+            $sql = "SELECT h.assigned_name, COUNT(*) AS total_voter,
             COALESCE(COUNT(CASE WHEN pv.voter_group = 'TOP LEADER' THEN 1 END), 0) AS total_tl,
             COALESCE(COUNT(CASE WHEN pv.voter_group = 'K0' THEN 1 END), 0) AS total_k0,
             COALESCE(COUNT(CASE WHEN pv.voter_group = 'K1' THEN 1 END), 0) AS total_k1,

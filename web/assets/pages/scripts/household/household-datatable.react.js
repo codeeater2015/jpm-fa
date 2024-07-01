@@ -548,7 +548,7 @@ var HouseholdDatatable = React.createClass({
                                         <td>{summary.hierarchy_summary[1].total_k1}</td>
                                         <td>{summary.hierarchy_summary[1].total_k2}</td>
                                         <td>{summary.hierarchy_summary[1].total_no_pos}</td>
-                                        <td rowSpan={3} >{summary.hierarchy_summary[0].total_no_profile}</td>
+                                        <td rowSpan={3} >{summary.hierarchy_summary[1].total_no_profile}</td>
 
                                         <td>
                                             <button onClick={this.openHouseholdSummary.bind(this, '01')} className="btn btn-xs btn-primary btn-icon"><i className="fa fa-eye"></i></button>

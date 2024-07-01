@@ -1476,6 +1476,7 @@ class HouseholdController extends Controller
                 FROM tbl_project_voter pv 
                 WHERE pv.elect_id = 423
                 AND pv.municipality_no IN ('01','16')
+                AND pv.asn_municipality_name IS NOT NULL 
                 GROUP BY pv.asn_municipality_name 
                 ORDER BY pv.asn_municipality_name";
                 
@@ -1515,7 +1516,7 @@ class HouseholdController extends Controller
 
                 WHERE pv.position IN ('HLEADER','HMEMBER') 
                 AND pv.asn_municipality_no  = ? 
-
+                AND pv.asn_municipality_name IS NOT NULL 
                 GROUP BY pv.asn_municipality_no,pv.asn_barangay_no
                 ORDER BY asn_municipality_name, asn_barangay_name";
  

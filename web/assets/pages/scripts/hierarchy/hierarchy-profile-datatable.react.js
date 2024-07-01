@@ -39,7 +39,7 @@ var HierarchyProfileDatatable = React.createClass({
 
         var kfc_attendance_profile = $("#kfc_attendance_profile");
         var grid_project_event = new Datatable();
-        var url = Routing.generate("ajax_get__hierarchy_datatable_attendance_profile", {proVoterId : self.props.proVoterId }, true);
+        var url = Routing.generate("ajax_get__hierarchy_datatable_household_profile", {proVoterId : self.props.proVoterId }, true);
 
         grid_project_event.init({
             src: kfc_attendance_profile,
@@ -79,6 +79,9 @@ var HierarchyProfileDatatable = React.createClass({
                     {
                         "data": "voter_name",
                         "className": "text-left",
+                        "render" : function(data,type,row){
+                            return  row.is_non_voter == 1 ? '--- ' + data :  data;
+                        }
                     },
                     {
                         "data": "municipality_name",
@@ -91,7 +94,15 @@ var HierarchyProfileDatatable = React.createClass({
                         "width": 150,
                     },
                     {
-                        "data": "contact_no",
+                        "data": "is_non_voter",
+                        "className": "text-center",
+                        "width": 50,
+                        "render" : function(data,type,row){
+                            return Number.parseInt(data) == 1 ? "NO" : "YES";
+                        }
+                    },
+                    {
+                        "data": "cellphone",
                         "className": "text-center",
                         "width": 150,
                     },
@@ -204,6 +215,7 @@ var HierarchyProfileDatatable = React.createClass({
                                 <th>Name</th>
                                 <th>Municipality</th>
                                 <th>Barangay</th>
+                                <th>Voter?</th>
                                 <th>Contact No</th>
                                 <th></th>
                             </tr>
@@ -212,6 +224,7 @@ var HierarchyProfileDatatable = React.createClass({
                                 <td style={{ padding: "10px 5px" }}>
                                     <input type="text" className="form-control form-filter input-sm" name="voter_name" onChange={this.handleFilterChange} />
                                 </td>
+                                <td></td>
                                 <td></td>
                                 <td></td>
                                 <td></td>

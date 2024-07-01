@@ -14,6 +14,18 @@ var Hierarchy = React.createClass({
             showSmsModal: false,
             showProfileModal: false,
             selectedItem: null,
+            summary : {
+                municipality_name : "",
+                barangay_name : "",
+                total_voter : 0,
+                total_tl : 0,
+                total_0 : 0,
+                total_1 : 0,
+                total_2 : 0,
+                target_tl : 0,
+                target_0 : 0,
+                total_no_profile : 0
+            },
             form: {
                 data: {
                     leaderId: null,
@@ -35,7 +47,7 @@ var Hierarchy = React.createClass({
 
         $('#tree1').tree({
             dragAndDrop: true,
-            autoOpen:  true,
+            autoOpen: true,
             onCreateLi: function (node, $li) {
                 // Append a link to the jqtree-element div.
                 // The link has an url '#node-[id]' and a data property 'node-id'.
@@ -179,9 +191,10 @@ var Hierarchy = React.createClass({
         );
 
         this.initSelect2();
+        this.loadSummaryData();
     },
 
-    notify : function(message,color){
+    notify: function (message, color) {
         $.notific8('zindex', 11500);
         $.notific8(message, {
             heading: 'System Message',
@@ -584,6 +597,27 @@ var Hierarchy = React.createClass({
 
     },
 
+    loadSummaryData: function () {
+        var municipalityNo = this.state.form.data.municipalityFilter;
+        var barangayNo = this.state.form.data.barangayFilter;
+
+        var hierarchyRoute = Routing.generate("ajax_m_get_hierarchy_summary", {
+            municipalityNo: municipalityNo,
+            barangayNo: barangayNo
+        });
+
+        var self = this;
+        self.requestHierarchyData = $.ajax({
+            url: hierarchyRoute,
+            type: "GET"
+        }).done(function (res) {
+            console.log("summary has been received");
+            console.log(res);
+            self.setState({ summary : res });
+        });
+
+    },
+
     loadVoter: function (proId, proVoterId) {
         var self = this;
         self.requestVoter = $.ajax({
@@ -701,7 +735,7 @@ var Hierarchy = React.createClass({
                     });
                 }
             }
-        }else{
+        } else {
             alert("Opps! Empty form!");
         }
     },
@@ -725,9 +759,14 @@ var Hierarchy = React.createClass({
         }
     },
 
+    numberWithCommas: function(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    },
+
     render: function () {
         var self = this;
         var selectedItem = this.state.selectedItem;
+        var summary = this.state.summary;
 
         return (
             <div className="portlet light portlet-fit bordered">
@@ -747,7 +786,8 @@ var Hierarchy = React.createClass({
                         <HierarchyProfileModal
                             show={this.state.showProfileModal}
                             onHide={this.closeProfileModal}
-                            proVoterId={this.state.selectedItem.proVoterId}
+                            proVoterId={this.state.selectedItem.hh_pro_voter_id}
+                            headerText={this.state.selectedItem.hh_voter_name}
                         />
                     }
                     <div className="row" id="hierarchy_page">
@@ -850,10 +890,19 @@ var Hierarchy = React.createClass({
 
                         <div className="col-md-6">
                             <div className="row">
-                                <div className="col-md-12">
-                                    <p className="text-center"><strong>{this.state.form.data.voterGroupFilter} HIERARCHY DISPLAY </strong></p>
-                                </div>
+                                <table className="table table-condensed table-bordered">
+                                    <tbody style={{ backgroundColor: "#a4baeb" }}>
+                                        <tr>
+                                            <th colSpan="2" className="text-center">TL : {self.numberWithCommas(parseInt(summary.total_tl))} / {self.numberWithCommas(parseInt(summary.target_tl))}</th>
+                                            <th colSpan="2" className="text-center">K0 : {self.numberWithCommas(parseInt(summary.total_k0))} / {self.numberWithCommas(parseInt(summary.target_0))}</th>
+                                            <th colSpan="2" className="text-center">K1 : {self.numberWithCommas(parseInt(summary.total_k1))} / {self.numberWithCommas(parseInt(summary.target_0) * 4)}</th>
+                                            <th colSpan="2" className="text-center">K2 : {self.numberWithCommas(parseInt(summary.total_k2))} / {self.numberWithCommas(parseInt(summary.target_0) * 24)}</th>
+                                            <th rowSpan="2" className="text-center">No Profile : {self.numberWithCommas(parseInt(summary.total_no_profile))}</th>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
+                            
                             <div className="row">
                                 <div className="col-md-12">
                                     <div id="tree1"></div>
@@ -881,9 +930,9 @@ var Hierarchy = React.createClass({
                                     <div><strong><small>Contact # :</small></strong>  {selectedItem.voter.cellphone} </div>
                                     <div><strong><small>Hierarchy Position :</small></strong> {selectedItem.voter.voterGroup} </div>
                                     <div><strong><small>HH Position :</small></strong> {selectedItem.voter.position} </div>
-                                    <br/>
+                                    <br />
                                     <div><strong><small>Total Household Members :</small></strong> {selectedItem.members.length} </div>
-                                    <div><strong><small>Voting Strength :</small></strong> {selectedItem.votingStrength.totalVoter} / { selectedItem.members.length}</div>
+                                    <div><strong><small>Voting Strength :</small></strong> {selectedItem.votingStrength.totalVoter} / {selectedItem.votingStrength.householdSize} </div>
                                     <div><strong><small>Within District : </small></strong> {selectedItem.votingStrength.withinDistrict}</div>
                                     <div><strong><small>Outside District : </small></strong> {selectedItem.votingStrength.outsideDistrict}</div>
                                 </div>

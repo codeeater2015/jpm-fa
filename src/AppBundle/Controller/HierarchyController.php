@@ -57,7 +57,7 @@ class HierarchyController extends Controller
         $municipalityNo = $request->get('municipalityNo');
         $barangayNo = $request->get('barangayNo');
 
-        if((empty($barangayNo) || $barangayNo == null) && $leaderId == null)
+        if ((empty($barangayNo) || $barangayNo == null) && $leaderId == null)
             return new JsonResponse([]);
 
         $em = $this->getDoctrine()->getManager("electPrep2024");
@@ -96,11 +96,11 @@ class HierarchyController extends Controller
             $children = $this->getChildNodes($row['pro_voter_id']);
             $counter++;
 
-            $profileLabel = ($row['position'] == null || empty($row['position']) || $row['position'] == '' ) ? 'No household profile.' : $row['position'];
+            $profileLabel = ($row['position'] == null || empty($row['position']) || $row['position'] == '') ? 'No household profile.' : $row['position'];
 
             $data[] = [
                 "id" => $row['pro_voter_id'],
-                'name' => $counter . '. ' . $row['voter_group'] . ': ' . $row['voter_name'] . ' | ' . $row['barangay_name'] . '|' . $profileLabel ,
+                'name' => $counter . '. ' . $row['voter_group'] . ': ' . $row['voter_name'] . ' | ' . $row['barangay_name'] . '|' . $profileLabel,
                 'data' => [
                     'voter_group' => $row['voter_group']
                 ],
@@ -142,11 +142,11 @@ class HierarchyController extends Controller
         foreach ($entities as $entity) {
             $counter++;
 
-            $profileLabel = ($entity['position'] == null || empty($entity['position']) || $entity['position'] == '' ) ? 'No household profile.' : $entity['position'];
+            $profileLabel = ($entity['position'] == null || empty($entity['position']) || $entity['position'] == '') ? 'No household profile.' : $entity['position'];
 
             $item = [
                 'id' => $entity['pro_voter_id'],
-                'name' => $counter . '. ' . $entity['voter_group'] . ': ' . $entity['voter_name'] . ' | ' . $entity['barangay_name'] . '|'. $profileLabel,
+                'name' => $counter . '. ' . $entity['voter_group'] . ': ' . $entity['voter_name'] . ' | ' . $entity['barangay_name'] . '|' . $profileLabel,
             ];
 
             $item['children'] = $this->getChildNodes($entity['pro_voter_id']);
@@ -179,8 +179,8 @@ class HierarchyController extends Controller
         if (!$voter)
             return new JsonResponse(null, 404);
 
-            
-        if($parentId != null && $parentId != 0 ){
+
+        if ($parentId != null && $parentId != 0) {
             $parent = $em->getRepository("AppBundle:OrganizationHierarchy")->findOneBy([
                 'proVoterId' => $parentId
             ]);
@@ -519,7 +519,7 @@ class HierarchyController extends Controller
 
         $entity['voter'] = $voter;
 
-              
+
         $sql = "SELECT hd.*,pv.is_non_voter,pv.municipality_no AS voting_municipality_no,
                 hh.voter_name AS hh_voter_name,
                 hh.pro_voter_id AS hh_pro_voter_id
@@ -534,7 +534,7 @@ class HierarchyController extends Controller
         $stmt->bindValue(1, $proVoterId);
         $stmt->bindValue(2, $proVoterId);
         $stmt->execute();
-        
+
         $members = [];
 
         $members = $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -545,41 +545,41 @@ class HierarchyController extends Controller
         $withinDistrict = 0;
         $outsideDistrict = 0;
 
-        foreach($members as $row){
-            if($row['voting_municipality_no'] != '16' && $row['voting_municipality_no'] != '01'){
+        foreach ($members as $row) {
+            if ($row['voting_municipality_no'] != '16' && $row['voting_municipality_no'] != '01') {
                 $outsideDistrict++;
-            }else{
+            } else {
                 $withinDistrict++;
             }
 
-            if($row['is_non_voter'] == 1){
+            if ($row['is_non_voter'] == 1) {
                 $totalNonVoter++;
-            }else{
+            } else {
                 $totalVoter++;
             }
         }
 
-        
 
-        if(count($members) > 0 && $members[0]['hh_pro_voter_id'] != $proVoterId ){
+
+        if (count($members) > 0 && $members[0]['hh_pro_voter_id'] != $proVoterId) {
             $voter = $em->getRepository("AppBundle:ProjectVoter")->find($members[0]['hh_pro_voter_id']);
             $voter = $serializer->normalize($voter);
             $entity['hh_pro_voter_id'] = $members[0]['hh_pro_voter_id'];
             $entity['hh_voter_name'] = $members[0]['hh_voter_name'];
-        }else{
+        } else {
             $entity['hh_pro_voter_id'] = $proVoterId;
             $entity['hh_voter_name'] = $voter['voterName'];
         }
 
-        if($voter['isNonVoter'] == 1){
+        if ($voter['isNonVoter'] == 1) {
             $totalNonVoter++;
-        }else{
+        } else {
             $totalVoter++;
         }
 
-        if($voter['municipalityNo'] != '16' && $voter['municipalityNo'] != '01'){
+        if ($voter['municipalityNo'] != '16' && $voter['municipalityNo'] != '01') {
             $outsideDistrict++;
-        }else{
+        } else {
             $withinDistrict++;
         }
 
@@ -590,7 +590,7 @@ class HierarchyController extends Controller
             "withinDistrict" => $withinDistrict,
             "householdSize" => count($members) + 1
         ];
-    
+
         return new JsonResponse($entity, 200);
     }
 
@@ -648,7 +648,7 @@ class HierarchyController extends Controller
         return new JsonResponse($serializer->normalize($entity), 200);
     }
 
-      /**
+    /**
      * @Route("/ajax_hierarchy_get_item_top_leader/{proVoterId}", 
      *       name="ajax_hierarchy_get_item_top_leader",
      *		options={ "expose" = true }
@@ -656,53 +656,54 @@ class HierarchyController extends Controller
      * @Method("GET")
      */
 
-     public function ajaxHierarchyGetItemTopLeader($proVoterId, Request $request)
-     {
- 
-         $em = $this->getDoctrine()->getManager("electPrep2024");
- 
-         $entity = $em->getRepository("AppBundle:OrganizationHierarchy")->findOneBy([
-             "proVoterId" => $proVoterId
-         ]);
- 
-         $voter = $em->getRepository("AppBundle:ProjectVoter")->findOneBy([
-             "proVoterId" => $proVoterId
-         ]);
- 
-         $user = $this->get("security.token_storage")->getToken()->getUser();
- 
-         if (!$entity)
-             return new JsonResponse(null, 404);
-        
- 
-         $serializer = $this->get('serializer');
-         $parentNode = null;
+    public function ajaxHierarchyGetItemTopLeader($proVoterId, Request $request)
+    {
 
-         if($entity->getParentNode() != null ){
-             $parentNode = $this->getParentNode($entity->getParentNode());
-         }
-
-         return new JsonResponse($parentNode, 200);
-     }
-
-     private function getParentNode($proVoterId){
         $em = $this->getDoctrine()->getManager("electPrep2024");
 
-        
+        $entity = $em->getRepository("AppBundle:OrganizationHierarchy")->findOneBy([
+            "proVoterId" => $proVoterId
+        ]);
+
+        $voter = $em->getRepository("AppBundle:ProjectVoter")->findOneBy([
+            "proVoterId" => $proVoterId
+        ]);
+
+        $user = $this->get("security.token_storage")->getToken()->getUser();
+
+        if (!$entity)
+            return new JsonResponse(null, 404);
+
+
+        $serializer = $this->get('serializer');
+        $parentNode = null;
+
+        if ($entity->getParentNode() != null) {
+            $parentNode = $this->getParentNode($entity->getParentNode());
+        }
+
+        return new JsonResponse($parentNode, 200);
+    }
+
+    private function getParentNode($proVoterId)
+    {
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+
+
         $sql = "SELECT * FROM tbl_organization_hierarchy where pro_voter_id = ? ";
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, $proVoterId);
         $stmt->execute();
-        
+
         $entity = $stmt->fetch(\PDO::FETCH_ASSOC);
         $parentNode = null;
 
-        if($entity['parent_node'] != null ){
-            $parentNode = $this->getParentNode($entity['parent_node']);    
+        if ($entity['parent_node'] != null) {
+            $parentNode = $this->getParentNode($entity['parent_node']);
         }
 
         return $parentNode == null ? $proVoterId : $parentNode;
-     }
+    }
 
     /**
      * @Route("/ajax_hierarchy_select2_voter_group",
@@ -809,9 +810,9 @@ class HierarchyController extends Controller
                 WHERE hh.pro_voter_id = ? ";
 
         $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1,$select['hh.pro_voter_id']);
+        $stmt->bindValue(1, $select['hh.pro_voter_id']);
         $stmt->execute();
-        
+
         $recordsTotal = $stmt->fetchColumn();
 
         $sql = "SELECT COALESCE(count(hd.pro_voter_id),0) 
@@ -880,5 +881,93 @@ class HierarchyController extends Controller
         $em->clear();
 
         return new JsonResponse($data);
+    }
+
+    /**
+     * @Route("/ajax_m_get_hierarchy_summary",
+     *       name="ajax_m_get_hierarchy_summary",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxGetHierarchyVotersSummary(Request $request)
+    {
+
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $municipalityNo = $request->get("municipalityNo");
+        $barangayNo = $request->get("barangayNo");
+        $stmt= null;
+
+        if (empty($municipalityNo) && empty($barangayNo)) {
+            //return new JsonResponse(['message' => 'return province result'],200);
+
+            $sql = "SELECT h.municipality_name, COUNT(*) AS total_voter,
+            COALESCE(COUNT(CASE WHEN pv.voter_group = 'TOP LEADER' THEN 1 END), 0) AS total_tl,
+            COALESCE(COUNT(CASE WHEN pv.voter_group = 'K0' THEN 1 END), 0) AS total_k0,
+            COALESCE(COUNT(CASE WHEN pv.voter_group = 'K1' THEN 1 END), 0) AS total_k1,
+            COALESCE(COUNT(CASE WHEN pv.voter_group = 'K2' THEN 1 END), 0) AS total_k2,
+            COALESCE(COUNT(CASE WHEN (pv.voter_group <> '' AND pv.voter_group IS NOT NULL) AND (pv.position IS NULL OR pv.position = '') THEN 1 END), 0) AS total_no_profile,
+            (SELECT COALESCE(SUM( b.target_ch),0) FROM psw_barangay b WHERE b.municipality_code = CONCAT('53' , pv.asn_municipality_no )) as target_tl,
+            (select COALESCE(SUM( b.target_0),0) from psw_barangay b where b.municipality_code = concat('53' , pv.asn_municipality_no)) as target_0
+            FROM tbl_project_voter pv 
+            INNER JOIN tbl_organization_hierarchy h 
+            on h.pro_voter_id = pv.pro_voter_id
+            WHERE pv.elect_id = 423 ";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->execute();
+
+
+        } else if (!empty($municipalityNo) && empty($barangayNo)) {
+
+            //return new JsonResponse(['message' => 'return municipality result'],200);
+            
+            $sql = "SELECT h.municipality_name, COUNT(*) AS total_voter,
+                COALESCE(COUNT(CASE WHEN pv.voter_group = 'TOP LEADER' THEN 1 END), 0) AS total_tl,
+                COALESCE(COUNT(CASE WHEN pv.voter_group = 'K0' THEN 1 END), 0) AS total_k0,
+                COALESCE(COUNT(CASE WHEN pv.voter_group = 'K1' THEN 1 END), 0) AS total_k1,
+                COALESCE(COUNT(CASE WHEN pv.voter_group = 'K2' THEN 1 END), 0) AS total_k2,
+                COALESCE(COUNT(CASE WHEN (pv.voter_group <> '' AND pv.voter_group IS NOT NULL) AND (pv.position IS NULL OR pv.position = '') THEN 1 END), 0) AS total_no_profile,
+                (SELECT COALESCE(SUM( b.target_ch),0) FROM psw_barangay b WHERE b.municipality_code = CONCAT('53' , pv.asn_municipality_no )) as target_tl,
+                (select COALESCE(SUM( b.target_0),0) from psw_barangay b where b.municipality_code = concat('53' , pv.asn_municipality_no)) as target_0
+                FROM tbl_project_voter pv 
+                INNER JOIN tbl_organization_hierarchy h 
+                on h.pro_voter_id = pv.pro_voter_id
+                WHERE pv.elect_id = 423
+                AND h.municipality_no = ? ";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $municipalityNo);
+            $stmt->execute();
+
+        } else if (!empty($municipalityNo) && !empty($barangayNo)) {
+
+            //return new JsonResponse(['message' => 'return barangay result']);
+
+            $sql = "SELECT h.municipality_name, h.barangay_name, COUNT(*) AS total_voter,
+                COALESCE(COUNT(CASE WHEN pv.voter_group = 'TOP LEADER' THEN 1 END), 0) AS total_tl,
+                COALESCE(COUNT(CASE WHEN pv.voter_group = 'K0' THEN 1 END), 0) AS total_k0,
+                COALESCE(COUNT(CASE WHEN pv.voter_group = 'K1' THEN 1 END), 0) AS total_k1,
+                COALESCE(COUNT(CASE WHEN pv.voter_group = 'K2' THEN 1 END), 0) AS total_k2,
+                COALESCE(COUNT(CASE WHEN (pv.voter_group <> '' AND pv.voter_group IS NOT NULL) AND (pv.position IS NULL OR pv.position = '') THEN 1 END), 0) AS total_no_profile,
+                (SELECT COALESCE(SUM( b.target_ch),0) FROM psw_barangay b WHERE b.municipality_code = CONCAT('53' , h.municipality_no ) AND b.brgy_no = h.barangay_no ) AS target_tl,
+                (SELECT COALESCE(SUM( b.target_0),0) FROM psw_barangay b WHERE b.municipality_code = CONCAT('53' , h.municipality_no) AND b.brgy_no = h.barangay_no) AS target_0
+                FROM tbl_project_voter pv 
+                INNER JOIN tbl_organization_hierarchy h 
+                on h.pro_voter_id = pv.pro_voter_id
+                WHERE pv.elect_id = 423
+                AND h.municipality_no = ?
+                AND h.barangay_no = ?  ";
+
+             $stmt = $em->getConnection()->prepare($sql);
+             $stmt->bindValue(1, $municipalityNo);
+             $stmt->bindValue(2, $barangayNo);
+             $stmt->execute();
+        }
+
+        $summary = $stmt->fetch(\PDO::FETCH_ASSOC);
+
+        return new JsonResponse($summary);
     }
 }

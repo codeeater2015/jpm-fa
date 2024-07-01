@@ -24,7 +24,7 @@ var HierarchyProfileModal = React.createClass({
         return (
             <Modal style={{ marginTop: "10px" }} keyboard={false}  dialogClassName="modal-custom-85"  enforceFocus={false} backdrop="static" show={this.props.show} onHide={this.props.onHide}>
                 <Modal.Header className="modal-header bg-blue-dark font-white" closeButton>
-                    <Modal.Title>Hierarchy Profile Modal</Modal.Title>
+                    <Modal.Title>{self.props.headerText} Household Profile </Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsClass="modal-body overflow-auto">
                     <HierarchyProfileDatatable proVoterId={this.props.proVoterId} />

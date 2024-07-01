@@ -1467,8 +1467,8 @@ class HouseholdController extends Controller
          $summary['household'] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
  
          $sql = "SELECT asn_municipality_name, COUNT(*) AS total_voter,
-                COALESCE(COUNT(CASE WHEN pv.voter_group = 'TOP LEADER' AND pv.position IN ('HLEADER','HMEMBER') THEN 1 END), 0) AS total_tl,
-                COALESCE(COUNT(CASE WHEN pv.voter_group = 'K0' AND pv.position IN ('HLEADER','HMEMBER') THEN 1 END), 0) AS total_k0,
+                COALESCE(COUNT(CASE WHEN pv.voter_group = 'TOP LEADER' THEN 1 END), 0) AS total_tl,
+                COALESCE(COUNT(CASE WHEN pv.voter_group = 'K0' THEN 1 END), 0) AS total_k0,
                 COALESCE(COUNT(CASE WHEN pv.voter_group = 'K1' THEN 1 END), 0) AS total_k1,
                 COALESCE(COUNT(CASE WHEN pv.voter_group = 'K2' THEN 1 END), 0) AS total_k2,
                 COALESCE(COUNT(CASE WHEN (pv.voter_group = '' OR pv.voter_group IS NULL) AND  pv.position IN ('HLEADER') THEN 1 END), 0) AS total_no_pos,
@@ -1506,8 +1506,8 @@ class HouseholdController extends Controller
                 COALESCE(COUNT(CASE WHEN pv.is_non_voter = 1 THEN 1 END), 0) AS total_potential,
                 ( SELECT COALESCE(COUNT( DISTINCT hh.pro_voter_id),0) FROM tbl_household_hdr hh WHERE hh.municipality_no = pv.asn_municipality_no AND hh.barangay_no = pv.asn_barangay_no) AS total_household,
                
-                COALESCE(COUNT(CASE WHEN pv.voter_group = 'TOP LEADER' AND pv.position IN ('HLEADER','HMEMBER') THEN 1 END), 0) AS total_tl,
-                COALESCE(COUNT(CASE WHEN pv.voter_group = 'K0' AND pv.position IN ('HLEADER','HMEMBER') THEN 1 END), 0) AS total_k0,
+                COALESCE(COUNT(CASE WHEN pv.voter_group = 'TOP LEADER' THEN 1 END), 0) AS total_tl,
+                COALESCE(COUNT(CASE WHEN pv.voter_group = 'K0' THEN 1 END), 0) AS total_k0,
                 COALESCE(COUNT(CASE WHEN pv.voter_group = 'K1' THEN 1 END), 0) AS total_k1,
                 COALESCE(COUNT(CASE WHEN pv.voter_group = 'K2' THEN 1 END), 0) AS total_k2,
                 COALESCE(COUNT(CASE WHEN (pv.voter_group = '' OR pv.voter_group IS NULL) AND  pv.position IN ('HLEADER') THEN 1 END), 0) AS total_no_pos

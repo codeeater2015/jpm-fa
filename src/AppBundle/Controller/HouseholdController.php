@@ -1501,24 +1501,23 @@ class HouseholdController extends Controller
          $em = $this->getDoctrine()->getManager("electPrep2024");
  
          $sql = "SELECT pv.asn_municipality_name, pv.asn_barangay_name, COUNT(*) AS total_voter,
-                COALESCE(COUNT(CASE WHEN pv.municipality_no = '01' AND pv.is_non_voter = 0 THEN 1 END), 0) AS total_aborlan,
-                COALESCE(COUNT(CASE WHEN pv.municipality_no = '16' AND pv.is_non_voter = 0 THEN 1 END), 0) AS total_puerto,
-                COALESCE(COUNT(CASE WHEN pv.municipality_no NOT IN ('16','01') AND pv.is_non_voter = 0 THEN 1 END), 0) AS total_outside,
-                COALESCE(COUNT(CASE WHEN pv.is_non_voter = 1 THEN 1 END), 0) AS total_potential,
-                ( SELECT COALESCE(COUNT( DISTINCT hh.pro_voter_id),0) FROM tbl_household_hdr hh WHERE hh.municipality_no = pv.asn_municipality_no AND hh.barangay_no = pv.asn_barangay_no) AS total_household,
-               
-                COALESCE(COUNT(CASE WHEN pv.voter_group = 'TOP LEADER' THEN 1 END), 0) AS total_tl,
-                COALESCE(COUNT(CASE WHEN pv.voter_group = 'K0' THEN 1 END), 0) AS total_k0,
-                COALESCE(COUNT(CASE WHEN pv.voter_group = 'K1' THEN 1 END), 0) AS total_k1,
-                COALESCE(COUNT(CASE WHEN pv.voter_group = 'K2' THEN 1 END), 0) AS total_k2,
-                COALESCE(COUNT(CASE WHEN (pv.voter_group = '' OR pv.voter_group IS NULL) AND  pv.position IN ('HLEADER') THEN 1 END), 0) AS total_no_pos
-                FROM tbl_project_voter pv 
+                    COALESCE(COUNT(CASE WHEN pv.municipality_no = '01' AND pv.position IN ('HLEADER','HMEMBER')  AND pv.is_non_voter = 0 THEN 1 END), 0) AS total_aborlan,
+                    COALESCE(COUNT(CASE WHEN pv.municipality_no = '16' AND pv.position IN ('HLEADER','HMEMBER') AND pv.is_non_voter = 0 THEN 1 END), 0) AS total_puerto,
+                    COALESCE(COUNT(CASE WHEN pv.municipality_no NOT IN ('16','01') AND pv.is_non_voter = 0 AND pv.position IN ('HLEADER','HMEMBER') THEN 1 END), 0) AS total_outside,
+                    COALESCE(COUNT(CASE WHEN pv.is_non_voter = 1 AND pv.position IN ('HLEADER','HMEMBER') THEN 1 END), 0) AS total_potential,
+                    ( SELECT COALESCE(COUNT( DISTINCT hh.pro_voter_id),0) FROM tbl_household_hdr hh WHERE hh.municipality_no = pv.asn_municipality_no AND hh.barangay_no = pv.asn_barangay_no) AS total_household,
 
-                WHERE pv.position IN ('HLEADER','HMEMBER') 
-                AND pv.asn_municipality_no  = ? 
-                AND pv.asn_municipality_name IS NOT NULL 
-                GROUP BY pv.asn_municipality_no,pv.asn_barangay_no
-                ORDER BY asn_municipality_name, asn_barangay_name";
+                    COALESCE(COUNT(CASE WHEN pv.voter_group = 'TOP LEADER' THEN 1 END), 0) AS total_tl,
+                    COALESCE(COUNT(CASE WHEN pv.voter_group = 'K0' THEN 1 END), 0) AS total_k0,
+                    COALESCE(COUNT(CASE WHEN pv.voter_group = 'K1' THEN 1 END), 0) AS total_k1,
+                    COALESCE(COUNT(CASE WHEN pv.voter_group = 'K2' THEN 1 END), 0) AS total_k2,
+                    COALESCE(COUNT(CASE WHEN (pv.voter_group = '' OR pv.voter_group IS NULL) AND  pv.position IN ('HLEADER') THEN 1 END), 0) AS total_no_pos
+                    FROM tbl_project_voter pv 
+
+                    WHERE pv.asn_municipality_no  = ?
+                    AND pv.asn_municipality_name IS NOT NULL 
+                    GROUP BY pv.asn_municipality_no,pv.asn_barangay_no
+                    ORDER BY asn_municipality_name, asn_barangay_name";
  
          $stmt = $em->getConnection()->prepare($sql);
          $stmt->bindValue(1, $municipalityNo);

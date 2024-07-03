@@ -5399,7 +5399,7 @@ class MobileController extends Controller
 
         return new JsonResponse($data);
     }
-    
+
     /**
      * @Route("/ajax_m_get_household_profile/{keywords}",
      *       name="ajax_m_get_household_profile",
@@ -5515,7 +5515,7 @@ class MobileController extends Controller
      }
 
 
-     /**
+    /**
      * @Route("/ajax_m_get_household_barangay_summary/{municipalityNo}/{barangayNo}",
      *       name="ajax_m_get_household_barangay_summary",
      *        options={ "expose" = true }
@@ -5570,7 +5570,7 @@ class MobileController extends Controller
 
         while($row =  $stmt->fetch(\PDO::FETCH_ASSOC)){
            $row['target_voter'] = (int)$row['target_household'] * 4;
-           $row['total_potential'] = (int)$row['total_potential'] + (int)$row['total_outside'];
+           $row['overall_potential'] = (int)$row['total_potential'] + (int)$row['total_outside'];
            $summary[] = $row;
        }
 

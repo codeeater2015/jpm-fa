@@ -1073,14 +1073,14 @@ class DataController extends Controller
      public function ajaxCompareMember($municipalityNo)
      {
          $em = $this->getDoctrine()->getManager();
-         $em2023 = $this->getDoctrine()->getManager("voter2023");
+         //$em2023 = $this->getDoctrine()->getManager("voter2023");
 
          $response = new StreamedResponse();
          $response->headers->set("Cache-Control", "no-cache, must-revalidate");
          $response->headers->set("X-Accel-Buffering", "no");
          $response->setStatusCode(200);
  
-         $response->setCallback(function () use ($em, $em2023, $municipalityNo) {
+         $response->setCallback(function () use ($em, $municipalityNo) {
  
              $sql = "SELECT pv.* FROM tbl_project_voter pv WHERE pv.elect_id = 4 AND pv.pro_id = 3 AND pv.municipality_no = ? AND to_process = 1 AND is_processed <> 1 ORDER BY pv.voter_name ASC LIMIT 2000";
  
@@ -1098,8 +1098,8 @@ class DataController extends Controller
              foreach ($voters as $row) {
                  $counter++;
  
-                 $sql = "SELECT * FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.voter_name = ? AND pv.precinct_no = ? ";
-                 $stmt = $em2023->getConnection()->prepare($sql);
+                 $sql = "SELECT * FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.voter_name = ? AND pv.precinct_no = ? AND elect_id = 23 ";
+                 $stmt = $em->getConnection()->prepare($sql);
                  $stmt->bindValue(1, $row['municipality_no']);
                  $stmt->bindValue(2, $row['voter_name']);
                  $stmt->bindValue(3, $row['precinct_no']);
@@ -1131,9 +1131,9 @@ class DataController extends Controller
                               is_kalaban = ?,
                               cellphone = ? ,
                               birthdate = ?
-                             WHERE pv.pro_voter_id = ? ";
+                             WHERE pv.pro_voter_id = ? AND pv.elect_id = 23 ";
  
-                     $stmt = $em2023->getConnection()->prepare($sql);
+                     $stmt = $em->getConnection()->prepare($sql);
                      
                      $stmt->bindValue(1, $row['pro_id_code']);
                      $stmt->bindValue(2, $row['has_id']);

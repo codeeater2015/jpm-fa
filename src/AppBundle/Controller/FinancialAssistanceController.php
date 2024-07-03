@@ -417,10 +417,10 @@ class FinancialAssistanceController extends Controller
         $select['h.applicant_name'] = $request->get('applicantName');
         $select['h.beneficiary_name'] = $request->get('beneficiaryName');
         $select['h.endorsed_by'] = $request->get('endorsedBy');
-        $select['h.municipality_no'] = $request->get('municipalityNo');
-        $select['h.barangay_no'] = $request->get('barangayNo');
-        $select['m.name'] = $request->get('municipalityName');
-        $select['b.name'] = $request->get('barangayName');
+        // $select['h.municipality_no'] = $request->get('municipalityNo');
+        // $select['h.barangay_no'] = $request->get('barangayNo');
+        // $select['m.name'] = $request->get('municipalityName');
+        // $select['b.name'] = $request->get('barangayName');
 
         foreach($select as $key => $value){
             $searchValue = $select[$key];
@@ -461,33 +461,48 @@ class FinancialAssistanceController extends Controller
         $em = $this->getDoctrine()->getManager();
         $em->getConnection()->getConfiguration()->setSQLLogger(null);
 
+        // $sql = "SELECT COALESCE(count(h.trn_id),0) FROM tbl_fa_hdr h 
+        //         INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = h.municipality_no
+        //         INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = h.barangay_no 
+        //         WHERE 1 ";
+        
+        
         $sql = "SELECT COALESCE(count(h.trn_id),0) FROM tbl_fa_hdr h 
-                INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = h.municipality_no
-                INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = h.barangay_no 
                 WHERE 1 ";
 
         $stmt = $em->getConnection()->query($sql);
         $recordsTotal = $stmt->fetchColumn();
 
+        // $sql = "SELECT COALESCE(COUNT(h.trn_id),0) FROM tbl_fa_hdr h 
+        //         INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = h.municipality_no
+        //         INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = h.barangay_no 
+        //         WHERE 1 ";
+
         $sql = "SELECT COALESCE(COUNT(h.trn_id),0) FROM tbl_fa_hdr h 
-                INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = h.municipality_no
-                INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = h.barangay_no 
-                WHERE 1 ";
+        WHERE 1 ";
 
         $sql .= $sWhere . ' ' . $sOrder;
         $stmt = $em->getConnection()->query($sql);
         $recordsFiltered = $stmt->fetchColumn();
 
-        $sql = "SELECT h.*, m.name AS municipality_name , b.name AS barangay_name
-            FROM tbl_fa_hdr h 
-            INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = h.municipality_no
-            INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = h.barangay_no 
-            WHERE 1 " . $sWhere . ' ' . $sOrder . " LIMIT {$length} OFFSET {$start} ";
+        // $sql = "SELECT h.*, m.name AS municipality_name , b.name AS barangay_name
+        //     FROM tbl_fa_hdr h 
+        //     INNER JOIN psw_municipality m ON m.province_code = 53 AND m.municipality_no = h.municipality_no
+        //     INNER JOIN psw_barangay b ON b.municipality_code = m.municipality_code AND b.brgy_no = h.barangay_no 
+        //     WHERE 1 " . $sWhere . ' ' . $sOrder . " LIMIT {$length} OFFSET {$start} ";
+
+        $sql = "SELECT h.*
+        FROM tbl_fa_hdr h 
+        WHERE 1 " . $sWhere . ' ' . $sOrder . " LIMIT {$length} OFFSET {$start} ";
+
 
         $stmt = $em->getConnection()->query($sql);
         $data = [];
 
         while($row = $stmt->fetch(\PDO::FETCH_ASSOC)){
+            $row = &$row;
+            $row['municipality_name'] = '-----';
+            $row['barangay_name'] = '------';
             $data[] = $row;
         }
 

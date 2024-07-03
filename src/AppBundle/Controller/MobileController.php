@@ -5399,7 +5399,7 @@ class MobileController extends Controller
 
         return new JsonResponse($data);
     }
-
+    
     /**
      * @Route("/ajax_m_get_household_profile/{keywords}",
      *       name="ajax_m_get_household_profile",
@@ -5408,56 +5408,56 @@ class MobileController extends Controller
      * @Method("GET")
      */
 
-    public function ajaxGetHouseholdProfile(Request $request, $keywords)
-    {
-
-        $em = $this->getDoctrine()->getManager("electPrep2024");
-
-        $sql = "SELECT hh.voter_name, hh.household_code,hh.household_no, hh.municipality_name, hh.barangay_name,hh.id , pv.is_non_voter, pv.precinct_no,
-                pv.municipality_no AS registered_municipality, hh.municipality_no,
-                (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd WHERE hh.id = hd.household_id) AS total_members,
-                (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND ppv.is_non_voter = 0 AND ppv.municipality_no IN('01','16') ) AS total_voter_members,
-                (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND (ppv.is_non_voter = 1 OR ppv.municipality_no NOT IN('01','16')) ) AS total_non_voter_members
-                FROM tbl_household_hdr hh INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = hh.pro_voter_id 
-                WHERE household_code like ? OR pv.voter_name LIKE ? or (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd WHERE hh.id = hd.household_id AND hd.voter_name LIKE ? ) > 0";
-
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1, '%'. $keywords . '%');
-        $stmt->bindValue(2, '%'. $keywords . '%');
-        $stmt->bindValue(3, '%'. $keywords . '%');
-        $stmt->execute();
-
-        $hdr = $stmt->fetch(\PDO::FETCH_ASSOC);
-
-        if (!$hdr)
-            return new JsonResponse(['message' => 'Household not found. Please contact the system administrator'], 404);
-
-        $sql = "SELECT pv.voter_name,pv.municipality_name,pv.barangay_name,pv.is_non_voter,pv.precinct_no, pv.municipality_no FROM tbl_household_dtl hd INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = hd.pro_voter_id  
-               WHERE hd.household_id = ? ORDER BY voter_name ASC ";
-
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1, $hdr['id']);
-        $stmt->execute();
-
-        $dtls = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        foreach ($dtls as &$row) {
-            $row['is_non_voter'] = (int) $row['is_non_voter'];
-            $row['is_gil_voter'] = (((int) $row['is_non_voter']) == 0 && ($row['municipality_no'] == '16' || $row['municipality_no'] == '01')) ? 1 : 0;
-        }
-
-        $hdr['members'] = $dtls;
-
-        $hdr['is_gil_voter'] = (((int) $hdr['is_non_voter']) == 0 && ($hdr['registered_municipality'] == '16' || $hdr['registered_municipality'] == '01')) ? 1 : 0;
-
-
-        $hdr['total_members'] = $hdr['total_members'] + 1;
-        $hdr['total_voter_members'] = $hdr['is_gil_voter'] == 1 ? $hdr['total_voter_members'] + 1 : $hdr['total_voter_members'];
-        $hdr['total_non_voter_members'] = $hdr['is_gil_voter'] == 0 ? (int) $hdr['total_non_voter_members'] + 1 : (int) $hdr['total_non_voter_members'];
-        $hdr['is_non_voter'] = (int) $hdr['is_non_voter'];
-
-        return new JsonResponse($hdr);
-    }
+     public function ajaxGetHouseholdProfile(Request $request, $keywords)
+     {
+ 
+         $em = $this->getDoctrine()->getManager("electPrep2024");
+ 
+         $sql = "SELECT hh.voter_name, hh.household_code,hh.household_no, hh.municipality_name, hh.barangay_name,hh.id , pv.is_non_voter, pv.precinct_no, pv.cellphone,
+                 pv.municipality_no AS registered_municipality, hh.municipality_no,
+                 (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd WHERE hh.id = hd.household_id) AS total_members,
+                 (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND ppv.is_non_voter = 0 AND ppv.municipality_no IN('01','16') ) AS total_voter_members,
+                 (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd INNER JOIN tbl_project_voter ppv ON ppv.pro_voter_id = hd.pro_voter_id WHERE hh.id = hd.household_id AND (ppv.is_non_voter = 1 OR ppv.municipality_no NOT IN('01','16')) ) AS total_non_voter_members
+                 FROM tbl_household_hdr hh INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = hh.pro_voter_id 
+                 WHERE household_code like ? OR pv.voter_name LIKE ? or (SELECT COALESCE(COUNT(hd.id),0) FROM tbl_household_dtl hd WHERE hh.id = hd.household_id AND hd.voter_name LIKE ? ) > 0";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, '%'. $keywords . '%');
+         $stmt->bindValue(2, '%'. $keywords . '%');
+         $stmt->bindValue(3, '%'. $keywords . '%');
+         $stmt->execute();
+ 
+         $hdr = $stmt->fetch(\PDO::FETCH_ASSOC);
+ 
+         if (!$hdr)
+             return new JsonResponse(['message' => 'Household not found. Please contact the system administrator'], 404);
+ 
+         $sql = "SELECT pv.voter_name,pv.municipality_name,pv.barangay_name,pv.is_non_voter,pv.precinct_no, pv.municipality_no FROM tbl_household_dtl hd INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = hd.pro_voter_id  
+                WHERE hd.household_id = ? ORDER BY voter_name ASC ";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, $hdr['id']);
+         $stmt->execute();
+ 
+         $dtls = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+ 
+         foreach ($dtls as &$row) {
+             $row['is_non_voter'] = (int) $row['is_non_voter'];
+             $row['is_gil_voter'] = (((int) $row['is_non_voter']) == 0 && ($row['municipality_no'] == '16' || $row['municipality_no'] == '01')) ? 1 : 0;
+         }
+ 
+         $hdr['members'] = $dtls;
+ 
+         $hdr['is_gil_voter'] = (((int) $hdr['is_non_voter']) == 0 && ($hdr['registered_municipality'] == '16' || $hdr['registered_municipality'] == '01')) ? 1 : 0;
+ 
+ 
+         $hdr['total_members'] = $hdr['total_members'] + 1;
+         $hdr['total_voter_members'] = $hdr['is_gil_voter'] == 1 ? $hdr['total_voter_members'] + 1 : $hdr['total_voter_members'];
+         $hdr['total_non_voter_members'] = $hdr['is_gil_voter'] == 0 ? (int) $hdr['total_non_voter_members'] + 1 : (int) $hdr['total_non_voter_members'];
+         $hdr['is_non_voter'] = (int) $hdr['is_non_voter'];
+ 
+         return new JsonResponse($hdr);
+     }
 
      /**
      * @Route("/ajax_m_get_household_3district_summary",
@@ -5515,7 +5515,7 @@ class MobileController extends Controller
      }
 
 
-      /**
+     /**
      * @Route("/ajax_m_get_household_barangay_summary/{municipalityNo}/{barangayNo}",
      *       name="ajax_m_get_household_barangay_summary",
      *        options={ "expose" = true }
@@ -5532,8 +5532,8 @@ class MobileController extends Controller
                 COALESCE(COUNT(CASE WHEN pv.municipality_no = '16' THEN 1 END), 0) AS total_puerto,
                 (SELECT COALESCE(b.target_hh,0) AS target_household FROM psw_barangay b WHERE b.municipality_code = CONCAT('53',pv.asn_municipality_no) AND b.brgy_no = pv.asn_barangay_no) AS target_household,
                 (SELECT COALESCE(COUNT(hh.pro_voter_id),0) FROM tbl_household_hdr hh WHERE hh.municipality_no = pv.asn_municipality_no AND hh.barangay_no = pv.asn_barangay_no) AS actual_household,
-                COUNT( DISTINCT  pv.pro_voter_id) AS actual_voter,
-                (SELECT 
+                COALESCE(COUNT(CASE WHEN pv.municipality_no IN ('01','16') THEN 1 END), 0) AS actual_voter,
+                (SELECT
                     COALESCE(COUNT(pv2.pro_voter_id),0)
                     FROM tbl_project_voter pv2
                     WHERE pv2.position IN ('HLEADER','HMEMBER') 
@@ -5570,6 +5570,7 @@ class MobileController extends Controller
 
         while($row =  $stmt->fetch(\PDO::FETCH_ASSOC)){
            $row['target_voter'] = (int)$row['target_household'] * 4;
+           $row['total_potential'] = (int)$row['total_potential'] + (int)$row['total_outside'];
            $summary[] = $row;
        }
 

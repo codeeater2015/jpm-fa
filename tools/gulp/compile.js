@@ -54,6 +54,7 @@ gulp.task('compile-main-css',function(cb){
             webroot + 'assets/global/plugins/dropzone/dropzone.css',
             webroot + 'assets/global/plugins/unitegallery/css/unite-gallery.css',
             webroot + 'assets/global/plugins/unitegallery/themes/default/ug-theme-default.css',
+            webroot + 'assets/global/plugins/jqtree/jqtree.css',
             
             webroot + 'assets/global/css/components-rounded.min.css',
             webroot + 'assets/global/css/plugins.css',
@@ -123,13 +124,13 @@ gulp.task('compile-main-js',function(cb){
             webroot + 'assets/global/plugins/unitegallery/js/unitegallery.min.js',
             webroot + 'assets/global/plugins/unitegallery/themes/default/ug-theme-default.js',
             webroot + 'assets/global/plugins/dropzone/dropzone.js',
+            webroot + 'assets/global/plugins/jqtree/tree.jquery.js',
             webroot + 'assets/global/scripts/app.js',
             webroot + 'assets/layout/scripts/layout.js',
             webroot + 'assets/pages/scripts/pgpis.js'
         ]),
         concat('app.js'),
         rename({suffix: '.min'}),
-        uglifyjs(options),
         gulp.dest(jsPath),
         bust({
             relativePath : "web"
@@ -1156,6 +1157,8 @@ gulp.task('compile-project-event',function(cb){
     ], cb);
 });
 
+
+
 gulp.task('compile-household',function(cb){
     pump([
         gulp.src([
@@ -1172,6 +1175,53 @@ gulp.task('compile-household',function(cb){
         rename({suffix: '.min'}),
         react(),
         uglifyjs(),
+        gulp.dest(jsPath),
+        bust({
+            relativePath : "web"
+        }),
+        gulp.dest('.')
+    ], cb);
+});
+
+gulp.task('compile-kfc-attendance',function(cb){
+    pump([
+        gulp.src([
+            myPath + 'voter/voter-temporary-create-modal.react.js',
+            myPath + 'kfc-attendance/kfc-attendance-profile.create-modal.react.js',
+            myPath + 'kfc-attendance/kfc-attendance-assignment.create-modal.react.js',
+            myPath + 'kfc-attendance/kfc-attendance-assignment.datatable.react.js',
+            myPath + 'kfc-attendance/kfc-attendance-profile.datatable.react.js',
+            myPath + 'kfc-attendance/kfc-attendance-detail.modal.react.js',
+            myPath + 'kfc-attendance/kfc-attendance-detail.datatable.react.js',
+            myPath + 'kfc-attendance/kfc-attendance.add-attendee-modal.react.js',
+            myPath + 'kfc-attendance/kfc-attendance.list-modal.react.js',
+            myPath + 'kfc-attendance/kfc-attendance.create-modal.react.js',
+            myPath + 'kfc-attendance/kfc-attendance.datatable.react.js',
+            myPath + 'kfc-attendance/kfc-attendance.react.js'
+        ]),
+        concat('kfc-attendance.react.js'),
+        rename({suffix: '.min'}),
+        react(),
+        uglifyjs(),
+        gulp.dest(jsPath),
+        bust({
+            relativePath : "web"
+        }),
+        gulp.dest('.')
+    ], cb);
+});
+
+gulp.task('compile-kfc-hierarchy',function(cb){
+    pump([
+        gulp.src([
+            myPath + 'hierarchy/hierarchy-profile-datatable.react.js',
+            myPath + 'hierarchy/hierarchy-profile-modal.react.js',
+            myPath + 'hierarchy/hierarchy-item-edit-modal.react.js',
+            myPath + 'hierarchy/hierarchy.react.js'
+        ]),
+        concat('hierarchy.react.js'),
+        rename({suffix: '.min'}),
+        react(),
         gulp.dest(jsPath),
         bust({
             relativePath : "web"

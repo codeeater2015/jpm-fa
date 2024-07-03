@@ -35,7 +35,7 @@ class AkoPalawanController extends Controller
 
             $counter = 0;
 
-            while ($counter < 100000) {
+            while ($counter < 3553) {
 
                 $card_number = mt_rand(10000000, 99999999);
                 $sql = "select * from tbl_ap_card where card_no = ? ";

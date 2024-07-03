@@ -372,6 +372,7 @@ var VoterDatatable = React.createClass({
                         d.proId = $('#voter_component #project_select2').val();
 
                         d.hasAttended = $('#voter_table select[name="has_attended"]').val();
+                        d.isNonVoter = $('#voter_table select[name="is_non_voter"]').val();
                     }
                 },
                 columnDefs: [
@@ -996,7 +997,13 @@ var VoterDatatable = React.createClass({
                                         <option value='0'>No</option>
                                     </select>
                                 </td>
-                                <td></td>
+                                <td>
+                                <select name="is_non_voter" onChange={this.handleFilterChange} className="input-sm" style={{ marginTop: "2px" }}>
+                                        <option value=''>All</option>
+                                        <option value='1'>Yes</option>
+                                        <option value='0'>No</option>
+                                    </select>
+                                </td>
                                 <td className="text-center">
                                     <button style={{ marginTop: "5px", marginBottom: "5px" }} className="btn btn-xs green btn-outline filter-submit">
                                         <i className="fa fa-search" />Search

@@ -97,22 +97,11 @@ class HouseholdDetail
      */
     private $gender;
     
-    /**
-     * @var string
-     * @Assert\NotBlank()
-     */
     private $firstname;
     
-    /**
-     * @var string
-     * @Assert\NotBlank()
-     */
+   
     private $middlename;
-    
-    /**
-     * @var string
-     * @Assert\NotBlank()
-     */
+  
     private $lastname;
 
      /**

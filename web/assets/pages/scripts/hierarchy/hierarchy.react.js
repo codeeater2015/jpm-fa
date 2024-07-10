@@ -160,7 +160,7 @@ var Hierarchy = React.createClass({
                         console.log('canceling');
                     }
                 } else {
-                    self.delete(node_id);
+                    //self.delete(node_id);
                     alert("You dont have permission to remove level 1 branch");
                 }
             }

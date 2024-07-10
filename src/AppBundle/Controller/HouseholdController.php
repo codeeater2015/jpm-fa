@@ -75,8 +75,7 @@ class HouseholdController extends Controller
     {
         $user = $this->get("security.token_storage")->getToken()->getUser();
         $em = $this->getDoctrine()->getManager("electPrep2024");
-        ;
-
+        
         $householdNo = $this->getNewHouseholdNoByBarangay($request->get('municipalityNo'), $request->get('barangayNo'));
 
         $sql = "SELECT * FROM psw_barangay WHERE municipality_code = ? AND brgy_no = ?";
@@ -86,7 +85,6 @@ class HouseholdController extends Controller
         $stmt->execute();
 
         $barangay = $stmt->fetch(\PDO::FETCH_ASSOC);
-
 
         $entity = new HouseholdHeader();
         $entity->setElectId($request->get('electId'));
@@ -104,6 +102,10 @@ class HouseholdController extends Controller
         $proVoter = $em->getRepository("AppBundle:ProjectVoter")->findOneBy(['proVoterId' => intval($request->get('proVoterId'))]);
 
         if ($proVoter) {
+
+            if($proVoter->getPosition() == 'HMEMBER')
+                return new JsonResponse(['voterName' => 'Duplicate entry. Voter name already a household member'], 400);
+
             if (!empty($request->get('cellphoneNo')))
                 $proVoter->setCellphone($request->get('cellphoneNo'));
 
@@ -207,6 +209,8 @@ class HouseholdController extends Controller
         if (!$entity)
             return new JsonResponse([], 404);
 
+        $currVoter = $em->getRepository("AppBundle:ProjectVoter")->findOneBy(['proVoterId' => $entity->getProVoterId()]);
+
         $entity->setProVoterId($request->get('proVoterId'));
         $entity->setMunicipalityNo($request->get('municipalityNo'));
         $entity->setBarangayNo($request->get('barangayNo'));
@@ -226,6 +230,16 @@ class HouseholdController extends Controller
             return new JsonResponse($errors, 400);
         }
 
+        
+        $newVoter = $em->getRepository("AppBundle:ProjectVoter")->findOneBy(['proVoterId' => $request->get('proVoterId')]);
+
+        if($newVoter->getProVoterId() != $currVoter->getProVoterId()){
+            if($newVoter->getPosition('HLEADER' || $newVoter->getPosition['HMEMBER'])){
+                return new JsonResponse(['voterId' => 'Conflicting entry. New leader already belongs to a household.'],400);
+            }
+
+            $currVoter->setPosition("");
+        }
         $sql = "SELECT * FROM psw_municipality 
         WHERE province_code = ? 
         AND municipality_no = ? ";
@@ -261,6 +275,10 @@ class HouseholdController extends Controller
 
             $proVoter->setBirthdate(trim($request->get('birthdate')));
             $proVoter->setPosition('HLEADER');
+            $proVoter->setAsnMunicipalityName($entity->getMunicipalityName());
+            $proVoter->setAsnMunicipalityNo($entity->getMunicipalityNo());
+            $proVoter->setAsnBarangayName($entity->getBarangayName());
+            $proVoter->setAsnBarangayNo($entity->getBarangayNo());
 
             $entity->setVoterName($proVoter->getVoterName());
             $entity->setProIdCode($proVoter->getProIdCode());
@@ -505,15 +523,19 @@ class HouseholdController extends Controller
     public function ajaxDeleteHouseholdHeaderAction($householdId)
     {
         $em = $this->getDoctrine()->getManager("electPrep2024");
-        ;
+    
         $entity = $em->getRepository("AppBundle:HouseholdHeader")->find($householdId);
 
         if (!$entity)
             return new JsonResponse(null, 404);
 
+        $proVoter = $em->getRepository("AppBundle:ProjectVoter")->find($entity->getProVoterId());
+        $proVoter->setPosition("");
+
         $entities = $em->getRepository('AppBundle:HouseholdDetail')->findBy([
             'householdId' => $entity->getId()
         ]);
+
 
         foreach ($entities as $detail) {
             $em->remove($detail);
@@ -623,7 +645,7 @@ class HouseholdController extends Controller
     public function ajaxPostHouseholdDetailAction(Request $request)
     {
         $em = $this->getDoctrine()->getManager("electPrep2024");
-        ;
+        
         $user = $this->get("security.token_storage")->getToken()->getUser();
 
         $hdr = $em->getRepository("AppBundle:HouseholdHeader")
@@ -649,7 +671,12 @@ class HouseholdController extends Controller
 
         $proVoter = $em->getRepository("AppBundle:ProjectVoter")->findOneBy(['proVoterId' => intval($request->get('proVoterId'))]);
 
+        
         if ($proVoter) {
+            if($proVoter->getPosition() == 'HLEADER'){
+                return new JsonResponse(['voterName' => 'Conflicting entry. Household leader cannot be a household member.'], 400);
+            }
+        
             $entity->setVoterName($proVoter->getVoterName());
             $entity->setProIdCode($proVoter->getProIdCode());
         }
@@ -855,12 +882,16 @@ class HouseholdController extends Controller
     public function ajaxDeleteHouseholdDetailAction($householdDetailId)
     {
         $em = $this->getDoctrine()->getManager("electPrep2024");
-        ;
+    
         $entity = $em->getRepository("AppBundle:HouseholdDetail")->find($householdDetailId);
 
         if (!$entity)
             return new JsonResponse(null, 404);
 
+        $voter = $em->getRepository("AppBundle:ProjectVoter")
+                    ->find($entity->getProVoterId());
+
+        $voter->setPosition("");
         $em->remove($entity);
         $em->flush();
 

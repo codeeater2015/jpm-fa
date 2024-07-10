@@ -180,6 +180,10 @@ class HierarchyController extends Controller
             return new JsonResponse(null, 404);
 
 
+        if($voter->getPosition() == 'HMEMBER'){
+            return new JsonResponse(['proVoterId' => 'Household Member are not allowed to be added on this list.'], 400);
+        }
+
         if ($parentId != null && $parentId != 0) {
             $parent = $em->getRepository("AppBundle:OrganizationHierarchy")->findOneBy([
                 'proVoterId' => $parentId

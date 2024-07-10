@@ -595,6 +595,7 @@ var Hierarchy = React.createClass({
             $('#tree1').tree("loadData", res);
         });
 
+        self.loadSummaryData();
     },
 
     loadSummaryData: function () {

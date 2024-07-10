@@ -543,11 +543,11 @@ var HouseholdDatatable = React.createClass({
                                         <td>{summary.total_voter_outside[0].total_voter}</td>
                                         <td>{summary.total_voter_potential[0].total_voter_potential}</td>
                                         <td>{Number.parseInt(summary.voters[0].total_aborlan) + Number.parseInt(summary.voters[0].total_puerto) + Number.parseInt(summary.total_voter_potential[0].total_voter_potential)}</td>
-                                        <td>{summary.hierarchy_summary[1].total_tl}</td>
-                                        <td>{summary.hierarchy_summary[1].total_k0}</td>
-                                        <td>{summary.hierarchy_summary[1].total_k1}</td>
-                                        <td>{summary.hierarchy_summary[1].total_k2}</td>
-                                        <td>{summary.hierarchy_summary[1].total_no_pos}</td>
+                                        <td>{summary.hierarchy_summary[0].total_tl}</td>
+                                        <td>{summary.hierarchy_summary[0].total_k0}</td>
+                                        <td>{summary.hierarchy_summary[0].total_k1}</td>
+                                        <td>{summary.hierarchy_summary[0].total_k2}</td>
+                                        <td>{summary.hierarchy_summary[0].total_no_pos}</td>
                                         <td rowSpan={3} >{summary.hierarchy_summary[1].total_no_profile}</td>
 
                                         <td>
@@ -565,11 +565,11 @@ var HouseholdDatatable = React.createClass({
                                         <td>{summary.total_voter_outside[1].total_voter}</td>
                                         <td>{summary.total_voter_potential[1].total_voter_potential}</td>
                                         <td>{Number.parseInt(summary.voters[1].total_aborlan) + Number.parseInt(summary.voters[1].total_puerto) + Number.parseInt(summary.total_voter_potential[1].total_voter_potential)}</td>
-                                        <td>{summary.hierarchy_summary[2].total_tl}</td>
-                                        <td>{summary.hierarchy_summary[2].total_k0}</td>
-                                        <td>{summary.hierarchy_summary[2].total_k1}</td>
-                                        <td>{summary.hierarchy_summary[2].total_k2}</td>
-                                        <td>{summary.hierarchy_summary[2].total_no_pos}</td>
+                                        <td>{summary.hierarchy_summary[1].total_tl}</td>
+                                        <td>{summary.hierarchy_summary[1].total_k0}</td>
+                                        <td>{summary.hierarchy_summary[1].total_k1}</td>
+                                        <td>{summary.hierarchy_summary[1].total_k2}</td>
+                                        <td>{summary.hierarchy_summary[1].total_no_pos}</td>
                                         <td>
                                             <button onClick={this.openHouseholdSummary.bind(this, '16')} className="btn btn-xs btn-primary btn-icon"><i className="fa fa-eye"></i></button>
                                         </td>
@@ -588,19 +588,19 @@ var HouseholdDatatable = React.createClass({
                                             + Number.parseInt(summary.voters[1].total_aborlan) + Number.parseInt(summary.voters[1].total_puerto) + Number.parseInt(summary.total_voter_potential[1].total_voter_potential)}</td>
 
                                         <td>
-                                            {Number.parseInt(summary.hierarchy_summary[1].total_tl) + Number.parseInt(summary.hierarchy_summary[2].total_tl)}
+                                            {Number.parseInt(summary.hierarchy_summary[0].total_tl) + Number.parseInt(summary.hierarchy_summary[1].total_tl)}
                                         </td>
                                         <td>
-                                            {Number.parseInt(summary.hierarchy_summary[1].total_k0) + Number.parseInt(summary.hierarchy_summary[2].total_k0)}
+                                            {Number.parseInt(summary.hierarchy_summary[0].total_k0) + Number.parseInt(summary.hierarchy_summary[1].total_k0)}
                                         </td>
                                         <td>
-                                            {Number.parseInt(summary.hierarchy_summary[1].total_k1) + Number.parseInt(summary.hierarchy_summary[2].total_k1)}
+                                            {Number.parseInt(summary.hierarchy_summary[0].total_k1) + Number.parseInt(summary.hierarchy_summary[1].total_k1)}
                                         </td>
                                         <td>
-                                            {Number.parseInt(summary.hierarchy_summary[1].total_k2) + Number.parseInt(summary.hierarchy_summary[2].total_k2)}
+                                            {Number.parseInt(summary.hierarchy_summary[0].total_k2) + Number.parseInt(summary.hierarchy_summary[1].total_k2)}
                                         </td>
                                         <td>
-                                            {Number.parseInt(summary.hierarchy_summary[1].total_no_pos) + Number.parseInt(summary.hierarchy_summary[2].total_no_pos)}
+                                            {Number.parseInt(summary.hierarchy_summary[0].total_no_pos) + Number.parseInt(summary.hierarchy_summary[1].total_no_pos)}
                                         </td>
                                         <td></td>
                                     </tr>

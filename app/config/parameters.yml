@@ -3,7 +3,7 @@ parameters:
     container.autowiring.strict_mode: true
     database_host: localhost
     database_port: 3306
-    database_name: election_2025
+    database_name: election_prep_2024
     database_user: jpm_admin
     database_password: kmmsitdadmin
     tupad_host: localhost
@@ -18,7 +18,7 @@ parameters:
     voter_province_password: kmmsitdadmin
     voter_2023_host : localhost
     voter_2023_port : 3306
-    voter_2023_name: election_2025
+    voter_2023_name: election_prep_2024
     voter_2023_user: jpm_admin
     voter_2023_password: kmmsitdadmin
     elect_prep_2024_host : localhost
@@ -59,10 +59,10 @@ parameters:
     mailer_password: null
     secret: ThisTokenIsNotSoSecretChangeIt
     asset_version: 20170519
-    img_url:  http://192.168.20.141:3500/app_dev.php/voter/photo/
+    img_url:  http://192.168.0.10:3400/voter/photo/
     host_ip : 192.168.1.4
     report_url : http://192.168.1.4:83/voter-report/web/voter/
-    report_ip : 192.168.1.4:83
+    report_ip : 192.168.0.10:83
     jasper_ip : 192.168.1.4:8080
     report_org_summary : '/jasperserver/flow.html?_flowId=viewReportFlow&_flowId=viewReportFlow&ParentFolderUri=/reports/JPM&reportUnit=/reports/JPM/JPM_Organization_Summary&standAlone=true&j_username=jasperadmin&j_password=kmmsitdadmin&theme=embed_theme&userLocale=en_US&decorate=no'
     report_org_summary_per_barangay : '/jasperserver/flow.html?_flowId=viewReportFlow&_flowId=viewReportFlow&ParentFolderUri=/reports/JPM&reportUnit=/reports/JPM/JPM_Organization_Summary_Per_Barangay&standAlone=true&j_username=jasperadmin&j_password=kmmsitdadmin&theme=embed_theme&userLocale=en_US&decorate=no'
@@ -84,6 +84,3 @@ parameters:
     report_orgnization_summary_municipality: /jasperserver/flow.html?_flowId=viewReportFlow&_flowId=viewReportFlow&ParentFolderUri=/reports/JPM&reportUnit=/reports/JPM/Organization_Summary_2022_by_Municipality&standAlone=true&j_username=jasperadmin&j_password=kmmsitdadmin&theme=embed_theme&userLocale=en_US&decorate=no
     report_orgnization_summary_province: /jasperserver/flow.html?_flowId=viewReportFlow&_flowId=viewReportFlow&ParentFolderUri=/reports/JPM&reportUnit=/reports/JPM/Organization_Summary_2022&standAlone=true&j_username=jasperadmin&j_password=kmmsitdadmin&theme=embed_theme&userLocale=en_US&decorate=no
     vlist_by_barangay: /jasperserver/flow.html?_flowId=viewReportFlow&_flowId=viewReportFlow&ParentFolderUri=/reports/JPM&reportUnit=/reports/JPM/Vlist_By_Barangay&standAlone=true&j_username=jasperadmin&j_password=kmmsitdadmin&theme=embed_theme&userLocale=en_US&decorate=no
-
-   
-   

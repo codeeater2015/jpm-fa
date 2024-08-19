@@ -54,7 +54,9 @@ class KfcAttendanceController extends Controller
             1 => "h.description",
             2 => "h.municipality_name",
             3 => "h.barangay_name",
-            4 => "h.meeting_date"
+            4 => "h.voter_group",
+            5 => "h.position",
+            6 => "h.meeting_date"
         );
 
         $sWhere = "";
@@ -118,7 +120,7 @@ class KfcAttendanceController extends Controller
                 (SELECT COUNT(*) FROM tbl_attendance_detail ad WHERE ad.hdr_id = h.id AND ad.has_profile = 1) AS total_attendee_profile,
                 (SELECT COUNT(*) FROM tbl_attendance_detail ad WHERE ad.hdr_id = h.id AND ad.has_assignment = 1) AS total_attendee_assignment 
                 FROM tbl_attendance h 
-                WHERE 1 " . $sWhere . "  ORDER BY h.municipality_name ASC , h.barangay_name ASC  LIMIT {$length} OFFSET {$start} ";
+                WHERE 1 " . $sWhere . "  ORDER BY h.meeting_date  LIMIT {$length} OFFSET {$start} ";
 
         $stmt = $em->getConnection()->query($sql);
         $data = [];

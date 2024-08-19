@@ -63,13 +63,13 @@ var KfcAttendanceDatatable = React.createClass({
                 },
                 "columnDefs": [{
                     'orderable': false,
-                    'targets': [0, 2, 3, 4, 5,6,7,8,9,10]
+                    'targets': [0,1, 2, 3, 4, 5,7,8,9,10]
                 }, {
                     'className': 'align-center',
                     'targets': [0, 3]
                 }],
                 "order": [
-                    [1, "asc"]
+                    [6, "desc"]
                 ],
                 "columns": [
                     {

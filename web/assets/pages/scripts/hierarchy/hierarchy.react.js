@@ -247,7 +247,7 @@ var Hierarchy = React.createClass({
             containerCssClass: ':all:',
             dropdownCssClass: 'custom-option',
             ajax: {
-                url: Routing.generate('ajax_select2_project_voters'),
+                url: Routing.generate('ajax_hierarchy_select2_project_voters'),
                 data: function (params) {
                     return {
                         searchText: params.term,

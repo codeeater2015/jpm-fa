@@ -781,7 +781,7 @@ var Hierarchy = React.createClass({
                             proVoterId={this.state.selectedItem.proVoterId}
                         />
                     }
-
+                
                     {
                         this.state.showProfileModal &&
                         <HierarchyProfileModal

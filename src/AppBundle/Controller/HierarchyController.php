@@ -163,81 +163,99 @@ class HierarchyController extends Controller
      * )
      * @Method("POST")
      */
+     public function ajaxHierarchyPostItem(Request $request)
+     {
+ 
+         $em = $this->getDoctrine()->getManager("electPrep2024");
+         $proVoterId = $request->get('proVoterId');
+         $parentId = $request->get("parentId");
+ 
+         //fixing bug on hierarchy
+ 
+         $voter = $em->getRepository("AppBundle:ProjectVoter")->find($proVoterId);
+         $user = $this->get("security.token_storage")->getToken()->getUser();
+ 
+         if (!$voter)
+             return new JsonResponse(null, 404);
+ 
+         $entity = new OrganizationHierarchy();
+         $entity->setProVoterId($voter->getProVoterId());
+         $entity->setParentNode($parentId);
+         $entity->setMunicipalityName($voter->getMunicipalityName());
+         $entity->setMunicipalityNo($voter->getMunicipalityNo());
+         $entity->setBarangayName($voter->getBarangayName());
+         $entity->setBarangayNo($voter->getBrgyNo());
+         $entity->setVoterName($voter->getVoterName());
+         $entity->setVoterGroup($request->get('voterGroup'));
+         $entity->setAssignedMunNo($request->get('assignedMunNo'));
+         $entity->setAssignedBrgyNo($request->get('assignedBrgyNo'));
+         $entity->setAssignedPurok(strtoupper($request->get('assignedPurok')));
+ 
+         $entity->setStatus('A');
+ 
+         $validator = $this->get('validator');
+         $violations = $validator->validate($entity);
+ 
+         $errors = [];
+ 
+ 
+         if (count($violations) > 0) {
+             foreach ($violations as $violation) {
+                 $errors[$violation->getPropertyPath()] = $violation->getMessage();
+             }
+             return new JsonResponse($errors, 400);
+         }
 
-    public function ajaxHierarchyPostItem(Request $request)
-    {
-
-        $em = $this->getDoctrine()->getManager("electPrep2024");
-        $proVoterId = $request->get('proVoterId');
-        $parentId = $request->get("parentId");
-
-        //fixing bug on hierarchy
-
-        $voter = $em->getRepository("AppBundle:ProjectVoter")->find($proVoterId);
-        $user = $this->get("security.token_storage")->getToken()->getUser();
-
-        if (!$voter)
-            return new JsonResponse(null, 404);
-
-
-        if($voter->getPosition() == 'HMEMBER'){
-            return new JsonResponse(['proVoterId' => 'Household Member are not allowed to be added on this list.'], 400);
-        }
-
-        if ($parentId != null && $parentId != 0) {
-            $parent = $em->getRepository("AppBundle:OrganizationHierarchy")->findOneBy([
-                'proVoterId' => $parentId
-            ]);
-
-            if (!$parent)
-                return new JsonResponse(['message' => "invalid parent id."], 404);
-        }
-
-        $entity = new OrganizationHierarchy();
-        $entity->setProVoterId($voter->getProVoterId());
-        $entity->setParentNode($parentId);
-        $entity->setMunicipalityName($voter->getMunicipalityName());
-        $entity->setMunicipalityNo($voter->getMunicipalityNo());
-        $entity->setBarangayName($voter->getBarangayName());
-        $entity->setBarangayNo($voter->getBrgyNo());
-        $entity->setVoterName($voter->getVoterName());
-        $entity->setVoterGroup($request->get('voterGroup'));
-        $entity->setAssignedMunNo($request->get('assignedMunNo'));
-        $entity->setAssignedBrgyNo($request->get('assignedBrgyNo'));
-        $entity->setAssignedPurok(strtoupper($request->get('assignedPurok')));
-
-        $entity->setStatus('A');
-
-        $validator = $this->get('validator');
-        $violations = $validator->validate($entity);
-
-        $errors = [];
-
-
-        if (count($violations) > 0) {
-            foreach ($violations as $violation) {
-                $errors[$violation->getPropertyPath()] = $violation->getMessage();
-            }
-            return new JsonResponse($errors, 400);
-        }
-
-        $assignedMunicipality = $this->getMunicipalityName(53, $request->get('assignedMunNo'));
-        $assignedBarangay = $this->getBarangayName($assignedMunicipality['municipality_code'], $request->get('assignedBrgyNo'));
-
-        $entity->setAssignedMunicipality($assignedMunicipality['name']);
-        $entity->setAssignedBarangay(($assignedBarangay['name']));
-
-        $em->persist($entity);
-
-        $voter->setVoterGroup($request->get('voterGroup'));
-
-        $em->flush();
-        $em->clear();
-
-        $serializer = $this->get('serializer');
-
-        return new JsonResponse($serializer->normalize($entity), 200);
-    }
+         $voterGroup = $request->get('voterGroup');
+         
+         if($voter->getPosition() == 'HMEMBER' && ($voterGroup == 'K3' || $voterGroup == 'K4') ){
+             //get household_leader name
+ 
+             $sql = "SELECT hh.voter_name AS leader_name, hh.pro_voter_id AS leader_id FROM tbl_household_dtl hd INNER JOIN tbl_household_hdr hh 
+                     ON hh.id = hd.household_id 
+                     WHERE hd.pro_voter_id = ? ";
+ 
+             $stmt = $em->getConnection()->prepare($sql);
+             $stmt->bindValue(1, $voter->getProVoterId());
+             $stmt->execute();
+ 
+             $leader = $stmt->fetch(\PDO::FETCH_ASSOC);
+ 
+             if($leader != null){
+                 return new JsonResponse(['Opps!' => 'Ang taong ito ay nabibilang na sa pamilya ni ' . $leader['leader_name'],
+                                          'Kadugtong' => 'Hindi pinapahintulotan ilagay ang miyembo ng pamilya sa kamada.'], 400);
+             }else{
+                 return new JsonResponse(['proVoterId' => 'Please contact the system administrator about this issue.'], 400);
+             }
+       
+         }
+ 
+         if ($parentId != null && $parentId != 0) {
+             $parent = $em->getRepository("AppBundle:OrganizationHierarchy")->findOneBy([
+                 'proVoterId' => $parentId
+             ]);
+ 
+             if (!$parent)
+                 return new JsonResponse(['message' => "invalid parent id."], 404);
+         }
+ 
+         $assignedMunicipality = $this->getMunicipalityName(53, $request->get('assignedMunNo'));
+         $assignedBarangay = $this->getBarangayName($assignedMunicipality['municipality_code'], $request->get('assignedBrgyNo'));
+ 
+         $entity->setAssignedMunicipality($assignedMunicipality['name']);
+         $entity->setAssignedBarangay(($assignedBarangay['name']));
+ 
+         $em->persist($entity);
+ 
+         $voter->setVoterGroup($request->get('voterGroup'));
+ 
+         $em->flush();
+         $em->clear();
+ 
+         $serializer = $this->get('serializer');
+ 
+         return new JsonResponse($serializer->normalize($entity), 200);
+     }
 
     private function getMunicipalityName($provinceCode, $municipalityNo)
     {
@@ -297,28 +315,7 @@ class HierarchyController extends Controller
         if (!$entity) {
             return new JsonResponse([], 404);
         }
-
-        $nodeLevel = $request->get('nodeLevel');
-        $voterGroup = "";
-
-        switch ($nodeLevel) {
-            case 1:
-                $voterGroup = "TOP LEADER";
-                break;
-            case 2:
-                $voterGroup = "KCL0";
-                break;
-            case 3:
-                $voterGroup = "KCL1";
-                break;
-            case 4:
-                $voterGroup = "KCL2";
-                break;
-            case 5:
-                $voterGroup = "KCL3";
-                break;
-        }
-
+        
         $entity->setParentNode($parentId);
         //$entity->setVoterGroup($voterGroup);
 
@@ -335,6 +332,39 @@ class HierarchyController extends Controller
         }
 
         //$proVoter->setVoterGroup($voterGroup);
+
+        $voterGroup = $request->get('voterGroup');
+         
+         if($proVoter->getPosition() == 'HMEMBER' && ($voterGroup == 'K3' || $voterGroup == 'K4') ){
+             //get household_leader name
+ 
+             $sql = "SELECT hh.voter_name AS leader_name, hh.pro_voter_id AS leader_id FROM tbl_household_dtl hd INNER JOIN tbl_household_hdr hh 
+                     ON hh.id = hd.household_id 
+                     WHERE hd.pro_voter_id = ? ";
+ 
+             $stmt = $em->getConnection()->prepare($sql);
+             $stmt->bindValue(1, $proVoter->getProVoterId());
+             $stmt->execute();
+ 
+             $leader = $stmt->fetch(\PDO::FETCH_ASSOC);
+ 
+             if($leader != null){
+                 return new JsonResponse(['Opps!' => 'Ang taong ito ay nabibilang na sa pamilya ni ' . $leader['leader_name'],
+                                          'Kadugtong' => 'Hindi pinapahintulotan ilagay ang miyembo ng pamilya sa kamada.'], 400);
+             }else{
+                 return new JsonResponse(['proVoterId' => 'Please contact the system administrator about this issue.'], 400);
+             }
+       
+         }
+ 
+         if ($parentId != null && $parentId != 0) {
+             $parent = $em->getRepository("AppBundle:OrganizationHierarchy")->findOneBy([
+                 'proVoterId' => $parentId
+             ]);
+ 
+             if (!$parent)
+                 return new JsonResponse(['message' => "invalid parent id."], 404);
+         }
 
         $em->flush();
         $serializer = $this->get('serializer');

@@ -635,6 +635,35 @@ class HouseholdController extends Controller
     }
 
     /**
+     * @Route("/ajax_get_household_header_by_leader_id/{proVoterId}",
+     *       name="ajax_get_household_header_by_leader_id",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+     public function ajaxGetHouseholdByLeaderId($proVoterId)
+     {
+         $em = $this->getDoctrine()->getManager("electPrep2024");
+         ;
+ 
+         $sql = "SELECT h.*, pv.cellphone, pv.pro_voter_id, pv.birthdate, pv.gender,
+                 pv.firstname, pv.middlename, pv.lastname, pv.ext_name, pv.civil_status, pv.bloodtype,
+                 pv.occupation, pv.religion, pv.dialect, pv.ip_group
+                 FROM tbl_household_hdr h 
+                 INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = h.pro_voter_id 
+                 WHERE h.pro_voter_id = ? ";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, $proVoterId);
+         $stmt->execute();
+ 
+         $data = $stmt->fetch(\PDO::FETCH_ASSOC);
+ 
+         return new JsonResponse($data);
+     }
+
+    /**
      * @Route("/ajax_post_household_detail", 
      * 	name="ajax_post_household_detail",
      *	options={"expose" = true}

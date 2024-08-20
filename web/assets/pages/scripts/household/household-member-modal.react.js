@@ -51,6 +51,7 @@ var HouseholdMemberModal = React.createClass({
                             onHide={this.closeAddMemberModal}
                         />
                     }
+                    
                     <div style={{ marginBottom: "25px" }} >
                         <strong>Household # : </strong> {this.state.header.householdCode} <br />
                         <strong>Household Leader : </strong> {this.state.header.isNonVoter == 1 ? '---' + this.state.header.voterName : this.state.header.voterName} <br />

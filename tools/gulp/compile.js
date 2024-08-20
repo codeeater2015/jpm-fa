@@ -1174,7 +1174,6 @@ gulp.task('compile-household',function(cb){
         concat('household.react.js'),
         rename({suffix: '.min'}),
         react(),
-        uglifyjs(),
         gulp.dest(jsPath),
         bust({
             relativePath : "web"

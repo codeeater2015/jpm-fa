@@ -1213,6 +1213,10 @@ gulp.task('compile-kfc-attendance',function(cb){
 gulp.task('compile-kfc-hierarchy',function(cb){
     pump([
         gulp.src([
+            myPath + 'household/household-member-create-modal.react.js',
+            myPath + 'household/household-detail-datatable.react.js',
+            myPath + 'household/household-member-modal.react.js',
+            myPath + 'voter/voter-temporary-create-modal.react.js',
             myPath + 'hierarchy/hierarchy-profile-datatable.react.js',
             myPath + 'hierarchy/hierarchy-profile-modal.react.js',
             myPath + 'hierarchy/hierarchy-item-edit-modal.react.js',

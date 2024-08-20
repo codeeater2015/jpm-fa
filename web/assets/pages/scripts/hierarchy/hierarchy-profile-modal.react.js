@@ -94,7 +94,7 @@ var HierarchyProfileModal = React.createClass({
 
                     <div className="row">
                         <div className="col-md-12">
-                            <button type="button" className="btn btn-success btn-sm" style={{ marginRight: "10px" }} onClick={this.openCreateModal}>Add Household Membersssssss</button>
+                            <button type="button" className="btn btn-success btn-sm" style={{ marginRight: "10px" }} onClick={this.openCreateModal}>Add Household Members</button>
                         </div>
                     </div>
 

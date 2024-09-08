@@ -62,7 +62,7 @@ gulp.task('compile-main-css',function(cb){
             webroot + 'assets/pages/css/inbox.min.css',
 
             webroot + 'assets/layout/css/layout.min.css',
-            webroot + 'assets/layout/css/themes/blue.min.css',
+            webroot + 'assets/layout/css/themes/default.min.css',
             webroot + 'assets/layout/css/custom.css'
         ]),
         cleanCSS({

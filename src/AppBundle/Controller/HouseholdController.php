@@ -160,6 +160,7 @@ class HouseholdController extends Controller
         $proVoter->setAsnMunicipalityNo($entity->getMunicipalityNo());
         $proVoter->setAsnBarangayName($entity->getBarangayName());
         $proVoter->setAsnBarangayNo($entity->getBarangayNo());
+        $proVoter->setHasAttended(1);
 
         $em->persist($entity);
         $em->flush();
@@ -766,6 +767,7 @@ class HouseholdController extends Controller
         $proVoter->setAsnMunicipalityNo($hdr->getMunicipalityNo());
         $proVoter->setAsnBarangayName($hdr->getBarangayName());
         $proVoter->setAsnBarangayNo($hdr->getBarangayNo());
+        //$proVoter->setHasAttended(1);
 
         $em->persist($entity);
         $em->flush();

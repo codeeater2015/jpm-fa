@@ -261,8 +261,9 @@ var Hierarchy = React.createClass({
                         results: data.map(function (item) {
                             var isVoter = item.is_non_voter == 1 ? "NV" : "V";
                             var profileLabel = (item.position == '' || item.position == null) ? "No Profile" : item.position;
+                            var verifiedLabel = Number.parseInt(item.has_attended) == 1 ? "Verified" : "Unverified" ;
 
-                            var text = item.voter_name + ' ( ' + item.municipality_name + ', ' + item.barangay_name + ' ) ' + isVoter + " | " + profileLabel;
+                            var text = item.voter_name + ' ( ' + item.municipality_name + ', ' + item.barangay_name + ' ) ' + isVoter + " | " + profileLabel + " | " + verifiedLabel;
 
                             return { id: item.pro_voter_id, text: text };
                         })
@@ -280,7 +281,7 @@ var Hierarchy = React.createClass({
             containerCssClass: ':all:',
             dropdownCssClass: 'custom-option',
             ajax: {
-                url: Routing.generate('ajax_hierarchy_select2_project_voters'),
+                url: Routing.generate('ajax_hierarchy_select2_member_project_voters'),
                 data: function (params) {
                     return {
                         searchText: params.term,
@@ -297,8 +298,10 @@ var Hierarchy = React.createClass({
                         results: data.map(function (item) {
                             var isVoter = item.is_non_voter == 1 ? "NO" : "YES";
                             var voterGroup = item.voter_group;
-
-                            var text = item.voter_name + ' ( ' + item.municipality_name + ', ' + item.barangay_name + ' ) - is voter? : ' + isVoter + '||' + voterGroup;
+                            var verifiedLabel = Number.parseInt(item.has_attended) == 1 ? "Verified" : "Unverified" ;
+                            var profileLabel = (item.position == '' || item.position == null) ? "No Profile" : item.position;
+                            
+                            var text = item.voter_name + ' ( ' + item.municipality_name + ', ' + item.barangay_name + ' ) ' + isVoter + " | " + profileLabel + " | " + verifiedLabel;
 
                             return { id: item.pro_voter_id, text: text };
                         })
@@ -931,6 +934,7 @@ var Hierarchy = React.createClass({
                                     <div><strong><small>Contact # :</small></strong>  {selectedItem.voter.cellphone} </div>
                                     <div><strong><small>Hierarchy Position :</small></strong> {selectedItem.voter.voterGroup} </div>
                                     <div><strong><small>HH Position :</small></strong> {selectedItem.voter.position} </div>
+                                    <div><strong><small>Status :</small></strong> {Number.parseInt(selectedItem.voter.hasAttended) == 1 ? "Verified" : "Unverified" } </div>
                                     <br />
                                     <div><strong><small>Total Household Members :</small></strong> {selectedItem.members.length} </div>
                                     <div><strong><small>Voting Strength :</small></strong> {selectedItem.votingStrength.totalVoter} / {selectedItem.votingStrength.householdSize} </div>

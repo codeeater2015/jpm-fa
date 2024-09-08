@@ -248,6 +248,7 @@ class HierarchyController extends Controller
          $em->persist($entity);
  
          $voter->setVoterGroup($request->get('voterGroup'));
+         $voter->setHasAttended(1);
  
          $em->flush();
          $em->clear();
@@ -373,6 +374,64 @@ class HierarchyController extends Controller
     }
 
     /**
+     * @Route("/ajax_hierarchy_select2_member_project_voters", 
+     *       name="ajax_hierarchy_select2_member_project_voters",
+     *		options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+     public function ajaxSelect2HierarchyMemberProjectVoters(Request $request)
+     {
+         $em = $this->getDoctrine()->getManager("electPrep2024");
+         $user = $this->get('security.token_storage')->getToken()->getUser();
+ 
+         $electId = $request->get("electId");
+         $provinceCode = $request->get("provinceCode");
+         $municipalityNo = $request->get("municipalityNo");
+         $brgyNo = $request->get("brgyNo");
+         $voterGroup = $request->get("voterGroup");
+         $voterGroup = empty($voterGroup) ? "TOP LEADER" : $voterGroup;
+ 
+         $searchText = trim(strtoupper($request->get('searchText')));
+         $searchText = '%' . strtoupper($searchText) . '%';
+ 
+         $sql = "SELECT p.* FROM tbl_project_voter p  
+                 INNER JOIN tbl_organization_hierarchy h 
+                 ON h.pro_voter_id = p.pro_voter_id 
+                 WHERE p.voter_name LIKE ? 
+                 AND p.province_code = ? 
+                 AND p.elect_id = ? 
+                 AND (p.municipality_no = ? OR ? IS NULL)
+                 AND (p.brgy_no = ? OR ? IS NULL)
+                 ORDER BY p.voter_name ASC LIMIT 10";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, $searchText);
+         $stmt->bindValue(2, $provinceCode);
+         $stmt->bindValue(3, $electId);
+         $stmt->bindValue(4, $municipalityNo);
+         $stmt->bindValue(5, empty($municipalityNo) ? null : $municipalityNo);
+         $stmt->bindValue(6, $brgyNo);
+         $stmt->bindValue(7, empty($brgyNo) ? null : $brgyNo);
+         //$stmt->bindValue(8, $voterGroup);
+         $stmt->execute();
+ 
+         $projectVoters = [];
+ 
+         while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+             $projectVoters[] = $row;
+         }
+ 
+         if (count($projectVoters) <= 0)
+             return new JsonResponse(array());
+ 
+         $em->clear();
+ 
+         return new JsonResponse($projectVoters);
+     }
+
+    /**
      * @Route("/ajax_hierarchy_select2_project_voters", 
      *       name="ajax_hierarchy_select2_project_voters",
      *		options={ "expose" = true }
@@ -389,21 +448,16 @@ class HierarchyController extends Controller
         $provinceCode = $request->get("provinceCode");
         $municipalityNo = $request->get("municipalityNo");
         $brgyNo = $request->get("brgyNo");
-        $voterGroup = $request->get("voterGroup");
-        $voterGroup = empty($voterGroup) ? "TOP LEADER" : $voterGroup;
 
         $searchText = trim(strtoupper($request->get('searchText')));
         $searchText = '%' . strtoupper($searchText) . '%';
 
         $sql = "SELECT p.* FROM tbl_project_voter p  
-                INNER JOIN tbl_organization_hierarchy h 
-                ON h.pro_voter_id = p.pro_voter_id 
                 WHERE p.voter_name LIKE ? 
                 AND p.province_code = ? 
                 AND p.elect_id = ? 
                 AND (p.municipality_no = ? OR ? IS NULL)
                 AND (p.brgy_no = ? OR ? IS NULL)
-                AND (p.voter_group = ? )
                 ORDER BY p.voter_name ASC LIMIT 10";
 
         $stmt = $em->getConnection()->prepare($sql);
@@ -414,7 +468,6 @@ class HierarchyController extends Controller
         $stmt->bindValue(5, empty($municipalityNo) ? null : $municipalityNo);
         $stmt->bindValue(6, $brgyNo);
         $stmt->bindValue(7, empty($brgyNo) ? null : $brgyNo);
-        $stmt->bindValue(8, $voterGroup);
         $stmt->execute();
 
         $projectVoters = [];

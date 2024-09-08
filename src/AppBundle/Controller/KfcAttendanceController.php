@@ -274,6 +274,7 @@ class KfcAttendanceController extends Controller
         $em->flush();
 
         $voter->setCellphone($entity->getContactNo());
+        $voter->setHasAttended(1);
         $em->flush();
 
         $em->clear();
@@ -468,7 +469,7 @@ class KfcAttendanceController extends Controller
 
     public function ajaxDeleteKfcAttendanceDetailAction($id)
     {
-       $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $entity = $em->getRepository("AppBundle:KfcAttendanceDetail")->find($id);
 
         if (!$entity)

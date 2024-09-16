@@ -712,17 +712,17 @@ class HierarchyController extends Controller
         $entity->setContactNo($request->get('contactNo'));
         $entity->setStatus('A');
 
-        $validator = $this->get('validator');
-        $violations = $validator->validate($entity);
+        // $validator = $this->get('validator');
+        // $violations = $validator->validate($entity,null,['update']);
 
-        $errors = [];
+        // $errors = [];
 
-        if (count($violations) > 0) {
-            foreach ($violations as $violation) {
-                $errors[$violation->getPropertyPath()] = $violation->getMessage();
-            }
-            return new JsonResponse($errors, 400);
-        }
+        // if (count($violations) > 0) {
+        //     foreach ($violations as $violation) {
+        //         $errors[$violation->getPropertyPath()] = $violation->getMessage();
+        //     }
+        //     return new JsonResponse($errors, 400);
+        // }
 
         $voter->setVoterGroup($request->get('voterGroup'));
         $voter->setCellphone($request->get('contactNo'));

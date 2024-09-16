@@ -1213,6 +1213,7 @@ gulp.task('compile-kfc-attendance',function(cb){
 gulp.task('compile-kfc-hierarchy',function(cb){
     pump([
         gulp.src([
+            myPath + 'hierarchy/hierarchy-item-swap-modal.react.js',
             myPath + 'household/household-member-create-modal.react.js',
             myPath + 'household/household-detail-datatable.react.js',
             myPath + 'household/household-member-modal.react.js',
@@ -1223,6 +1224,27 @@ gulp.task('compile-kfc-hierarchy',function(cb){
             myPath + 'hierarchy/hierarchy.react.js'
         ]),
         concat('hierarchy.react.js'),
+        rename({suffix: '.min'}),
+        react(),
+        gulp.dest(jsPath),
+        bust({
+            relativePath : "web"
+        }),
+        gulp.dest('.')
+    ], cb);
+});
+
+gulp.task('compile-kamada',function(cb){
+    pump([
+        gulp.src([
+            myPath + 'kamada/kamada-member-create-modal.react.js',
+            myPath + 'kamada/kamada-detail-datatable.react.js',
+            myPath + 'kamada/kamada-member-modal.react.js',
+            myPath + 'kamada/kamada-create-modal.react.js',
+            myPath + 'kamada/kamada-datatable.react.js',
+            myPath + 'kamada/kamada.react.js'
+        ]),
+        concat('kamada.react.js'),
         rename({suffix: '.min'}),
         react(),
         gulp.dest(jsPath),

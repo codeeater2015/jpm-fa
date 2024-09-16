@@ -735,6 +735,79 @@ class HierarchyController extends Controller
         return new JsonResponse($serializer->normalize($entity), 200);
     }
 
+
+     /**
+     * @Route("/ajax_hierarchy_patch_swap_item/{proVoterId}", 
+     *       name="ajax_hierarchy_patch_swap_item",
+     *		options={ "expose" = true }
+     * )
+     * @Method("PATCH")
+     */
+
+     public function ajaxHierarchyPatchSwapItem($proVoterId, Request $request)
+     {
+ 
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+ 
+        $entity = $em->getRepository("AppBundle:OrganizationHierarchy")->findOneBy([
+             "proVoterId" => $proVoterId
+         ]);
+ 
+        $voter = $em->getRepository("AppBundle:ProjectVoter")->findOneBy([
+             "proVoterId" => $proVoterId
+         ]);
+
+        $newVoter = $em->getRepository("AppBundle:ProjectVoter")->findOneBy([
+            "proVoterId" => $request->get('newProVoterId')
+        ]);
+ 
+         $user = $this->get("security.token_storage")->getToken()->getUser();
+ 
+         if (!$entity)
+             return new JsonResponse(null, 404);
+        
+         $voter->setVoterGroup($request->get('voterGroup'));
+         
+         $entity->setVoterName($newVoter->getVoterName());
+         $entity->setVoterGroup($request->get('newVoterGroup'));
+         $entity->setProVoterId($request->get('newProVoterId'));
+        //  $entity->setMunicipalityNo($newVoter->getMunicipalityNo());
+        //  $entity->setMunicipalityName($newVoter->getMunicipalityName());
+        //  $entity->setBarangayNo($newVoter->getBrgyNo());
+        //  $entity->setBarangayName($newVoter->getBarangayName());
+         $entity->setGeneratedIdNo($newVoter->getGeneratedIdNo());
+         $entity->setProIdCode($newVoter->getProIdCode());
+         
+         $validator = $this->get('validator');
+         $violations = $validator->validate($entity);
+ 
+         $errors = [];
+ 
+         if (count($violations) > 0) {
+             foreach ($violations as $violation) {
+                 $errors[$violation->getPropertyPath()] = $violation->getMessage();
+             }
+             return new JsonResponse($errors, 400);
+         }
+        
+         $newVoter->setVoterGroup($request->get('voterGroup'));
+
+         $children = $em->getRepository("AppBundle:OrganizationHierarchy")->findBy([
+            "parentNode" => $proVoterId
+         ]);
+
+         foreach ($children as $child) {
+            $child->setParentNode($entity->getProVoterId());    
+         }
+ 
+         $em->flush();
+         $em->clear();
+ 
+         $serializer = $this->get('serializer');
+ 
+         return new JsonResponse($serializer->normalize($entity), 200);
+     }
+
     /**
      * @Route("/ajax_hierarchy_get_item_top_leader/{proVoterId}", 
      *       name="ajax_hierarchy_get_item_top_leader",

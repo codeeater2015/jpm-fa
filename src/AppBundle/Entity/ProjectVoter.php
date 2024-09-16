@@ -388,6 +388,12 @@ class ProjectVoter
      */
     private $isNonVoter;
 
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="assigned_purok", type="string", length=150)
+     */
+    private $assignedPurok;
 
      /**
      * @var string
@@ -1629,5 +1635,29 @@ class ProjectVoter
     public function getAsnBarangayNo()
     {
         return $this->asnBarangayNo;
+    }
+
+    /**
+     * Set assignedPurok
+     *
+     * @param string $assignedPurok
+     *
+     * @return ProjectVoter
+     */
+    public function setAssignedPurok($assignedPurok)
+    {
+        $this->assignedPurok = $assignedPurok;
+
+        return $this;
+    }
+
+    /**
+     * Get assignedPurok
+     *
+     * @return string
+     */
+    public function getAssignedPurok()
+    {
+        return $this->assignedPurok;
     }
 }

@@ -1,0 +1,172 @@
+<?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
+
+/**
+ * KamadaHeader
+ *
+ * @ORM\Table(name="kamada_header")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\KamadaHeaderRepository")
+ */
+class KamadaHeader
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+
+     private $id;
+
+     /**
+      * @var int
+      *
+      * @ORM\Column(name="pro_voter_id", type="integer")
+      * @Assert\NotBlank()
+      */
+     private $proVoterId;
+ 
+     /**
+      * @var string
+      *
+      * @ORM\Column(name="pro_id_code", type="string", length=30)
+      */
+     private $proIdCode;
+
+      /**
+      * @var string
+      *
+      * @ORM\Column(name="generated_id_no", type="string", length=100)
+      */
+      private $generatedIdNo;
+ 
+     /**
+      * @var string
+      *
+      * @ORM\Column(name="voter_name", type="string", length=255)
+      */
+     private $voterName;
+
+     /**
+      * @var string
+      *
+      * @ORM\Column(name="voter_group", type="string", length=30)
+      */
+      private $voterGroup;
+
+    /**
+      * @var string
+      *
+      * @Assert\Regex("/^(09)\d{9}$/")
+      * @ORM\Column(name="cellphone", type="string", length=30)
+      */
+     private $cellphone;
+ 
+     /**
+      * @var string
+      *
+      * @ORM\Column(name="municipality_no", type="string", length=15)
+      * @Assert\NotBlank()
+      */
+     private $municipalityNo;
+ 
+     /**
+      * @var string
+      *
+      * @ORM\Column(name="municipality_name", type="string", length=150)
+      */
+     private $municipalityName;
+ 
+     /**
+      * @var string
+      *
+      * @ORM\Column(name="barangay_name", type="string", length=150)
+      */
+     private $barangayName;
+ 
+     /**
+      * @var string
+      *
+      * @ORM\Column(name="barangay_no", type="string", length=15)
+      * @Assert\NotBlank()
+      */
+     private $barangayNo;
+
+     /**
+      * @var int
+      *
+      * @ORM\Column(name="tl_pro_voter_id", type="integer")
+      * @Assert\NotBlank()
+      */
+      private $tlProVoterId;
+ 
+      /**
+       * @var string
+       *
+       * @ORM\Column(name="tl_pro_id_code", type="string", length=30)
+       */
+      private $tlProIdCode;
+ 
+       /**
+       * @var string
+       *
+       * @ORM\Column(name="tl_generated_id_no", type="string", length=100)
+       */
+       private $tlGeneratedIdNo;
+  
+      /**
+       * @var string
+       *
+       * @ORM\Column(name="tl_voter_name", type="string", length=255)
+       */
+      private $tlVoterName;
+
+     /**
+      * @var \datetime
+      *
+      * @ORM\Column(name="created_at", type="datetime")
+      */
+     private $createdAt;
+ 
+     /**
+      * @var string
+      *
+      * @ORM\Column(name="created_by", type="string", length=150)
+      */
+     private $createdBy;
+ 
+     /**
+      * @var \datetime
+      *
+      * @ORM\Column(name="updated_at", type="datetime")
+      */
+     private $updatedAt;
+ 
+     /**
+      * @var string
+      *
+      * @ORM\Column(name="updated_by", type="string", length=150)
+      */
+     private $updatedBy;
+ 
+     /**
+      * @var string
+      *
+      * @ORM\Column(name="status", type="string", length=3)
+      */
+     private $status;
+ 
+     /**
+      * @var string
+      *
+      * @ORM\Column(name="remarks", type="string", length=255)
+      */
+     private $remarks;
+}
+

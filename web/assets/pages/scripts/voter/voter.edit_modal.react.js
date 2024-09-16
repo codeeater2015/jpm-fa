@@ -275,6 +275,11 @@ var VoterEditModal = React.createClass({
                                     <button className="btn btn-primary btn-sm col-md-12" onClick={this.generateIdNo} style={{ "marginTop": "10px" }}>Generate ID No</button>
                                 </div>
                             )}
+
+                            <div>
+                                <button className="btn btn-info btn-sm col-md-12" onClick={this.openCropModal} style={{ "marginTop": "10px" }}>Crop Photo</button>
+                            </div>
+
                             {!this.isEmpty(this.state.voter) && this.state.voter.hasId && (
                                 <div>
                                     <button className="btn btn-info btn-sm col-md-12" onClick={this.resetId} style={{ "marginTop": "10px" }}>Reprint ID</button>

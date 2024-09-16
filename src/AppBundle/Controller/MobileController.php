@@ -1546,7 +1546,7 @@ class MobileController extends Controller
 
     public function ajaxPostEventAttendee(Request $request)
     {
-        $em = $this->getDoctrine()->getManager("voter2023");
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $data = json_decode($request->getContent(), true);
         $request->request->replace($data);
@@ -1554,7 +1554,6 @@ class MobileController extends Controller
         $proVoterId = $request->get("proVoterId");
 
         $event = $em->getRepository("AppBundle:ProjectEventHeader")->findOneBy([
-            'eventId' => $eventId,
             'status' => 'A',
         ]);
 
@@ -1571,13 +1570,13 @@ class MobileController extends Controller
 
         if (!$eventDetail) {
 
-            if ($projectVoter->getStatus() != 'A') {
-                return new JsonResponse(['message' => "Opps! Action denied... Voter either blocked or deactivated..."], 400);
-            }
+            // if ($projectVoter->getStatus() != 'A') {
+            //     return new JsonResponse(['message' => "Opps! Action denied... Voter either blocked or deactivated..."], 400);
+            // }
 
             $entity = new ProjectEventDetail();
             $entity->setProVoterId($proVoterId);
-            $entity->setEventId($eventId);
+            $entity->setEventId($event->getEventId());
             $entity->setProId(3);
             $entity->setHasAttended(1);
             $entity->setHasClaimed(0);
@@ -4055,7 +4054,7 @@ class MobileController extends Controller
 
     public function ajaxGetJpmProjectVoters2023(Request $request)
     {
-        $em = $this->getDoctrine()->getManager("voter2023");
+        $em = $this->getDoctrine()->getManager("electPrep2024");
 
         $provinceCode = $request->get('provinceCode');
         $municipalityNo = $request->get('municipalityNo');
@@ -4089,7 +4088,7 @@ class MobileController extends Controller
         $stmt = $em->getConnection()->prepare($sql);
         $stmt->bindValue(1, '%' . $voterName . '%');
         $stmt->bindValue(2, empty($voterName) ? null : '%' . $voterName . '%');
-        $stmt->bindValue(3, 4);
+        $stmt->bindValue(3, self::ACTIVE_ELECTION);
         $stmt->bindValue(4, '%' . $municipalityName . '%');
         $stmt->bindValue(5, empty($municipalityName) ? null : '%' . $municipalityName . '%');
         $stmt->bindValue(6, '%' . $barangayName . '%');
@@ -5319,6 +5318,52 @@ class MobileController extends Controller
 
         return new JsonResponse($serializer->normalize($winners));
     }
+
+    /**
+     * @Route("/ajax_m_patch_event_attendee_profile",
+     *     name="ajax_m_patch_event_attendee_profile",
+     *    options={"expose" = true}
+     * )
+     * @Method("PATCH")
+     */
+
+     public function ajaxPatchEventAttendeeProfile(Request $request)
+     {
+         $em = $this->getDoctrine()->getManager("electPrep2024");
+         $user = $this->get('security.token_storage')->getToken()->getUser();
+
+        $data = json_decode($request->getContent(), true);
+        $request->request->replace($data);
+         $proVoterId = $request->get("proVoterId");
+         $cellphone = $request->get("cellphone");
+         $voterGroup = $request->get("voterGroup");
+
+         $proVoter = $em->getRepository("AppBundle:ProjectVoter")->find($proVoterId);
+ 
+         if (!$proVoter) {
+             return new JsonResponse([], 404);
+         }
+ 
+         $proVoter->setVoterGroup($voterGroup);
+         $proVoter->setCellphone($cellphone);
+ 
+         $validator = $this->get('validator');
+         $violations = $validator->validate($proVoter);
+ 
+         $errors = [];
+ 
+         if (count($violations) > 0) {
+             foreach ($violations as $violation) {
+                 $errors[$violation->getPropertyPath()] = $violation->getMessage();
+             }
+             return new JsonResponse($errors, 400);
+         }
+ 
+         $em->flush();
+         $serializer = $this->get('serializer');
+ 
+         return new JsonResponse($serializer->normalize($proVoter));
+     }
 
     /**
      * @Route("/ajax_ap_raffle_claim_winner/{id}/{hasClaimed}",

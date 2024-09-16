@@ -221,6 +221,10 @@ var Hierarchy = React.createClass({
         this.setState({ showEditModal: false });
     },
 
+    closeSwapModal: function () {
+        this.setState({ showSwapModal: false });
+    },
+
     onCreateSuccess: function () {
         this.refs.attendanceDatatable.reload();
         this.setState({ showCreateModal: false });
@@ -670,6 +674,10 @@ var Hierarchy = React.createClass({
         this.setState({ showEditModal: true });
     },
 
+    openSwapModal: function () {
+        this.setState({ showSwapModal: true });
+    },
+
     closeProfileModal: function () {
         this.setState({ showProfileModal: false });
     },
@@ -780,6 +788,16 @@ var Hierarchy = React.createClass({
                         <HierarchyItemEditModal
                             show={this.state.showEditModal}
                             onHide={this.closeEditModal}
+                            onSuccess={this.onSuccessUpdate}
+                            proVoterId={this.state.selectedItem.proVoterId}
+                        />
+                    }
+
+{
+                        this.state.showSwapModal &&
+                        <HierarchyItemSwapModal
+                            show={this.state.showSwapModal}
+                            onHide={this.closeSwapModal}
                             onSuccess={this.onSuccessUpdate}
                             proVoterId={this.state.selectedItem.proVoterId}
                         />
@@ -923,6 +941,9 @@ var Hierarchy = React.createClass({
                                         </a>
                                         <a onClick={this.openEditModal} style={{ marginLeft: "5px" }} href="#" className="btn btn-sm btn-primary m-btn m-btn--icon m-btn--icon-only">
                                             <i className="fa fa-edit"></i>
+                                        </a>
+                                        <a onClick={this.openSwapModal} style={{ marginLeft: "5px" }} href="#" className="btn btn-sm btn-primary m-btn m-btn--icon m-btn--icon-only">
+                                            <i className="fa fa-exchange"></i>
                                         </a>
                                     </div>
                                     <br />

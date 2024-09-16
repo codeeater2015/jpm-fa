@@ -134,7 +134,7 @@ var HierarchyProfileDatatable = React.createClass({
 
         kfc_attendance_profile.on('click', '.delete-btn', function () {
             var data = grid_project_event.getDataTable().row($(this).parents('tr')).data();
-            self.delete(data.id);
+            self.delete(data.detail_id);
         });
 
         self.grid = grid_project_event;
@@ -160,13 +160,12 @@ var HierarchyProfileDatatable = React.createClass({
     delete: function (id) {
         var self = this;
 
-        if (confirm("Are you sure you want to delete this household profile?")) {
+        if (confirm("Are you sure you want to remove this member ?")) {
             self.requestDelete = $.ajax({
-                url: Routing.generate("ajax_delete_kfc_attendance_detail_profile", { id: id }),
+                url: Routing.generate("ajax_delete_household_detail", { householdDetailId: id }),
                 type: "DELETE"
             }).done(function (res) {
                 self.reload();
-                self.props.reloadDetail();
             });
         }
     },

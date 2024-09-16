@@ -988,7 +988,7 @@ class HierarchyController extends Controller
         $recordsFiltered = $stmt->fetchColumn();
 
 
-        $sql = "SELECT pv.*
+        $sql = "SELECT pv.*, hd.id as detail_id
                 FROM tbl_household_dtl hd 
                 INNER JOIN tbl_household_hdr hh
                 ON hd.household_id = hh.id 

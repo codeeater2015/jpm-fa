@@ -43,7 +43,7 @@ var HierarchyProfileModal = React.createClass({
         var self = this;
 
         self.requestVoter = $.ajax({
-            url: Routing.generate("ajax_get_household_header_by_leader_id", { id: proVoterId }),
+            url: Routing.generate("ajax_get_household_header_by_leader_id", { proVoterId: proVoterId }),
             type: "GET"
         }).done(function (res) {
             var form = self.state.form;
@@ -59,10 +59,18 @@ var HierarchyProfileModal = React.createClass({
             form.data.barangayNo = res.barangay_no;
             form.data.voterName = res.voter_name;
             form.data.voterGroup = res.voter_group;
-            form.data.householdId = res.household_id;
+            form.data.householdId = res.id;
 
-            self.setState({ form: form , householdId : res.household_id}, self.reinitSelect2);
+            self.setState({ form: form , householdId : res.id}, self.reinitSelect2);
         });
+    },
+
+    isEmpty: function (value) {
+        return value == null || value == '';
+    },
+
+    reloadDatatable: function () {
+        this.refs.DetailDatatable.reload();
     },
 
     render: function () {
@@ -76,7 +84,7 @@ var HierarchyProfileModal = React.createClass({
                 <Modal.Body bsClass="modal-body overflow-auto">
 
                     {
-                        this.state.showCreateModal &&
+                        (this.state.showCreateModal && this.state.form.data.householdId != null) &&
                         <HouseholdMemberCreateModal
                             proId={3}
                             provinceCode={53}
@@ -86,9 +94,10 @@ var HierarchyProfileModal = React.createClass({
                             barangayName={this.state.header.barangayName}
 
                             electId={423}
-                            householdId={this.props.id}
+                            householdId={this.state.form.data.householdId}
                             show={this.state.showCreateModal}
                             onHide={this.closeCreateModal}
+                            onSuccess={this.reloadDatatable}
                         />
                     }
 
@@ -97,17 +106,11 @@ var HierarchyProfileModal = React.createClass({
                             <button type="button" className="btn btn-success btn-sm" style={{ marginRight: "10px" }} onClick={this.openCreateModal}>Add Household Members</button>
                         </div>
                     </div>
-
-                    <HierarchyProfileDatatable proVoterId={this.props.proVoterId} />
+                    <HierarchyProfileDatatable ref="DetailDatatable" proVoterId={this.props.proVoterId} />
                 </Modal.Body>
             </Modal>
         );
     },
-
-    componentDidMount: function () {
-        console.log("hierarchy profile modal has been loaded");
-    },
-
 });
 
 

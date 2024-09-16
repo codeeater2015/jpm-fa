@@ -89,8 +89,9 @@ class KamadaController extends Controller
             $entity->setProIdCode($proVoter->getProIdCode());
             $entity->setGeneratedIdNo($proVoter->getGeneratedIdNo());
             $entity->setVoterName($proVoter->getVoterName());
-            $entity->setVoterGroup($request->get('voterGroup'));
             $entity->setCellphone($request->get('cellphone'));
+            $entity->setVoterGroup($request->get('voterGroup'));
+            $proVoter->setVoterGroup($request->get('voterGroup'));
         }
 
          
@@ -241,7 +242,7 @@ class KamadaController extends Controller
          $stmt = $em->getConnection()->query($sql);
          $recordsFiltered = $stmt->fetchColumn();
  
-         $sql = "SELECT h.*,pv.is_non_voter, pv.voter_group FROM tbl_kamada_hdr h 
+         $sql = "SELECT h.* FROM tbl_kamada_hdr h 
              INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = h.pro_voter_id 
              WHERE 1 " . $sWhere . ' ' . $sOrder . " LIMIT {$length} OFFSET {$start} ";
  

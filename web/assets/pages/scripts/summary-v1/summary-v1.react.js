@@ -119,8 +119,10 @@ var SummaryV1Component = React.createClass({
                             <SummaryV1Table clusterName="C3" municipalityNo={16} summaryDate={this.state.summaryDate} />
                             <h3><strong>North West Cluster</strong></h3>
                             <SummaryV1Table clusterName="C4" municipalityNo={16} summaryDate={this.state.summaryDate} />
-                            <h3><strong>Poblacion Cluster</strong></h3>
+                            <h3><strong>Poblacion <small>Big Brgy Cluster</small> Cluster</strong></h3>
                             <SummaryV1Table clusterName="C1" municipalityNo={16} summaryDate={this.state.summaryDate} />
+                            <h3><strong>Poblacion <small>(Small Brgy Cluster)</small> Cluster</strong></h3>
+                            <SummaryV1Table clusterName="C2" municipalityNo={16} summaryDate={this.state.summaryDate} />
                             <h3><strong>South Cluster</strong></h3>
                             <SummaryV1Table clusterName="C5" municipalityNo={16} summaryDate={this.state.summaryDate} />
                             <h3><strong>WestCoast Cluster</strong></h3>

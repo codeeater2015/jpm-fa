@@ -1237,6 +1237,7 @@ gulp.task('compile-kfc-hierarchy',function(cb){
 gulp.task('compile-kamada',function(cb){
     pump([
         gulp.src([
+            myPath + 'voter/voter-temporary-create-modal.react.js',
             myPath + 'kamada/kamada-member-create-modal.react.js',
             myPath + 'kamada/kamada-detail-datatable.react.js',
             myPath + 'kamada/kamada-member-modal.react.js',
@@ -1245,6 +1246,24 @@ gulp.task('compile-kamada',function(cb){
             myPath + 'kamada/kamada.react.js'
         ]),
         concat('kamada.react.js'),
+        rename({suffix: '.min'}),
+        react(),
+        gulp.dest(jsPath),
+        bust({
+            relativePath : "web"
+        }),
+        gulp.dest('.')
+    ], cb);
+});
+
+gulp.task('compile-summary-v1',function(cb){
+    pump([
+        gulp.src([
+            myPath + 'summary-v1/summary-v1-all-table.react.js',
+            myPath + 'summary-v1/summary-v1-table.react.js',
+            myPath + 'summary-v1/summary-v1.react.js'
+        ]),
+        concat('summary-v1.react.js'),
         rename({suffix: '.min'}),
         react(),
         gulp.dest(jsPath),

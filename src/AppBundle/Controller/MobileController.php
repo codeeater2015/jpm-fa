@@ -349,7 +349,7 @@ class MobileController extends Controller
 
     public function ajaxGetProjectVoter($proId, $generatedIdNo)
     {
-        $em = $this->getDoctrine()->getManager("voter2023");
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $imgUrl = $this->getParameter('img_url');
 
 
@@ -427,7 +427,7 @@ class MobileController extends Controller
 
     public function ajaxGetActiveEvent($proId)
     {
-        $em = $this->getDoctrine()->getManager("voter2023");
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $event = $em->getRepository("AppBundle:ProjectEventHeader")->findOneBy([
             'proId' => $proId,
             'status' => self::ACTIVE_STATUS,
@@ -487,7 +487,7 @@ class MobileController extends Controller
 
     public function ajaxGetActiveEventAttendees(Request $request)
     {
-        $em = $this->getDoctrine()->getManager("voter2023");
+        $em = $this->getDoctrine()->getManager("electPrep2024");
         $imgUrl = $this->getParameter('img_url');
 
         $batchSize = 10;

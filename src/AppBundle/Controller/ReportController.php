@@ -16,6 +16,82 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 class ReportController extends Controller 
 {
 
+    
+    /**
+     * @Route("/summary-v1", name="summary_2024_v1_report", options={"main" = true })
+     */
+
+     public function summary2024V1Action(Request $request)
+     {
+        $hostIp = $this->getParameter('host_ip');
+        return $this->render('template/reports/summary-v1.html.twig',['hostIp' => $hostIp,]);
+     }
+
+      /**
+     * @Route("/ajax_m_get_summary_v1",
+     *       name="ajax_m_get_summary_v1",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+     public function ajaxGetSummaryV1(Request $request)
+     {
+         $em = $this->getDoctrine()->getManager("electPrep2024");
+
+         $cluserName= $request->get("clusterName");
+         $summaryDate= $request->get("summaryDate");
+         $municipalityNo= $request->get("municipalityNo");
+ 
+         $sql = "SELECT * FROM tbl_summary_v1 WHERE (cluster_name = ? OR ? IS NULL) AND summary_date = ? AND municipality_no = ? ORDER BY cluster_name, barangay_name";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, $cluserName);
+         $stmt->bindValue(2, empty($cluserName) ? null : $cluserName ) ;
+         $stmt->bindValue(3, $summaryDate ) ;
+         $stmt->bindValue(4, $municipalityNo ) ;
+         $stmt->execute();  
+ 
+         $summary = [];
+         $summary = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+ 
+         return new JsonResponse($summary);
+     }
+
+
+      /**
+     * @Route("/ajax_select2_summary_date",
+     *       name="ajax_select2_summary_date",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+    public function ajaxSelect2SummaryDate(Request $request)
+    {
+        $searchText = trim(strtoupper($request->get('searchText')));
+        $searchText = '%' . strtoupper($searchText) . '%';
+
+        $em = $this->getDoctrine()->getManager("electPrep2024");
+
+        $sql = "SELECT DISTINCT summary_date FROM tbl_summary_v1
+                ORDER BY  summary_date DESC LIMIT 30 ";
+
+        $stmt = $em->getConnection()->prepare($sql);
+
+        $stmt->execute();
+        $data = $stmt->fetchAll();
+
+        if (count($data) <= 0) {
+            return new JsonResponse(array());
+        }
+
+        $em->clear();
+
+        return new JsonResponse($data);
+    }
+    
+
     /**
      * @Route("/organization_summary", name="organization_summary_report", options={"main" = true })
      */

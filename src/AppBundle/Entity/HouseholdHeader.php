@@ -98,7 +98,6 @@ class HouseholdHeader
     /**
      * @var string
      *
-     * @Assert\Regex("/^(09)\d{9}$/")
      */
     private $cellphone;
 

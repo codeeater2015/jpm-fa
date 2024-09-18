@@ -89,7 +89,7 @@ class HouseholdController extends Controller
         $entity = new HouseholdHeader();
         $entity->setElectId($request->get('electId'));
         $entity->setProVoterId($request->get('proVoterId'));
-        $entity->setHouseholdNo($this->getNewHouseholdNo());
+        $entity->setHouseholdNo($householdNo);
         $entity->setHouseholdCode($barangay['short_name'] . $householdNo);
         $entity->setMunicipalityNo($request->get('municipalityNo'));
         $entity->setBarangayNo($request->get('barangayNo'));

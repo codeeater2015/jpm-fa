@@ -762,33 +762,35 @@ class HierarchyController extends Controller
         ]);
  
          $user = $this->get("security.token_storage")->getToken()->getUser();
- 
+        
+         $destEntity = $em->getRepository("AppBundle:OrganizationHierarchy")->findOneBy([
+            "proVoterId" => $request->get('newProVoterId')
+         ]);
+
          if (!$entity)
              return new JsonResponse(null, 404);
         
          $voter->setVoterGroup($request->get('voterGroup'));
          
-         $entity->setVoterName($newVoter->getVoterName());
-         $entity->setVoterGroup($request->get('newVoterGroup'));
-         $entity->setProVoterId($request->get('newProVoterId'));
-        //  $entity->setMunicipalityNo($newVoter->getMunicipalityNo());
-        //  $entity->setMunicipalityName($newVoter->getMunicipalityName());
-        //  $entity->setBarangayNo($newVoter->getBrgyNo());
-        //  $entity->setBarangayName($newVoter->getBarangayName());
-         $entity->setGeneratedIdNo($newVoter->getGeneratedIdNo());
-         $entity->setProIdCode($newVoter->getProIdCode());
-         
-         $validator = $this->get('validator');
-         $violations = $validator->validate($entity);
- 
-         $errors = [];
- 
-         if (count($violations) > 0) {
-             foreach ($violations as $violation) {
-                 $errors[$violation->getPropertyPath()] = $violation->getMessage();
-             }
-             return new JsonResponse($errors, 400);
-         }
+        if(!$destEntity){
+            $entity->setVoterName($newVoter->getVoterName());
+            $entity->setVoterGroup($request->get('newVoterGroup'));
+            $entity->setProVoterId($request->get('newProVoterId'));
+            $entity->setGeneratedIdNo($newVoter->getGeneratedIdNo());
+            $entity->setProIdCode($newVoter->getProIdCode());
+
+            $validator = $this->get('validator');
+            $violations = $validator->validate($entity);
+    
+            $errors = [];
+    
+            if (count($violations) > 0) {
+                foreach ($violations as $violation) {
+                    $errors[$violation->getPropertyPath()] = $violation->getMessage();
+                }
+                return new JsonResponse($errors, 400);
+            }
+        }
         
          $newVoter->setVoterGroup($request->get('voterGroup'));
 
@@ -797,7 +799,7 @@ class HierarchyController extends Controller
          ]);
 
          foreach ($children as $child) {
-            $child->setParentNode($entity->getProVoterId());    
+            $child->setParentNode($request->get('newProVoterId'));    
          }
  
          $em->flush();

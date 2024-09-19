@@ -124,6 +124,7 @@ class HouseholdHeader
      * @var string
      *
      * @ORM\Column(name="voter_name", type="string", length=255)
+     * @Assert\NotBlank()
      */
     private $voterName;
 

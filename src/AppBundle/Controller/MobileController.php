@@ -356,7 +356,7 @@ class MobileController extends Controller
         $projectVoter = $em->getRepository("AppBundle:ProjectVoter")->findOneBy([
             'generatedIdNo' => $generatedIdNo,
             'proId' => $proId,
-            'electId' => 4,
+            'electId' => 423,
         ]);
 
         if (!$projectVoter) {
@@ -495,6 +495,13 @@ class MobileController extends Controller
         $voterName = $request->get("voterName");
         $eventId = $request->get('eventId');
         $barangayName = $request->get('barangayName');
+        $displayFilter = $request->get('displayFilter');
+        $newPhoto = -1;
+
+        if ($displayFilter == 'WPHOTO')
+            $newPhoto = 1;
+        elseif ($displayFilter == 'NPHOTO')
+            $newPhoto = 0;
 
         $batchOffset = $batchNo * $batchSize;
 
@@ -530,22 +537,40 @@ class MobileController extends Controller
 
         $summary = $stmt->fetch(\PDO::FETCH_ASSOC);
 
-        $sql = "SELECT pv.*
-        FROM tbl_project_event_detail ed
-        INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = ed.pro_voter_id
-        WHERE ed.event_id  = ? AND (pv.voter_name LIKE ? OR ? IS NULL ) 
-        AND (pv.barangay_name = ? OR ? IS NULL) 
-        ORDER BY ed.attended_at DESC LIMIT {$batchSize} OFFSET {$batchOffset}";
+        if ($newPhoto >= 0) {
+            $sql = "SELECT pv.*
+            FROM tbl_project_event_detail ed
+            INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = ed.pro_voter_id
+            WHERE ed.event_id  = ? AND (pv.voter_name LIKE ? OR ? IS NULL ) 
+            AND (pv.barangay_name = ? OR ? IS NULL) 
+            AND pv.has_photo = ? 
+            ORDER BY ed.attended_at DESC LIMIT {$batchSize} OFFSET {$batchOffset}";
 
-        //return new JsonResponse($sql);
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $eventId);
+            $stmt->bindValue(2, '%' . strtoupper(trim($voterName)) . '%');
+            $stmt->bindValue(3, empty($voterName) ? null : $voterName);
+            $stmt->bindValue(4, strtoupper(trim($barangayName)));
+            $stmt->bindValue(5, empty($barangayName) ? null : $barangayName);
+            $stmt->bindValue(6, $newPhoto);
+            $stmt->execute();
 
-        $stmt = $em->getConnection()->prepare($sql);
-        $stmt->bindValue(1, $eventId);
-        $stmt->bindValue(2, '%' . strtoupper(trim($voterName)) . '%');
-        $stmt->bindValue(3, empty($voterName) ? null : $voterName);
-        $stmt->bindValue(4, strtoupper(trim($barangayName)));
-        $stmt->bindValue(5, empty($barangayName) ? null : $barangayName);
-        $stmt->execute();
+        } else {
+            $sql = "SELECT pv.*
+            FROM tbl_project_event_detail ed
+            INNER JOIN tbl_project_voter pv ON pv.pro_voter_id = ed.pro_voter_id
+            WHERE ed.event_id  = ? AND (pv.voter_name LIKE ? OR ? IS NULL ) 
+            AND (pv.barangay_name = ? OR ? IS NULL) 
+            ORDER BY ed.attended_at DESC LIMIT {$batchSize} OFFSET {$batchOffset}";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $eventId);
+            $stmt->bindValue(2, '%' . strtoupper(trim($voterName)) . '%');
+            $stmt->bindValue(3, empty($voterName) ? null : $voterName);
+            $stmt->bindValue(4, strtoupper(trim($barangayName)));
+            $stmt->bindValue(5, empty($barangayName) ? null : $barangayName);
+            $stmt->execute();
+        }
 
         $data = [];
 
@@ -4982,7 +5007,7 @@ class MobileController extends Controller
 
     public function ajaxApAddEventAttendeeAction($qrCodeNo, Request $request)
     {
-        $em = $this->getDoctrine()->getManager("electPrep2024");
+        $em = $this->getDoctrine()->getManager();
         $user = $this->get('security.token_storage')->getToken()->getUser();
 
         $apCard = $em->getRepository("AppBundle:ApCard")->findOneBy(['qrCodeNo' => $qrCodeNo]);
@@ -5621,4 +5646,369 @@ class MobileController extends Controller
 
        return new JsonResponse($summary);
     }
+
+    /**
+     * @Route("/ajax_m_get_progress_report_by_municipalities",
+     *       name="ajax_m_get_progress_report_by_municipalities",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+     public function getProgressReportByMunicipality()
+     {
+         $em = $this->getDoctrine()->getManager("electPrep2024");
+
+         $sql = "SELECT pv.municipality_name,
+                (SELECT COUNT(DISTINCT ppv.precinct_no) FROM tbl_project_voter ppv WHERE ppv.municipality_no = pv.municipality_no AND ppv.precinct_no IS NOT NULL AND ppv.precinct_no <> '' ) AS total_precincts,
+                (SELECT COUNT(ppv.pro_voter_id) FROM tbl_project_voter ppv WHERE ppv.municipality_no = pv.municipality_no AND ppv.precinct_no IS NOT NULL AND ppv.precinct_no <> '' ) AS total_registered_voter,
+                COALESCE(COUNT( CASE WHEN pv.old_voter_group = 'LGC' AND pv.has_photo = 1  THEN 1 END),0) AS prev_lgc,
+                COALESCE(COUNT( CASE WHEN pv.old_voter_group = 'LOPP' AND pv.has_photo = 1 THEN 1 END),0) AS prev_lopp,
+                COALESCE(COUNT( CASE WHEN pv.old_voter_group = 'LPPP' AND pv.has_photo = 1 THEN 1 END),0) AS prev_lppp,
+                COALESCE(COUNT( CASE WHEN pv.old_voter_group = 'LPPP1' AND pv.has_photo = 1 THEN 1 END),0) AS prev_lppp1,
+                COALESCE(COUNT( CASE WHEN pv.old_voter_group = 'LPPP2' AND pv.has_photo = 1 THEN 1 END),0) AS prev_lppp2,
+                COALESCE(COUNT( CASE WHEN pv.old_voter_group = 'LPPP3' AND pv.has_photo = 1 THEN 1 END),0) AS prev_lppp3,
+		        COALESCE(COUNT( CASE WHEN pv.old_voter_group IN ('LGC','LOPP','LPPP','LPPP1','LPPP2','LPPP3') AND pv.has_photo = 1 THEN 1 END),0) AS total_prev_member,
+		
+		
+                COALESCE(COUNT( CASE WHEN pv.old_voter_group = 'LGC' AND pv.has_new_photo = 1 THEN 1 END),0) AS renewed_lgc,
+                COALESCE(COUNT( CASE WHEN pv.old_voter_group = 'LOPP' AND pv.has_new_photo = 1 THEN 1 END),0) AS renewed_lopp,
+                COALESCE(COUNT( CASE WHEN pv.old_voter_group = 'LPPP' AND pv.has_new_photo = 1 THEN 1 END),0) AS renewed_lppp,
+                COALESCE(COUNT( CASE WHEN pv.old_voter_group = 'LPPP1' AND pv.has_new_photo = 1 THEN 1 END),0) AS renewed_lppp1,
+                COALESCE(COUNT( CASE WHEN pv.old_voter_group = 'LPPP2' AND pv.has_new_photo = 1 THEN 1 END),0) AS renewed_lppp2,
+                COALESCE(COUNT( CASE WHEN pv.old_voter_group = 'LPPP3' AND pv.has_new_photo = 1 THEN 1 END),0) AS renewed_lppp3,
+                COALESCE(COUNT( CASE WHEN pv.old_voter_group IN ('LGC','LOPP','LPPP','LPPP1','LPPP2','LPPP3') AND pv.has_new_photo = 1 THEN 1 END),0) AS total_renew_member,
+		
+
+                COALESCE(COUNT( CASE WHEN pv.voter_group = 'LGC' AND (pv.old_voter_group = '' OR pv.old_voter_group IS NULL) AND pv.has_new_photo = 1 THEN 1 END),0) AS new_lgc,
+                COALESCE(COUNT( CASE WHEN pv.voter_group = 'LOPP' AND (pv.old_voter_group = '' OR pv.old_voter_group IS NULL) AND pv.has_new_photo = 1 THEN 1 END),0) AS new_lopp,
+                COALESCE(COUNT( CASE WHEN pv.voter_group = 'LPPP' AND (pv.old_voter_group = '' OR pv.old_voter_group IS NULL) AND pv.has_new_photo = 1 THEN 1 END),0) AS new_lppp,
+                COALESCE(COUNT( CASE WHEN pv.voter_group = 'LPPP1' AND (pv.old_voter_group = '' OR pv.old_voter_group IS NULL) AND pv.has_new_photo = 1 THEN 1 END),0) AS new_lppp1,
+                COALESCE(COUNT( CASE WHEN pv.voter_group = 'LPPP2' AND (pv.old_voter_group = '' OR pv.old_voter_group IS NULL) AND pv.has_new_photo = 1 THEN 1 END),0) AS new_lppp2,
+                COALESCE(COUNT( CASE WHEN (pv.voter_group = 'LPPP3' OR pv.voter_group IS NULL OR pv.voter_group = '') AND (pv.old_voter_group = '' OR pv.old_voter_group IS NULL) AND pv.has_new_photo = 1 THEN 1 END),0) AS new_lppp3,
+		        COALESCE(COUNT( CASE WHEN  (pv.old_voter_group = '' OR pv.old_voter_group IS NULL OR pv.old_voter_group = 'null') AND pv.has_new_photo = 1 THEN 1 END),0) AS total_new_member,
+                COALESCE(COUNT( CASE WHEN  (pv.old_voter_group = '' OR pv.old_voter_group IS NULL OR pv.old_voter_group = 'null') AND pv.has_new_photo = 1 AND ( pv.is_non_voter = 0 OR pv.is_non_voter IS NULL ) THEN 1 END),0) AS total_new_voter_member,
+                COALESCE(COUNT( CASE WHEN  (pv.old_voter_group = '' OR pv.old_voter_group IS NULL OR pv.old_voter_group = 'null') AND pv.has_new_photo = 1 AND pv.is_non_voter = 1 THEN 1 END),0) AS total_new_nonvoter_member
+
+                FROM tbl_project_voter pv WHERE pv.elect_id = 423 AND pv.pro_id = 3 
+                
+                AND pv.municipality_no NOT IN ('01', '16')
+               
+                GROUP BY pv.municipality_name
+                
+                HAVING total_renew_member > 1000 ";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->execute();
+ 
+         $data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+ 
+         foreach($data as &$row){
+            $sql = "SELECT municipality_name,candidate_name,candidate_position, sum(total_turnout) as total_turnout, sum(reg_voters) as reg_voters, sum(total_votes) as total_votes, candidate_name,candidate_position 
+            from tbl_election_result_2022 WHERE municipality_name = ? and candidate_position = ?
+            group by municipality_name,candidate_name,candidate_position
+            ORDER BY total_votes DESC 
+            LIMIT 2 ";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $row['municipality_name']);
+            $stmt->bindValue(2, 'CONGRESSMAN');
+            $stmt->execute();
+
+            $electResult = [];
+
+            while ($result = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $electResult[] = $result;
+            }
+
+            $row['electResult']['CONGRESSMAN'] = $electResult;
+
+            // GOVERNOR
+
+            $sql = "SELECT municipality_name,candidate_name,candidate_position, sum(total_turnout) as total_turnout, sum(reg_voters) as reg_voters, sum(total_votes) as total_votes, candidate_name,candidate_position 
+            from tbl_election_result_2022 WHERE municipality_name = ? and candidate_position = ?
+            group by municipality_name,candidate_name,candidate_position
+            ORDER BY total_votes DESC 
+            LIMIT 2 ";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $row['municipality_name']);
+            $stmt->bindValue(2, 'GOVERNOR');
+            $stmt->execute();
+
+            $electResult = [];
+
+            while ($result = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $electResult[] = $result;
+            }
+
+            $row['electResult']['GOVERNOR'] = $electResult;
+
+            // VICE GOVERNOR
+
+            $sql = "SELECT municipality_name,candidate_name,candidate_position, sum(total_turnout) as total_turnout, sum(reg_voters) as reg_voters, sum(total_votes) as total_votes, candidate_name,candidate_position 
+            from tbl_election_result_2022 WHERE municipality_name = ? and candidate_position = ?
+            group by municipality_name,candidate_name,candidate_position
+            ORDER BY total_votes DESC 
+            LIMIT 2 ";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $row['municipality_name']);
+            $stmt->bindValue(2, 'VICE GOVERNOR');
+            $stmt->execute();
+
+            $electResult = [];
+
+            while ($result = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $electResult[] = $result;
+            }
+
+            $row['electResult']['VICE GOVERNOR'] = $electResult;
+         }
+ 
+         return new JsonResponse($data);
+     }
+ 
+
+     /**
+     * @Route("/ajax_m_get_progress_report_by_municipality/{municipalityName}",
+     *       name="ajax_m_get_progress_report_by_municipality",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+     public function getProgressReportByMunicipalitySingle($municipalityName)
+     {
+         $em = $this->getDoctrine()->getManager("electPrep2024");
+
+         $sql = "SELECT municipality_name,summary_date,
+                SUM(total_precincts) as total_precincts,
+                SUM(total_norv) as total_registered_voter,
+
+                SUM(prev_lgc) as prev_lgc,
+                SUM(prev_lopp) as prev_lopp,
+                SUM(prev_lppp) as prev_lppp,
+                SUM(prev_lppp1) as prev_lppp1,
+                SUM(prev_lppp2) as prev_lppp2,
+                SUM(prev_lppp3) as prev_lppp3,
+                SUM(total_prev_member) as total_prev_member,
+
+                SUM(renewed_lgc) as renewed_lgc,
+                SUM(renewed_lopp) as renewed_lopp,
+                SUM(renewed_lppp) as renewed_lppp,
+                SUM(renewed_lppp1) as renewed_lppp1,
+                SUM(renewed_lppp2) as renewed_lppp2,
+                SUM(renewed_lppp3) as renewed_lppp3,
+                SUM(total_renew_member) as total_renew_member,
+
+
+                SUM(new_lgc) as new_lgc,
+                SUM(new_lopp) as new_lopp,
+                SUM(new_lppp) as new_lppp,
+                SUM(new_lppp1) as new_lppp1,
+                SUM(new_lppp2) as new_lppp2,
+                SUM(new_lppp3) as new_lppp3,
+
+                SUM(total_new_member) as total_new_member,
+                SUM(total_new_voter_member) as total_new_voter_member,
+                SUM(total_new_nonvoter_member) as total_new_nonvoter_member
+
+                FROM tbl_progress_report_v1 WHERE municipality_name = ?";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, $municipalityName);
+         $stmt->execute();
+ 
+         $data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+ 
+         foreach($data as &$row){
+            $sql = "SELECT municipality_name,candidate_name,candidate_position, sum(total_turnout) as total_turnout, sum(reg_voters) as reg_voters, sum(total_votes) as total_votes, candidate_name,candidate_position 
+            from tbl_election_result_2022 WHERE municipality_name = ? and candidate_position = ?
+            group by municipality_name,candidate_name,candidate_position
+            ORDER BY total_votes DESC 
+            LIMIT 2 ";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $row['municipality_name']);
+            $stmt->bindValue(2, 'CONGRESSMAN');
+            $stmt->execute();
+
+            $electResult = [];
+
+            while ($result = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $electResult[] = $result;
+            }
+
+            $row['electResult']['CONGRESSMAN'] = $electResult;
+
+            // GOVERNOR
+
+            $sql = "SELECT municipality_name,candidate_name,candidate_position, sum(total_turnout) as total_turnout, sum(reg_voters) as reg_voters, sum(total_votes) as total_votes, candidate_name,candidate_position 
+            from tbl_election_result_2022 WHERE municipality_name = ? and candidate_position = ?
+            group by municipality_name,candidate_name,candidate_position
+            ORDER BY total_votes DESC 
+            LIMIT 2 ";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $row['municipality_name']);
+            $stmt->bindValue(2, 'GOVERNOR');
+            $stmt->execute();
+
+            $electResult = [];
+
+            while ($result = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $electResult[] = $result;
+            }
+
+            $row['electResult']['GOVERNOR'] = $electResult;
+
+            // VICE GOVERNOR
+
+            $sql = "SELECT municipality_name,candidate_name,candidate_position, sum(total_turnout) as total_turnout, sum(reg_voters) as reg_voters, sum(total_votes) as total_votes, candidate_name,candidate_position 
+            from tbl_election_result_2022 WHERE municipality_name = ? and candidate_position = ?
+            group by municipality_name,candidate_name,candidate_position
+            ORDER BY total_votes DESC 
+            LIMIT 2 ";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $row['municipality_name']);
+            $stmt->bindValue(2, 'VICE GOVERNOR');
+            $stmt->execute();
+
+            $electResult = [];
+
+            while ($result = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $electResult[] = $result;
+            }
+
+            $row['electResult']['VICE GOVERNOR'] = $electResult;
+         }
+ 
+         return new JsonResponse($data);
+     }
+
+
+     /** JPM MOBILE SUMMARY */
+     
+     /**
+     * @Route("/ajax_m_get_progress_report_by_municipality_breakdown/{municipalityName}",
+     *       name="ajax_m_get_progress_report_by_municipality_breakdown",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+     public function getProgressReportByMunicipalityBreakdown($municipalityName)
+     {
+         $em = $this->getDoctrine()->getManager("electPrep2024");
+
+         $sql = "SELECT municipality_name,summary_date,barangay_name,
+                total_precincts,
+                total_norv as total_registered_voter,
+
+                prev_lgc,
+                prev_lopp,
+                prev_lppp,
+                prev_lppp1,
+                prev_lppp2,
+                prev_lppp3,
+                total_prev_member,
+
+                renewed_lgc,
+                renewed_lopp,
+                renewed_lppp,
+                renewed_lppp1,
+                renewed_lppp2,
+                renewed_lppp3,
+                total_renew_member,
+
+                new_lgc,
+                new_lopp,
+                new_lppp,
+                new_lppp1,
+                new_lppp2,
+                new_lppp3,
+
+                total_new_member,
+                total_new_voter_member,
+                total_new_nonvoter_member
+
+                FROM tbl_progress_report_v1 WHERE municipality_name = ? ORDER BY municipality_name,barangay_name";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, $municipalityName);
+         $stmt->execute();
+ 
+         $data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+ 
+         foreach($data as &$row){
+            $sql = "SELECT municipality_name,candidate_name,candidate_position, total_turnout, reg_voters, total_votes, candidate_name,candidate_position 
+            from tbl_election_result_2022 WHERE municipality_name = ? AND barangay_name = ? AND candidate_position = ?
+            group by municipality_name,candidate_name,candidate_position
+            ORDER BY total_votes DESC 
+            LIMIT 2 ";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $row['municipality_name']);
+            $stmt->bindValue(2, $row['barangay_name']);
+            $stmt->bindValue(3, 'CONGRESSMAN');
+            $stmt->execute();
+
+            $electResult = [];
+
+            while ($result = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $electResult[] = $result;
+            }
+
+            $row['electResult']['CONGRESSMAN'] = $electResult;
+
+            // GOVERNOR
+
+            $sql = "SELECT municipality_name,candidate_name,candidate_position, total_turnout, reg_voters, total_votes, candidate_name,candidate_position 
+            from tbl_election_result_2022 WHERE municipality_name = ? AND barangay_name = ? AND candidate_position = ?
+            group by municipality_name,candidate_name,candidate_position
+            ORDER BY total_votes DESC 
+            LIMIT 2 ";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $row['municipality_name']);
+            $stmt->bindValue(2, $row['barangay_name']);
+            $stmt->bindValue(3, 'GOVERNOR');
+            $stmt->execute();
+
+            $electResult = [];
+
+            while ($result = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $electResult[] = $result;
+            }
+
+            $row['electResult']['GOVERNOR'] = $electResult;
+
+            // VICE GOVERNOR
+
+            $sql = "SELECT municipality_name,candidate_name,candidate_position, total_turnout, reg_voters, total_votes, candidate_name,candidate_position 
+            from tbl_election_result_2022 WHERE municipality_name = ? AND barangay_name = ? AND candidate_position = ?
+            group by municipality_name,candidate_name,candidate_position
+            ORDER BY total_votes DESC 
+            LIMIT 2 ";
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $row['municipality_name']);
+            $stmt->bindValue(2, $row['barangay_name']);
+            $stmt->bindValue(3, 'VICE GOVERNOR');
+            $stmt->execute();
+
+            $electResult = [];
+
+            while ($result = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $electResult[] = $result;
+            }
+
+            $row['electResult']['VICE GOVERNOR'] = $electResult;
+         }
+ 
+         return new JsonResponse($data);
+     }
+ 
 }

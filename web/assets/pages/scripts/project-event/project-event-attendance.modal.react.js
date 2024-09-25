@@ -159,7 +159,7 @@ var ProjectEventAttendanceModal = React.createClass({
                                         })}
                                     </select>
                                     <div className="input-group-btn">
-                                        <button type="button" onClick={this.importAttendees} className="btn btn-sm btn-primary" style={{ marginLeft: "12px" }} onClick={self.appendEventMembers}>Import Attendees</button>
+                                        <button type="button" onClick={this.importAttendees} className="btn btn-sm btn-primary" style={{ marginLeft: "12px" }} >Import Attendees</button>
                                     </div>
                                 </div>
 

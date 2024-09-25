@@ -6011,4 +6011,244 @@ class MobileController extends Controller
          return new JsonResponse($data);
      }
  
+     /**
+     * @Route("/ajax_m_get_mobile_summary_v1",
+     *       name="ajax_m_get_mobile_summary_v1",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+     public function ajaxGetMobileSummaryV1(Request $request)
+     {
+         $em = $this->getDoctrine()->getManager("electPrep2024");
+
+         $cluserName= $request->get("clusterName");
+         $summaryDate= $request->get("summaryDate");
+         $municipalityNo= $request->get("municipalityNo");
+ 
+         $sql = "SELECT sv1.*,ms.total_members AS kfc_members_2022 
+                    FROM tbl_summary_v1 sv1 INNER JOIN tbl_member_summary_2022 ms
+                    ON sv1.municipality_no = ms.municipality_no AND sv1.barangay_name = ms.barangay_name 
+                    WHERE (sv1.cluster_name = ? OR ? IS NULL) AND sv1.summary_date = ? AND sv1.municipality_no = ? ORDER BY cluster_name, barangay_name ";
+ 
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, $cluserName);
+         $stmt->bindValue(2, empty($cluserName) ? null : $cluserName ) ;
+         $stmt->bindValue(3, '2024-09-17') ;
+         $stmt->bindValue(4, $municipalityNo ) ;
+         $stmt->execute();  
+ 
+         $summary = [];
+         $summary = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+ 
+         return new JsonResponse($summary);
+     }
+
+      /**
+     * @Route("/ajax_m_get_mobile_summary_v1_3rd_district",
+     *       name="ajax_m_get_mobile_summary_v1_3rd_district",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+     public function ajaxGetMobileSummaryV1District(Request $request)
+     {
+         $em = $this->getDoctrine()->getManager("electPrep2024");
+
+         $recentSummaryDate = "";
+         $sql = "SELECT summary_date FROM tbl_summary_v1 ORDER BY summary_date desc LIMIT 1";
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->execute();  
+ 
+         $recentSummaryDate = $stmt->fetch(\PDO::FETCH_ASSOC)['summary_date'];
+         $recentSummaryDate = (empty($recentSummaryDate) || $recentSummaryDate == null) ? date('Y-m-d') : $recentSummaryDate;
+         
+         $sql = "SELECT
+                SUM(sv1.target_tl) AS target_tl,
+                SUM(sv1.target_k0) AS target_k0,
+                SUM(sv1.target_k1) AS target_k1,
+                SUM(sv1.target_k2) AS target_k2,
+
+                SUM(sv1.actual_tl) AS actual_tl,
+                SUM(sv1.actual_k0) AS actual_k0,
+                SUM(sv1.actual_k1) AS actual_k1,
+                SUM(sv1.actual_k2) AS actual_k2,
+
+                SUM(sv1.actual_verified_k0) AS actual_verified_k0,
+                SUM(sv1.actual_verified_k1) AS actual_verified_k1,
+                SUM(sv1.actual_verified_k2) AS actual_verified_k2,
+
+                SUM(sv1.no_profile_k0) AS no_profile_k0,
+                SUM(sv1.no_profile_k1) AS no_profile_k1,
+                SUM(sv1.no_profile_k2) AS no_profile_k2,
+
+                SUM(sv1.hh_members) AS hh_members,
+                SUM(sv1.total_verified) AS total_verified,
+                SUM(sv1.total_precincts) AS total_precincts,
+                 
+                SUM(sv1.total_registered_voter) AS total_registered_voter,
+                SUM(ms.total_members) AS kfc_members_2022,
+                SUM(sv1.total_household) as total_household,
+                SUM(sv1.no_pos_verified) as no_pos_verified,
+                SUM(sv1.total_non_voter) as total_non_voter,
+                sv1.municipality_no,
+                sv1.summary_date
+
+                FROM tbl_summary_v1 sv1 INNER JOIN tbl_member_summary_2022 ms
+                ON sv1.municipality_no = ms.municipality_no AND sv1.barangay_name = ms.barangay_name 
+                WHERE sv1.summary_date = ?
+                GROUP BY sv1.municipality_no
+                ORDER BY sv1.municipality_no";
+
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, $recentSummaryDate) ;
+         $stmt->execute();  
+ 
+         $summary = [];
+         $summary = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+
+         foreach($summary as &$row){
+            $sql = "SELECT municipality_name,candidate_name,candidate_position, sum(total_turnout) as total_turnout, sum(reg_voters) as reg_voters, sum(total_votes) as total_votes, candidate_name,candidate_position 
+            from tbl_election_result_2022 WHERE municipality_name = ? AND candidate_position = ?
+            group by municipality_name,candidate_name,candidate_position
+            ORDER BY total_votes DESC 
+            LIMIT 2 ";
+
+            $municipalityName = "";
+
+            switch($row['municipality_no']){
+                case "01" :
+                    $municipalityName = "ABORLAN";
+                    break;
+                case "16" : 
+                    $municipalityName = "PUERTO PRINCESA CITY";
+                    break;
+            }
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $municipalityName);
+            $stmt->bindValue(2, 'CONGRESSMAN');
+            $stmt->execute();
+
+            $electResult = [];
+
+            while ($result = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $electResult[] = $result;
+            }
+
+            $row['electResult']['CONGRESSMAN'] = $electResult;
+            $row['municipality_name'] = $municipalityName;
+         }
+ 
+         return new JsonResponse($summary);
+     }
+
+     /**
+     * @Route("/ajax_m_get_mobile_summary_v1_municipality/{municipalityNo}",
+     *       name="ajax_m_get_mobile_summary_v1_municipality",
+     *        options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+     public function ajaxGetMobileSummaryV1Municipality($municipalityNo, Request $request)
+     {
+         $em = $this->getDoctrine()->getManager("electPrep2024");
+
+         $recentSummaryDate = "";
+         $sql = "SELECT summary_date FROM tbl_summary_v1 ORDER BY summary_date desc LIMIT 1";
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->execute();  
+ 
+         $recentSummaryDate = $stmt->fetch(\PDO::FETCH_ASSOC)['summary_date'];
+         $recentSummaryDate = (empty($recentSummaryDate) || $recentSummaryDate == null) ? date('Y-m-d') : $recentSummaryDate;
+
+         $sql = "SELECT
+                sv1.target_tl,
+                sv1.target_k0,
+                sv1.target_k1,
+                sv1.target_k2,
+
+                sv1.actual_tl,
+              
+                sv1.actual_k0,
+                sv1.actual_k1,
+                sv1.actual_k2,
+
+                sv1.actual_verified_k0,
+                sv1.actual_verified_k1,
+                sv1.actual_verified_k2,
+
+                sv1.no_profile_k0,
+                sv1.no_profile_k1,
+                sv1.no_profile_k2,
+
+                sv1.hh_members,
+                sv1.total_verified,
+                sv1.total_precincts,
+                
+                sv1.total_registered_voter,
+                ms.total_members AS kfc_members_2022,
+                sv1.total_household,
+                sv1.no_pos_verified,
+                sv1.total_non_voter,
+                sv1.municipality_no,
+                sv1.barangay_name,
+                sv1.summary_date
+
+                FROM tbl_summary_v1 sv1 INNER JOIN tbl_member_summary_2022 ms
+                ON sv1.municipality_no = ms.municipality_no AND sv1.barangay_name = ms.barangay_name 
+                WHERE sv1.summary_date = ? AND sv1.municipality_no = ? 
+                GROUP BY sv1.municipality_no, sv1.barangay_name
+                ORDER BY sv1.municipality_no, sv1.barangay_name";
+
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, $recentSummaryDate) ;
+         $stmt->bindValue(2, $municipalityNo) ;
+         $stmt->execute();  
+ 
+         $summary = [];
+         $summary = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+
+         foreach($summary as &$row){
+            $sql = "SELECT municipality_name,candidate_name,candidate_position, total_turnout,reg_voters, total_votes, candidate_name,candidate_position 
+            from tbl_election_result_2022 WHERE municipality_name = ?  AND barangay_name = ? AND candidate_position = ?
+            group by municipality_name,candidate_name,candidate_position
+            ORDER BY total_votes DESC 
+            LIMIT 2 ";
+
+            $municipalityName = "";
+
+            switch($row['municipality_no']){
+                case "01" :
+                    $municipalityName = "ABORLAN";
+                    break;
+                case "16" : 
+                    $municipalityName = "PUERTO PRINCESA CITY";
+                    break;
+            }
+
+            $stmt = $em->getConnection()->prepare($sql);
+            $stmt->bindValue(1, $municipalityName);
+            $stmt->bindValue(2, $row['barangay_name']);
+            $stmt->bindValue(3, 'CONGRESSMAN');
+            $stmt->execute();
+
+            $electResult = [];
+
+            while ($result = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                $electResult[] = $result;
+            }
+
+            $row['electResult']['CONGRESSMAN'] = $electResult;
+            $row['municipality_name'] = $municipalityName;
+         }
+ 
+         return new JsonResponse($summary);
+     }
+
 }

@@ -1234,6 +1234,7 @@ gulp.task('compile-kfc-hierarchy',function(cb){
     ], cb);
 });
 
+
 gulp.task('compile-kamada',function(cb){
     pump([
         gulp.src([
@@ -1241,11 +1242,56 @@ gulp.task('compile-kamada',function(cb){
             myPath + 'kamada/kamada-member-create-modal.react.js',
             myPath + 'kamada/kamada-detail-datatable.react.js',
             myPath + 'kamada/kamada-member-modal.react.js',
+            myPath + 'kamada/kamada-edit-modal.react.js',
             myPath + 'kamada/kamada-create-modal.react.js',
             myPath + 'kamada/kamada-datatable.react.js',
             myPath + 'kamada/kamada.react.js'
         ]),
         concat('kamada.react.js'),
+        rename({suffix: '.min'}),
+        react(),
+        gulp.dest(jsPath),
+        bust({
+            relativePath : "web"
+        }),
+        gulp.dest('.')
+    ], cb);
+});
+
+gulp.task('compile-kamada-prelisting',function(cb){
+    pump([
+        gulp.src([
+            myPath + 'kamada-prelisting/kamada-prelisting-detail-datatable.react.js',
+            myPath + 'kamada/kamada-member-create-modal.react.js',
+            myPath + 'kamada-prelisting/kamada-prelisting-add-attendee-modal.react.js',
+            myPath + 'kamada-prelisting/kamada-prelisting-modal.react.js',
+            myPath + 'kamada-prelisting/kamada-prelisting-datatable.react.js',
+            myPath + 'kamada-prelisting/kamada-prelisting-create-modal.react.js',
+            myPath + 'kamada-prelisting/kamada-prelisting.react.js'
+        ]),
+        concat('kamada-prelisting.react.js'),
+        rename({suffix: '.min'}),
+        react(),
+        gulp.dest(jsPath),
+        bust({
+            relativePath : "web"
+        }),
+        gulp.dest('.')
+    ], cb);
+});
+
+gulp.task('compile-kforce',function(cb){
+    pump([
+        gulp.src([
+            myPath + 'kforce/kforce-edit-modal.react.js',
+            myPath + 'kforce/kforce-detail-datatable.react.js',
+            myPath + 'kforce/kforce-add-attendee-modal.react.js',
+            myPath + 'kforce/kforce-detail-modal.react.js',
+            myPath + 'kforce/kforce-create-modal.react.js',
+            myPath + 'kforce/kforce-datatable.react.js',
+            myPath + 'kforce/kforce.react.js'
+        ]),
+        concat('kforce.react.js'),
         rename({suffix: '.min'}),
         react(),
         gulp.dest(jsPath),

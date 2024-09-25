@@ -4,53 +4,31 @@ var HelpBlock = ReactBootstrap.HelpBlock;
 var ControlLabel = ReactBootstrap.ControlLabel;
 var FormControl = ReactBootstrap.FormControl;
 
-var KamadaCreateModal = React.createClass({
+var KamadaEditModal = React.createClass({
 
-    getInitialState: function () {
+    getInitialState : function(){
         return {
-            form: {
-                data: {
-                    electId: 3,
-                    proVoterId: null,
-                    isTagalog: 0,
-                    isBisaya: 0,
-                    isCuyonon: 0,
-                    isIlonggo: 0,
-                    isCatholic: 0,
-                    isInc: 0,
-                    isIslam: 0
+            form : {
+                data : {
+                    eventName : "",
+                    eventDate : null,
+                    status : ""
                 },
-                errors: []
-            },
-            provinceCode: 53,
-            showNewVoterCreateModal: false
+                errors : []
+            }
         };
     },
 
-    render: function () {
+    render : function(){
         var self = this;
-        var data = this.state.form.data;
 
         return (
-            <Modal style={{ marginTop: "10px" }} keyboard={false} bsSize="lg" enforceFocus={false} backdrop="static" show={this.props.show} onHide={this.props.onHide}>
+            <Modal style={{ marginTop : "10px" }} keyboard={false} bsSize="lg" enforceFocus={false} backdrop="static" show={this.props.show} onHide={this.props.onHide}>
                 <Modal.Header className="modal-header bg-blue-dark font-white" closeButton>
-                    <Modal.Title>New Record Form</Modal.Title>
+                    <Modal.Title>Edit Kamada Leader</Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsClass="modal-body overflow-auto">
-
-                    {
-                        this.state.showNewVoterCreateModal &&
-                        <VoterTemporaryCreateModal
-                            proId={this.props.proId}
-                            electId={this.props.electId}
-                            provinceCode={this.props.provinceCode}
-                            show={this.state.showNewVoterCreateModal}
-                            notify={this.props.notify}
-                            onHide={this.closeNewVoterCreateModal}
-                        />
-                    }
-
-                    <form id="kamada-create-form" onSubmit={this.submit}>
+                <form id="kamada-edit-form" onSubmit={this.submit}>
                         <div className="row">
                             <div className="col-md-3">
 
@@ -134,14 +112,71 @@ var KamadaCreateModal = React.createClass({
         );
     },
 
-    componentDidMount: function () {
+    componentDidMount : function(){
         this.initSelect2();
+        this.loadData(this.props.id);
+    },
+
+    loadData : function(id){
+        var self = this;
+
+        self.requestEvent = $.ajax({
+            url : Routing.generate("ajax_get_kamada_header", { id : id }),
+            type : "GET"
+        }).done(function(res){
+            var form  = self.state.form;
+            form.data = res;
+
+            self.setState({ form : form }, self.reinitSelect2);
+        });
+    },
+
+    reinitSelect2: function () {
+        var data = this.state.form.data;
+
+        $("#kamada-edit-form #municipality_select2").empty()
+            .append($("<option/>")
+                .val(data.municipalityNo)
+                .text(data.municipalityName))
+            .trigger("change");
+
+        $("#kamada-edit-form #barangay_select2").empty()
+            .append($("<option/>")
+                .val(data.barangayNo)
+                .text(data.barangayName))
+            .trigger("change");
+
+        $("#kamada-edit-form #purok_select2").empty()
+            .append($("<option/>")
+                .val(data.assignedPurok)
+                .text(data.assignedPurok))
+            .trigger("change");
+
+
+        $("#kamada-edit-form #leader-select2").empty()
+            .append($("<option/>")
+                .val(data.proVoterId)
+                .text(data.voterName))
+            .trigger("change");
+
+
+        $("#kamada-edit-form #top-leader-select2").empty()
+            .append($("<option/>")
+                .val(data.tlProVoterId)
+                .text(data.tlVoterName))
+            .trigger("change");
+
+        $("#kamada-edit-form #voter_group_select2").empty()
+            .append($("<option/>")
+                .val(data.voterGroup)
+                .text(data.voterGroup))
+            .trigger("change");
     },
 
     initSelect2: function () {
         var self = this;
 
-        $("#kamada-create-form #municipality_select2").select2({
+        $("#kamada-edit-form #municipality_select2").select2({
             casesentitive: false,
             placeholder: "Select City/Municipality",
             allowClear: true,
@@ -166,7 +201,7 @@ var KamadaCreateModal = React.createClass({
             }
         });
 
-        $("#kamada-create-form #barangay_select2").select2({
+        $("#kamada-edit-form #barangay_select2").select2({
             casesentitive: false,
             placeholder: "Select Barangay",
             allowClear: true,
@@ -178,7 +213,7 @@ var KamadaCreateModal = React.createClass({
                 data: function (params) {
                     return {
                         searchText: params.term,
-                        municipalityNo: $("#kamada-create-form #municipality_select2").val(),
+                        municipalityNo: $("#kamada-edit-form #municipality_select2").val(),
                         provinceCode: self.state.provinceCode
                     };
                 },
@@ -192,7 +227,7 @@ var KamadaCreateModal = React.createClass({
             }
         });
 
-        $("#kamada-create-form #leader-select2").select2({
+        $("#kamada-edit-form #leader-select2").select2({
             casesentitive: false,
             placeholder: "Enter Name...",
             allowClear: true,
@@ -224,7 +259,7 @@ var KamadaCreateModal = React.createClass({
         });
 
 
-        $("#kamada-create-form #top-leader-select2").select2({
+        $("#kamada-edit-form #top-leader-select2").select2({
             casesentitive: false,
             placeholder: "Enter Name...",
             allowClear: true,
@@ -255,7 +290,7 @@ var KamadaCreateModal = React.createClass({
             }
         });
 
-        $("#kamada-create-form #voter_group_select2").select2({
+        $("#kamada-edit-form #voter_group_select2").select2({
             casesentitive: false,
             placeholder: "Select Position",
             allowClear: true,
@@ -275,7 +310,7 @@ var KamadaCreateModal = React.createClass({
         });
 
 
-        $("#kamada-create-form #purok_select2").select2({
+        $("#kamada-edit-form #purok_select2").select2({
             casesentitive: false,
             placeholder: "Enter Group",
             width: '100%',
@@ -307,23 +342,23 @@ var KamadaCreateModal = React.createClass({
             }
         });
 
-        $("#kamada-create-form #municipality_select2").on("change", function () {
+        $("#kamada-edit-form #municipality_select2").on("change", function () {
             self.setFormPropValue('municipalityNo', $(this).val());
         });
 
-        $("#kamada-create-form #barangay_select2").on("change", function () {
+        $("#kamada-edit-form #barangay_select2").on("change", function () {
             self.setFormPropValue('barangayNo', $(this).val());
         });
 
-        $("#kamada-create-form #purok_select2").on("change", function () {
+        $("#kamada-edit-form #purok_select2").on("change", function () {
             self.setFormPropValue('assignedPurok', $(this).val());
         });
 
-        $("#kamada-create-form #leader-select2").on("change", function () {
+        $("#kamada-edit-form #leader-select2").on("change", function () {
             self.loadVoter(self.props.proId, $(this).val());
         });
 
-        $("#kamada-create-form #top-leader-select2").on("change", function () {
+        $("#kamada-edit-form #top-leader-select2").on("change", function () {
             self.setFormPropValue("tlProVoterId",$(this).val());
         });
     },
@@ -342,7 +377,7 @@ var KamadaCreateModal = React.createClass({
             form.data.cellphone = res.cellphone;
             form.data.voterGroup = res.voterGroup;
 
-            $("#kamada-create-form #voter_group_select2").empty()
+            $("#kamada-edit-form #voter_group_select2").empty()
                 .append($("<option/>")
                     .val(res.voterGroup)
                     .text(res.voterGroup))
@@ -431,33 +466,26 @@ var KamadaCreateModal = React.createClass({
         });
     },
 
-    submit: function (e) {
+    submit : function(e){
         e.preventDefault();
 
         var self = this;
         var data = self.state.form.data;
         data.proId = self.props.proId;
-        data.electId = self.props.electId;
-
-        data.voterGroup = $("#kamada-create-form #voter_group_select2").val();
-        data.position = $("#kamada-create-form #other_position_select2").val();
-
+        
         self.requestPost = $.ajax({
-            url: Routing.generate("ajax_post_kamada_header"),
+            url: Routing.generate("ajax_patch_kamada_header",{ id : self.props.id }),
             data: data,
-            type: 'POST'
-        }).done(function (res) {
+            type: 'PATCH'
+        }).done(function(res){
             self.reset();
             self.props.reload();
             self.props.onHide();
-            self.props.onSuccess(res.id);
-            self.notify("New household has been created.", 'teal');
-        }).fail(function (err) {
-            self.setErrors(err.responseJSON);
-            self.notify("Validation failed !", 'ruby');
+        }).fail(function(err){
+             self.setErrors(err.responseJSON);
         });
     }
 });
 
 
-window.KamadaCreateModal = KamadaCreateModal;
+window.KamadaEditModal = KamadaEditModal;

@@ -11,6 +11,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(name="tbl_kamada_dtl")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\KamadaDetailRepository")
+ * @UniqueEntity(fields={"voterName"},message="This member name already exists.", em="electPrep2024", errorPath="voterName")
+ * @UniqueEntity(fields={"proVoterId"},message="This member name already exists.", em="electPrep2024", errorPath="proVoterId")
  */
 class KamadaDetail
 {
@@ -64,8 +66,16 @@ class KamadaDetail
       * @var string
       *
       * @ORM\Column(name="voter_group", type="string", length=30)
+      * @Assert\NotBlank()
       */
       private $voterGroup;
+
+     /**
+      * @var string
+      *
+      * @ORM\Column(name="assigned_purok", type="string", length=50)
+      */
+     private $assignedPurok;
 
     /**
       * @var string
@@ -109,6 +119,7 @@ class KamadaDetail
       * @var string
       *
       * @ORM\Column(name="batch_no", type="string", length=30)
+      * @Assert\NotBlank()
       */
       private $batchNo;
 
@@ -570,5 +581,29 @@ class KamadaDetail
     public function getRemarks()
     {
         return $this->remarks;
+    }
+
+    /**
+     * Set batchNo
+     *
+     * @param string $batchNo
+     *
+     * @return KamadaDetail
+     */
+    public function setBatchNo($batchNo)
+    {
+        $this->batchNo = $batchNo;
+
+        return $this;
+    }
+
+    /**
+     * Get batchNo
+     *
+     * @return string
+     */
+    public function getBatchNo()
+    {
+        return $this->batchNo;
     }
 }

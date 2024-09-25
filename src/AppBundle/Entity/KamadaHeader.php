@@ -11,8 +11,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(name="tbl_kamada_hdr")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\KamadaHeaderRepository")
- * @UniqueEntity(fields={"proVoterId"},message="This leader name already exists.", errorPath="proVoterId")
- * @UniqueEntity(fields={"voterName"},message="This leader name already exists.", errorPath="voterName")
+ * @UniqueEntity(fields={"proVoterId"},message="This leader name already exists.", errorPath="proVoterId", em="electPrep2024")
+ * @UniqueEntity(fields={"voterName"},message="This leader name already exists.", errorPath="voterName",em="electPrep2024")
  */
 class KamadaHeader
 {
@@ -61,6 +61,15 @@ class KamadaHeader
       * @ORM\Column(name="voter_group", type="string", length=30)
       */
       private $voterGroup;
+      
+     /**
+      * @var string
+      *
+      * @ORM\Column(name="assigned_purok", type="string", length=50)
+      * @Assert\NotBlank()
+      */
+     private $assignedPurok;
+
 
     /**
       * @var string
@@ -659,5 +668,29 @@ class KamadaHeader
     public function getRemarks()
     {
         return $this->remarks;
+    }
+
+    /**
+     * Set assignedPurok
+     *
+     * @param string $assignedPurok
+     *
+     * @return KamadaHeader
+     */
+    public function setAssignedPurok($assignedPurok)
+    {
+        $this->assignedPurok = $assignedPurok;
+
+        return $this;
+    }
+
+    /**
+     * Get assignedPurok
+     *
+     * @return string
+     */
+    public function getAssignedPurok()
+    {
+        return $this->assignedPurok;
     }
 }

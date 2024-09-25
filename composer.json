@@ -38,8 +38,7 @@
         "eightpoints/guzzle-bundle": "^6.1.1",
         "symfony/asset": "^3.3.2",
         "yoh/symfony-jasper-report-bundle": "^1.2",
-        "leaseweb/doctrine-pdo-dblib": "^1.1",
-        "box/spout": "^3.1"
+        "leaseweb/doctrine-pdo-dblib": "^1.1"
     },
     "require-dev": {
         "sensio/generator-bundle": "^3.0",

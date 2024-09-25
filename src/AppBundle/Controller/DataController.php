@@ -1211,7 +1211,10 @@ class DataController extends Controller
                 b.cluster_name,
 
                 (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no and pv.position IN ('HMEMBER') AND (pv.voter_group IS NULL OR pv.voter_group = '') ) AS hh_members,
-                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no and pv.has_attended = 1 ) AS total_verified
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no and pv.has_attended = 1 ) AS total_verified,
+                (SELECT COUNT(*) FROM tbl_household_hdr hh WHERE hh.municipality_no = ? AND hh.barangay_no = b.brgy_no ) AS total_household,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no and pv.has_attended = 1 AND (pv.voter_group IS NULL OR pv.voter_group = '') ) AS no_pos_verified,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no and pv.has_attended = 1 AND pv.is_non_voter = 1 ) AS total_non_voter
                 FROM psw_barangay b where municipality_code = ? ";
 
          $stmt = $em->getConnection()->prepare($sql);
@@ -1229,7 +1232,10 @@ class DataController extends Controller
          $stmt->bindValue(12, $municipalityNo);
          $stmt->bindValue(13, $municipalityNo);
          $stmt->bindValue(14, $municipalityNo);
-         $stmt->bindValue(15, 53 . $municipalityNo);
+         $stmt->bindValue(15, $municipalityNo);
+         $stmt->bindValue(16, $municipalityNo);
+         $stmt->bindValue(17, $municipalityNo);
+         $stmt->bindValue(18, 53 . $municipalityNo);
          $stmt->execute();
  
          $data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -1272,8 +1278,11 @@ class DataController extends Controller
 
                  hh_members,
                  total_verified,
-                 cluster_name
-                 )VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                 cluster_name,
+                 total_household,
+                 no_pos_verified,
+                 total_non_voter
+                 )VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
  
              $stmt = $em->getConnection()->prepare($sql);
              $stmt->bindValue(1, $currDate);
@@ -1299,6 +1308,9 @@ class DataController extends Controller
              $stmt->bindValue(21, $row['hh_members']);
              $stmt->bindValue(22, $row['total_verified']);
              $stmt->bindValue(23, $row['cluster_name']);
+             $stmt->bindValue(24, $row['total_household']);
+             $stmt->bindValue(25, $row['no_pos_verified']);
+             $stmt->bindValue(26, $row['total_non_voter']);
              $stmt->execute();
 
              $em->flush();
@@ -1308,5 +1320,167 @@ class DataController extends Controller
 
          return new JsonResponse(true);
      }
+
+
+     /**
+     * @Route("/ajax_fill_kfc_2022_data/{municipalityNo}",
+     *       name="ajax_fill_kfc_2022_data",
+     *       options={ "expose" = true }
+     * )
+     * @Method("GET")
+     */
+
+     public function fill_kfc_2022_data($municipalityNo)
+     {
+ 
+         $em2022 = $this->getDoctrine()->getManager("kfc2022");
+ 
+         $user = $this->get('security.token_storage')->getToken()->getUser();
+ 
+         $sql = "SELECT b.name AS barangay_name, b.brgy_no,
+               
+                (SELECT COUNT(DISTINCT pv.precinct_no) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.precinct_no IS NOT NULL AND pv.precinct_no <> '' AND pv.elect_id = 4 ) AS total_precincts,
+                (SELECT COUNT(pv.pro_voter_id) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.precinct_no IS NOT NULL AND pv.precinct_no <> '' AND pv.is_non_voter = 0 AND pv.elect_id = 4 ) AS registered_voter,
+
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'CH' AND pv.elect_id = 4 ) AS total_no_photo_ch,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'KCL' AND pv.elect_id = 4 ) AS total_no_photo_kcl,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'KCL0' AND pv.elect_id = 4 ) AS total_no_photo_kcl0,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'KCL1' AND pv.elect_id = 4 ) AS total_no_photo_kcl1,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'KCL2' AND pv.elect_id = 4 ) AS total_no_photo_kcl2,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'KCL3' AND pv.elect_id = 4 ) AS total_no_photo_kcl3,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'KFC' AND pv.elect_id = 4 ) AS total_no_photo_kfc,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'KJR' AND pv.elect_id = 4 ) AS total_no_photo_kjr,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'DAO' AND pv.elect_id = 4 ) AS total_no_photo_dao,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'WATCHER' AND pv.elect_id = 4 ) AS total_no_photo_watcher,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group IN('CH','KCL','KCL0','KCL1','KCL2','KCL3','KFC','KJR','DAO','WATCHER') AND pv.elect_id = 4 ) AS total_no_photo_members,
+
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'CH' AND pv.elect_id = 4 AND pv.has_photo = 1 ) AS total_ch,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'KCL' AND pv.elect_id = 4 AND pv.has_photo = 1 ) AS total_kcl,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'KCL0' AND pv.elect_id = 4 AND pv.has_photo = 1 ) AS total_kcl0,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'KCL1' AND pv.elect_id = 4 AND pv.has_photo = 1 ) AS total_kcl1,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'KCL2' AND pv.elect_id = 4 AND pv.has_photo = 1 ) AS total_kcl2,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'KCL3' AND pv.elect_id = 4 AND pv.has_photo = 1 ) AS total_kcl3,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'KFC' AND pv.elect_id = 4 AND pv.has_photo = 1 ) AS total_kfc,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'KJR' AND pv.elect_id = 4 AND pv.has_photo = 1 ) AS total_kjr,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'DAO' AND pv.elect_id = 4 AND pv.has_photo = 1 ) AS total_dao,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group = 'WATCHER' AND pv.elect_id = 4 AND pv.has_photo = 1 ) AS total_watcher,
+                (SELECT COUNT(*) FROM tbl_project_voter pv WHERE pv.municipality_no = ? AND pv.brgy_no = b.brgy_no AND pv.voter_group IN('CH','KCL','KCL0','KCL1','KCL2','KCL3','KFC','KJR','DAO','WATCHER') AND pv.elect_id = 4 AND pv.has_photo = 1 ) AS total_members
+
+                FROM psw_barangay b WHERE municipality_code = ? ";
+
+         $stmt = $em2022->getConnection()->prepare($sql);
+         $stmt->bindValue(1, $municipalityNo);
+         $stmt->bindValue(2, $municipalityNo);
+         $stmt->bindValue(3, $municipalityNo);
+         $stmt->bindValue(4, $municipalityNo);
+         $stmt->bindValue(5, $municipalityNo);
+         $stmt->bindValue(6, $municipalityNo);
+         $stmt->bindValue(7, $municipalityNo);
+         $stmt->bindValue(8, $municipalityNo);
+         $stmt->bindValue(9, $municipalityNo);
+         $stmt->bindValue(10, $municipalityNo);
+         $stmt->bindValue(11, $municipalityNo);
+         $stmt->bindValue(12, $municipalityNo);
+         $stmt->bindValue(13, $municipalityNo);
+         $stmt->bindValue(14, $municipalityNo);
+         $stmt->bindValue(15, $municipalityNo);
+         $stmt->bindValue(16, $municipalityNo);
+         $stmt->bindValue(17, $municipalityNo);
+         $stmt->bindValue(18, $municipalityNo);
+         $stmt->bindValue(19, $municipalityNo);
+         $stmt->bindValue(20, $municipalityNo);
+         $stmt->bindValue(21, $municipalityNo);
+         $stmt->bindValue(22, $municipalityNo);
+         $stmt->bindValue(23, $municipalityNo);
+         $stmt->bindValue(24, $municipalityNo);
+
+         $stmt->bindValue(25, 53 . $municipalityNo);
+         $stmt->execute();
+ 
+         $data = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
+         $em = $this->getDoctrine()->getManager("electPrep2024");
+ 
+         $sql = "DELETE FROM tbl_member_summary_2022 WHERE municipality_no  = ? ";
+         $stmt = $em->getConnection()->prepare($sql);
+         $stmt->bindValue(1, $municipalityNo);
+         $stmt->execute();
+ 
+         foreach ($data as $row) {
+ 
+             $sql = "INSERT INTO tbl_member_summary_2022(
+                 municipality_no,
+                 barangay_no,
+                 barangay_name,
+                 total_precincts,
+                 norv,
+
+                 total_dao,
+                 total_ch,
+                 total_kcl,
+                 total_kcl0,
+                 total_kcl1,
+                 total_kcl2,
+                 total_kcl3,
+                 total_kfc,
+                 total_kjr,
+                 total_watcher,
+                 total_members,
+
+                 total_no_photo_dao,
+                 total_no_photo_ch,
+                 total_no_photo_kcl,
+                 total_no_photo_kcl0,
+                 total_no_photo_kcl1,
+                 total_no_photo_kcl2,
+                 total_no_photo_kcl3,
+                 total_no_photo_kfc,
+                 total_no_photo_kjr,
+                 total_no_photo_watcher,
+                 total_no_photo_members
+
+                 )VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+ 
+             $stmt = $em->getConnection()->prepare($sql);
+             $stmt->bindValue(1, $municipalityNo);
+             $stmt->bindValue(2, $row['brgy_no']);
+             $stmt->bindValue(3, $row['barangay_name']);
+             $stmt->bindValue(4, $row['total_precincts']);
+             $stmt->bindValue(5, $row['registered_voter']);
+
+             $stmt->bindValue(6, $row['total_dao']);
+             $stmt->bindValue(7, $row['total_ch']);
+             $stmt->bindValue(8, $row['total_kcl']);
+             $stmt->bindValue(9, $row['total_kcl0']);
+             $stmt->bindValue(10, $row['total_kcl1']);
+             $stmt->bindValue(11, $row['total_kcl2']);
+             $stmt->bindValue(12, $row['total_kcl3']);
+             $stmt->bindValue(13, $row['total_kfc']);
+             $stmt->bindValue(14, $row['total_kjr']);
+             $stmt->bindValue(15, $row['total_watcher']);
+             $stmt->bindValue(16, $row['total_members']);
+
+             $stmt->bindValue(17, $row['total_no_photo_dao']);
+             $stmt->bindValue(18, $row['total_no_photo_ch']);
+             $stmt->bindValue(19, $row['total_no_photo_kcl']);
+             $stmt->bindValue(20, $row['total_no_photo_kcl0']);
+             $stmt->bindValue(21, $row['total_no_photo_kcl1']);
+             $stmt->bindValue(22, $row['total_no_photo_kcl2']);
+             $stmt->bindValue(23, $row['total_no_photo_kcl3']);
+             $stmt->bindValue(24, $row['total_no_photo_kfc']);
+             $stmt->bindValue(25, $row['total_no_photo_kjr']);
+             $stmt->bindValue(26, $row['total_no_photo_watcher']);
+             $stmt->bindValue(27, $row['total_no_photo_members']);
+             
+             $stmt->execute();
+
+             $em->flush();
+         }
+ 
+         $em->clear();
+
+         return new JsonResponse(true);
+     }
+     
      
 }

@@ -1,0 +1,93 @@
+<?php
+
+namespace AppBundle\Entity;
+
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+
+
+/**
+ * PrelistingHeader
+ *
+ * @ORM\Table(name="prelisting_header")
+ * @ORM\Entity(repositoryClass="AppBundle\Repository\PrelistingHeaderRepository")
+ */
+class PrelistingHeader
+{
+    /**
+     * @var int
+     *
+     * @ORM\Column(name="event_id", type="integer")
+     * @ORM\Id
+     * @ORM\GeneratedValue(strategy="AUTO")
+     */
+    private $id;
+
+     /**
+     * @var string
+     *
+     * @ORM\Column(name="prelisting_desc", type="string", length=150)
+     * @Assert\NotBlank()
+     */
+    private $prelistingDesc;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="prelisting_date", type="string", length=30)
+     */
+    private $prelistingDate;
+
+     /**
+     * @var int
+     *
+     * @ORM\Column(name="is_printed", type="integer", scale=1)
+     */
+
+     private $isPrinted;
+ 
+     /**
+      * @var datetime
+      *
+      * @ORM\Column(name="created_at", type="datetime")
+      */
+     private $createdAt;
+ 
+     /**
+      * @var string
+      *
+      * @ORM\Column(name="created_by", type="string", length=150)
+      */
+     private $createdBy;
+ 
+     /**
+      * @var datetime
+      *
+      * @ORM\Column(name="updated_at", type="datetime")
+      */
+ 
+     private $updatedAt;
+ 
+     /**
+      * @var string
+      *
+      * @ORM\Column(name="updated_by", type="string", length=150)
+      */
+     private $updatedBy;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="remarks", type="string", length=256)
+     */
+    private $remarks;
+
+    /**
+     * @var string
+     *
+     * @ORM\Column(name="status", type="string", length=3)
+     */
+    private $status;
+}
+

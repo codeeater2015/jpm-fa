@@ -11,8 +11,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *
  * @ORM\Table(name="tbl_kamada_dtl")
  * @ORM\Entity(repositoryClass="AppBundle\Repository\KamadaDetailRepository")
- * @UniqueEntity(fields={"voterName", "hdrId"},message="This member name already exists.", errorPath="voterName")
- * @UniqueEntity(fields={"proVoterId", "hdrId"},message="This member name already exists.", errorPath="proVoterId")
+ * @UniqueEntity(fields={"voterName"},message="This member name already exists.", em="electPrep2024", errorPath="voterName")
+ * @UniqueEntity(fields={"proVoterId"},message="This member name already exists.", em="electPrep2024", errorPath="proVoterId")
  */
 class KamadaDetail
 {
@@ -69,6 +69,13 @@ class KamadaDetail
       * @Assert\NotBlank()
       */
       private $voterGroup;
+
+     /**
+      * @var string
+      *
+      * @ORM\Column(name="assigned_purok", type="string", length=50)
+      */
+     private $assignedPurok;
 
     /**
       * @var string
@@ -598,5 +605,29 @@ class KamadaDetail
     public function getBatchNo()
     {
         return $this->batchNo;
+    }
+
+    /**
+     * Set assignedPurok
+     *
+     * @param string $assignedPurok
+     *
+     * @return KamadaDetail
+     */
+    public function setAssignedPurok($assignedPurok)
+    {
+        $this->assignedPurok = $assignedPurok;
+
+        return $this;
+    }
+
+    /**
+     * Get assignedPurok
+     *
+     * @return string
+     */
+    public function getAssignedPurok()
+    {
+        return $this->assignedPurok;
     }
 }

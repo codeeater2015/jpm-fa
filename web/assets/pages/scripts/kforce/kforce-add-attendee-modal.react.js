@@ -8,6 +8,7 @@ var KforceAddAttendeeModal = React.createClass({
 
     getInitialState: function () {
         return {
+            showNewVoterCreateModal: false,
             form: {
                 data: {
                     proVoterId: null,
@@ -224,7 +225,7 @@ var KforceAddAttendeeModal = React.createClass({
                 .trigger("change");
 
 
-                console.log("voter form" , form);
+            console.log("voter form", form);
 
             self.setState({ form: form, tempVoter: res });
         });
@@ -343,16 +344,36 @@ var KforceAddAttendeeModal = React.createClass({
         });
     },
 
+    closeNewVoterCreateModal: function () {
+        this.setState({ showNewVoterCreateModal: false });
+    },
+
+    openNewVoterCreateModal: function () {
+        console.log('opening modal');
+        this.setState({ showNewVoterCreateModal: true })
+    },
+
     render: function () {
         var self = this;
         var data = self.state.form.data;
 
         return (
-            <Modal keyboard={false} enforceFocus={false} dialogClassName="modal-custom-40" backdrop="static" show={this.props.show} onHide={this.props.onHide}>
+            <Modal keyboard={false} enforceFocus={false} backdrop="static" show={this.props.show} onHide={this.props.onHide}>
                 <Modal.Header className="modal-header bg-blue-dark font-white" closeButton>
                     <Modal.Title>Attendee Form</Modal.Title>
                 </Modal.Header>
                 <Modal.Body bsClass="modal-body overflow-auto">
+                    {
+                        this.state.showNewVoterCreateModal &&
+                        <VoterTemporaryCreateModal
+                            proId={3}
+                            electId={423}
+                            provinceCode={53}
+                            show={this.state.showNewVoterCreateModal}
+                            notify={this.props.notify}
+                            onHide={this.closeNewVoterCreateModal}
+                        />
+                    }
                     <form id="kforce_attendee_form" onSubmit={this.submit}>
                         <div className="row">
                             <div className="col-md-12">
@@ -363,12 +384,20 @@ var KforceAddAttendeeModal = React.createClass({
                                     <HelpBlock>{this.getError('municipalityNo')}</HelpBlock>
                                 </FormGroup>
 
-                                <FormGroup controlId="formProVoterId" validationState={this.getValidationState('proVoterId')}>
-                                    <ControlLabel > Voter Name : </ControlLabel>
-                                    <select id="form-voter-select2" className="form-control input-sm">
-                                    </select>
-                                    <HelpBlock>{this.getError('proVoterId')}</HelpBlock>
-                                </FormGroup>
+                                <div className="row">
+                                    <div className="col-md-9">
+                                        <FormGroup controlId="formProVoterId" validationState={this.getValidationState('proVoterId')}>
+                                            <ControlLabel > Voter Name : </ControlLabel>
+                                            <select id="form-voter-select2" className="form-control input-sm">
+                                            </select>
+                                            <HelpBlock>{this.getError('proVoterId')}</HelpBlock>
+                                        </FormGroup>
+
+                                    </div>
+                                    <div className="col-md-3">
+                                        <button style={{ marginTop: "26px" }} onClick={this.openNewVoterCreateModal} className="btn btn-primary btn-sm" type="button"> Add Non-voter </button>
+                                    </div>
+                                </div>
 
                                 <div className="col-md-6" style={{ paddingLeft: "0" }}>
                                     <FormGroup controlId="formCellphone" validationState={this.getValidationState('cellphone')}>
